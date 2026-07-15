@@ -4,11 +4,12 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'common_widgets/custom_gradient_button.dart';
 import 'constants/app_constants.dart';
 import 'constants/text_font_style.dart';
-import 'features/auth/presentation/signin_screen.dart';
 import 'gen/assets.gen.dart';
 import 'gen/colors.gen.dart';
 import 'helpers/di.dart';
 import 'helpers/ui_helpers.dart';
+import 'helpers/navigation_service.dart';
+import 'helpers/all_routes.dart';
 
 class OnboardingPageData {
   final String imagePath;
@@ -74,11 +75,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     } else {
       // Save that user has completed onboarding
       appData.write(kKeyfirstTime, false);
-      // Navigate to SigninScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SigninScreen()),
-      );
+      // Navigate to ChooseAccountTypeScreen using NavigationService
+      NavigationService.navigateToReplacement(Routes.chooseAccountTypeScreen);
     }
   }
 

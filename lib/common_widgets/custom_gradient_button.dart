@@ -34,13 +34,14 @@ class CustomGradientButton extends StatelessWidget {
       height: height ?? 52.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: gradient ??
-              const LinearGradient(
+          gradient:
+              gradient ??
+              LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.primaryColorFirst,
-                  AppColors.primaryColorSecond,
+                  AppColors.primaryColorFirst.withValues(alpha: 0.85),
+                  AppColors.primaryColorSecond.withValues(alpha: 0.85),
                 ],
               ),
           borderRadius: effectiveBorderRadius,
@@ -50,17 +51,18 @@ class CustomGradientButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: effectiveBorderRadius,
-            ),
+            shape: RoundedRectangleBorder(borderRadius: effectiveBorderRadius),
             padding: EdgeInsets.symmetric(horizontal: 16.w),
           ),
-          child: child ??
+          child:
+              child ??
               Text(
                 title ?? '',
-                style: textStyle ??
+                style:
+                    textStyle ??
                     TextFontStyle.textStyle16c000000SFPro590.copyWith(
                       fontWeight: FontWeight.w700,
+                      color: AppColors.c262824,
                     ),
                 textAlign: TextAlign.center,
               ),
