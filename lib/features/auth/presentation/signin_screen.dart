@@ -109,7 +109,7 @@ class _SigninScreenState extends State<SigninScreen> {
                 // Login Button
                 CustomGradientButton(
                   onPressed: () {
-                    // Perform login action
+                    NavigationService.navigateTo(Routes.pickInterestScreen);
                   },
                   title: "Log In",
                 ),

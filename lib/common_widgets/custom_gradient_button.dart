@@ -14,6 +14,7 @@ class CustomGradientButton extends StatelessWidget {
     this.width,
     this.borderRadius,
     this.textStyle,
+    this.border,
   });
 
   final VoidCallback? onPressed;
@@ -24,6 +25,7 @@ class CustomGradientButton extends StatelessWidget {
   final double? width;
   final BorderRadiusGeometry? borderRadius;
   final TextStyle? textStyle;
+  final BoxBorder? border;
 
   @override
   Widget build(BuildContext context) {
@@ -34,16 +36,18 @@ class CustomGradientButton extends StatelessWidget {
       height: height ?? 52.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient:
-              gradient ??
-              LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.primaryColorFirst.withValues(alpha: 0.85),
-                  AppColors.primaryColorSecond.withValues(alpha: 0.85),
-                ],
-              ),
+          gradient: border != null
+              ? null
+              : (gradient ??
+                  LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.primaryColorFirst.withValues(alpha: 0.85),
+                      AppColors.primaryColorSecond.withValues(alpha: 0.85),
+                    ],
+                  )),
+          border: border,
           borderRadius: effectiveBorderRadius,
         ),
         child: ElevatedButton(
@@ -62,7 +66,7 @@ class CustomGradientButton extends StatelessWidget {
                     textStyle ??
                     TextFontStyle.textStyle16c000000SFPro590.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.c262824,
+                      color: border != null ? Colors.white : AppColors.c262824,
                     ),
                 textAlign: TextAlign.center,
               ),

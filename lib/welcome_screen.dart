@@ -28,7 +28,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
 
-    _timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_currentPage < _sliderTexts.length - 1) {
         _currentPage++;
       } else {
@@ -94,15 +94,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           child: TypewriterText(
                             text: _sliderTexts[index],
                             animate: index == _currentPage,
-                            style: TextFontStyle.textStyle20c232421SFPro590.copyWith(fontSize: 30),
+                            style: TextFontStyle.textStyle20c232421SFPro590
+                                .copyWith(fontSize: 30),
                             textAlign: TextAlign.center,
                           ),
                         );
                       },
                     ),
                   ),
-                  SizedBox(height: 25,)
-
+                  SizedBox(height: 25),
                 ],
               ),
             ),
@@ -148,7 +148,9 @@ class _TypewriterTextState extends State<TypewriterText> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: chars.map((char) {
-            final delay = Duration(milliseconds: charIndexOffset * widget.speed.inMilliseconds);
+            final delay = Duration(
+              milliseconds: charIndexOffset * widget.speed.inMilliseconds,
+            );
             charIndexOffset++;
             return AnimatedCharacter(
               key: ValueKey('${widget.text}_${charIndexOffset}_$char'),
@@ -196,15 +198,17 @@ class _AnimatedCharacterState extends State<AnimatedCharacter>
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(-0.4, 0.0), // Starts slightly to the left, slides to the right
+      begin: const Offset(
+        -0.4,
+        0.0,
+      ), // Starts slightly to the left, slides to the right
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     if (widget.animate) {
       _startAnimation();
@@ -247,10 +251,7 @@ class _AnimatedCharacterState extends State<AnimatedCharacter>
       opacity: _opacityAnimation,
       child: SlideTransition(
         position: _slideAnimation,
-        child: Text(
-          widget.char,
-          style: widget.style,
-        ),
+        child: Text(widget.char, style: widget.style),
       ),
     );
   }
