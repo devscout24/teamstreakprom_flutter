@@ -58,7 +58,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           fontFamily: "SF Pro",
           fontSize: 15.sp,
           fontWeight: FontWeight.w400,
-          color: AppColors.cFFFFFF,
+          color: AppColors.cFFFFFF.withValues(alpha: .5),
         ),
         filled: true,
         fillColor: AppColors.c242A34,
