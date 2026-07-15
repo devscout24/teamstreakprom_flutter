@@ -92,9 +92,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 CustomGradientButton(
                   onPressed: () {
                     // Perform reset password action
-                    // NavigationService.navigateToReplacement(
-                    //   Routes.signInScreen,
-                    // );
+                    NavigationService.navigateToReplacement(
+                      Routes.signInScreen,
+                    );
                   },
                   title: "Reset Password",
                 ),

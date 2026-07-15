@@ -14,20 +14,53 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/event_icon.png
+  AssetGenImage get eventIcon =>
+      const AssetGenImage('assets/icons/event_icon.png');
+
   /// File path: assets/icons/google_logo.png
   AssetGenImage get googleLogo =>
       const AssetGenImage('assets/icons/google_logo.png');
+
+  /// File path: assets/icons/home_icon.png
+  AssetGenImage get homeIcon =>
+      const AssetGenImage('assets/icons/home_icon.png');
 
   /// File path: assets/icons/notification_icon.png
   AssetGenImage get notificationIcon =>
       const AssetGenImage('assets/icons/notification_icon.png');
 
+  /// File path: assets/icons/point_icon.png
+  AssetGenImage get pointIcon =>
+      const AssetGenImage('assets/icons/point_icon.png');
+
+  /// File path: assets/icons/rewards.png
+  AssetGenImage get rewards => const AssetGenImage('assets/icons/rewards.png');
+
+  /// File path: assets/icons/setting_icon.png
+  AssetGenImage get settingIcon =>
+      const AssetGenImage('assets/icons/setting_icon.png');
+
   /// File path: assets/icons/splash_logo.png
   AssetGenImage get splashLogo =>
       const AssetGenImage('assets/icons/splash_logo.png');
 
+  /// File path: assets/icons/ticket_icon.png
+  AssetGenImage get ticketIcon =>
+      const AssetGenImage('assets/icons/ticket_icon.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [googleLogo, notificationIcon, splashLogo];
+  List<AssetGenImage> get values => [
+    eventIcon,
+    googleLogo,
+    homeIcon,
+    notificationIcon,
+    pointIcon,
+    rewards,
+    settingIcon,
+    splashLogo,
+    ticketIcon,
+  ];
 }
 
 class $AssetsImagesGen {
