@@ -122,8 +122,9 @@ void showMaterialDialog(
 
 void rotation() {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Color.fromARGB(80, 0, 0, 0),
-    statusBarIconBrightness: Brightness.light,
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light, // Android
+    statusBarBrightness: Brightness.dark, // iOS
   ));
 
   SystemChrome.setPreferredOrientations([

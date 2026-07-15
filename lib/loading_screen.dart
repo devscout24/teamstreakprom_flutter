@@ -1,14 +1,16 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:teamstreakpromo/features/auth/presentation/signin_screen.dart';
 import 'package:teamstreakpromo/features/home/presentation/home_screen.dart';
+
 import 'constants/app_constants.dart';
 import 'helpers/di.dart';
 import 'helpers/helper_methods.dart';
 import 'helpers/post_login.dart';
 import 'networks/dio/dio.dart';
-import 'welcome_screen.dart';
 import 'onboarding_screen.dart';
+import 'welcome_screen.dart';
 
 final class Loading extends StatefulWidget {
   const Loading({super.key});
@@ -19,35 +21,39 @@ final class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool _isLoading = true;
-  bool isFirstTime = true;
   Timer? _timer;
 
   @override
   void initState() {
-    loadInitialData();
-
     super.initState();
-    _timer = Timer(const Duration(seconds: 35), () {
+
+
+
+    _timer = Timer(const Duration(seconds: 0), () {
       if (_isLoading) {
-        // Only log out if internet is connected but loading is taking too long
-        _handleLogout();
+        loadInitialData();
       }
     });
   }
 
-  loadInitialData() async {
-    //AutoAppUpdateUtil.instance.checkAppUpdate();
-    await setInitValue();
+  Future<void> loadInitialData() async {
+    try {
+      await setInitValue();
 
-    if (appData.read(kKeyIsLoggedIn)) {
-      String token = appData.read(kKeyAccessToken);
-      DioSingleton.instance.update(token);
-      await performPostLoginActions();
-    } else {
-      //  NotificationService().cancelAllNotifications();
+      if (appData.read(kKeyIsLoggedIn) == true) {
+        final String token = appData.read(kKeyAccessToken) ?? '';
+        DioSingleton.instance.update(token);
+        await performPostLoginActions();
+      }
+    } catch (e) {
+      debugPrint('Loading Error: $e');
     }
+
+    _timer?.cancel();
+
+    if (!mounted) return;
+
     setState(() {
-      _timer!.cancel();
       _isLoading = false;
     });
   }
@@ -55,22 +61,35 @@ class _LoadingState extends State<Loading> {
   void _handleLogout() {
     appData.write(kKeyIsLoggedIn, false);
 
-    // Navigator.pushReplacement(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => LogInScreen()),
-    // );
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const WelcomeScreen();
-    } else {
-      return appData.read(kKeyIsLoggedIn)
-          ? const HomeScreen()
-          : appData.read(kKeyfirstTime)
-          ? const OnBoardingScreen()
-          : const SigninScreen();
     }
+
+    if (appData.read(kKeyIsLoggedIn) == true) {
+      if(appData.read(kKeyIsFirstLoggedIn) == true){
+        HomeScreen();
+      }
+    }
+
+    if (appData.read(kKeyfirstTime) == true) {
+      return const OnBoardingScreen();
+    }
+
+    return const SigninScreen();
   }
 }
