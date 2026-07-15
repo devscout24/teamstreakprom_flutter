@@ -1,6 +1,9 @@
 // ignore_for_file: unused_element
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import '../features/auth/presentation/choose_account_type_screen.dart';
+import '../features/auth/presentation/signin_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -8,6 +11,7 @@ final class Routes {
   static Routes get instance => _routes;
 
   // Auth Routes
+  static const String chooseAccountTypeScreen = '/chooseAccountType';
   static const String loginScreen = '/logIn';
   static const String signUpScreen = '/signUp';
   static const String forgotPWScreen = '/ForgotPWScreen';
@@ -33,6 +37,16 @@ final class RouteGenerator {
 
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case Routes.chooseAccountTypeScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const ChooseAccountTypeScreen())
+            : _FadedTransitionRoute(widget: const ChooseAccountTypeScreen(), settings: settings);
+
+      case Routes.loginScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const SigninScreen())
+            : _FadedTransitionRoute(widget: const SigninScreen(), settings: settings);
+
       // case Routes.forgotPWScreen:
       //   return defaultTargetPlatform == TargetPlatform.iOS
       //       ? CupertinoPageRoute(builder: (context) => const ForgotPWScreen())

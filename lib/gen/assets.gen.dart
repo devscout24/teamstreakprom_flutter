@@ -14,6 +14,10 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/google_logo.png
+  AssetGenImage get googleLogo =>
+      const AssetGenImage('assets/icons/google_logo.png');
+
   /// File path: assets/icons/notification_icon.png
   AssetGenImage get notificationIcon =>
       const AssetGenImage('assets/icons/notification_icon.png');
@@ -23,7 +27,7 @@ class $AssetsIconsGen {
       const AssetGenImage('assets/icons/splash_logo.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [notificationIcon, splashLogo];
+  List<AssetGenImage> get values => [googleLogo, notificationIcon, splashLogo];
 }
 
 class $AssetsImagesGen {

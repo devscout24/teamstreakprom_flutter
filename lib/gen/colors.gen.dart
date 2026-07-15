@@ -1053,8 +1053,8 @@ abstract final class AppColors {
   /// Color: #FF72E84F
   static const Color primaryColorSecond = Color(0xFF72E84F);
 
-  /// Color: #FFfbfbfb
-  static const Color scaffoldColor = Color(0xFFFBFBFB);
+  /// Color: #FF171A20
+  static const Color scaffoldColor = Color(0xFF171A20);
 
   /// Color: #FFFFFF
   static const Color secondaryColor = Color(0xFFFFFFFF);
