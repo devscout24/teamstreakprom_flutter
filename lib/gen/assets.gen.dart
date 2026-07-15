@@ -11,6 +11,17 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsGifGen {
+  const $AssetsGifGen();
+
+  /// File path: assets/gif/2x Splash Screen.gif
+  AssetGenImage get a2xSplashScreen =>
+      const AssetGenImage('assets/gif/2x Splash Screen.gif');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [a2xSplashScreen];
+}
+
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
@@ -161,6 +172,7 @@ class $AssetsLottieGen {
 }
 
 abstract final class Assets {
+  static const $AssetsGifGen gif = $AssetsGifGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsLottieGen lottie = $AssetsLottieGen();

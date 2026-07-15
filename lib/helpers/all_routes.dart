@@ -24,6 +24,7 @@ final class Routes {
   static const String homeScreen = '/home_screen';
   static const String navigationScreen = '/NavigationScreen';
   static const String profile = '/Profile';
+  static const String pickInterestScreen = '/PickInterestScreen';
 }
 
 final class RouteGenerator {
@@ -66,6 +67,7 @@ final class RouteGenerator {
       //   return defaultTargetPlatform == TargetPlatform.iOS
       //       ? CupertinoPageRoute(builder: (context) => const NavigationScreen())
       //       : _FadedTransitionRoute(widget: const NavigationScreen(), settings: settings);
+
 
       default:
         return null;
