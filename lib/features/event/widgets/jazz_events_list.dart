@@ -6,6 +6,8 @@ import '../../../helpers/ui_helpers.dart';
 import '../model/event_model.dart';
 import 'event_card.dart';
 
+import '../presentation/jazz_events_screen.dart';
+
 class JazzEventsList extends StatelessWidget {
   const JazzEventsList({super.key});
 
@@ -46,7 +48,14 @@ class JazzEventsList extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const JazzEventsScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   "See All",
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(

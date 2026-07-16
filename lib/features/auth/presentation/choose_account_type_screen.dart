@@ -106,7 +106,10 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                 ),
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 24.h,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20.r),
                     gradient: LinearGradient(
@@ -356,7 +359,9 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                 onPressed: () {
                   if (_selectedType == AccountType.user) {
                     // Navigate to SigninScreen using NavigationService
-                    NavigationService.navigateToReplacement(Routes.loginScreen);
+                    NavigationService.navigateToReplacement(
+                      Routes.signInScreen,
+                    );
                   }
                 },
                 title: "Continue",

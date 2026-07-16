@@ -29,6 +29,10 @@ class $AssetsIconsGen {
   AssetGenImage get eventIcon =>
       const AssetGenImage('assets/icons/event_icon.png');
 
+  /// File path: assets/icons/gmail_icon.png
+  AssetGenImage get gmailIcon =>
+      const AssetGenImage('assets/icons/gmail_icon.png');
+
   /// File path: assets/icons/google_logo.png
   AssetGenImage get googleLogo =>
       const AssetGenImage('assets/icons/google_logo.png');
@@ -36,6 +40,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home_icon.png
   AssetGenImage get homeIcon =>
       const AssetGenImage('assets/icons/home_icon.png');
+
+  /// File path: assets/icons/instragram_icon.png
+  AssetGenImage get instragramIcon =>
+      const AssetGenImage('assets/icons/instragram_icon.png');
+
+  /// File path: assets/icons/messenger_icon.png
+  AssetGenImage get messengerIcon =>
+      const AssetGenImage('assets/icons/messenger_icon.png');
 
   /// File path: assets/icons/notification_icon.png
   AssetGenImage get notificationIcon =>
@@ -56,6 +68,14 @@ class $AssetsIconsGen {
   AssetGenImage get splashLogo =>
       const AssetGenImage('assets/icons/splash_logo.png');
 
+  /// File path: assets/icons/telegram_icon.png
+  AssetGenImage get telegramIcon =>
+      const AssetGenImage('assets/icons/telegram_icon.png');
+
+  /// File path: assets/icons/threat_icon.png
+  AssetGenImage get threatIcon =>
+      const AssetGenImage('assets/icons/threat_icon.png');
+
   /// File path: assets/icons/ticket_icon.png
   AssetGenImage get ticketIcon =>
       const AssetGenImage('assets/icons/ticket_icon.png');
@@ -63,13 +83,18 @@ class $AssetsIconsGen {
   /// List of all assets
   List<AssetGenImage> get values => [
     eventIcon,
+    gmailIcon,
     googleLogo,
     homeIcon,
+    instragramIcon,
+    messengerIcon,
     notificationIcon,
     pointIcon,
     rewards,
     settingIcon,
     splashLogo,
+    telegramIcon,
+    threatIcon,
     ticketIcon,
   ];
 }
@@ -80,6 +105,14 @@ class $AssetsImagesGen {
   /// File path: assets/images/error_image.png
   AssetGenImage get errorImage =>
       const AssetGenImage('assets/images/error_image.png');
+
+  /// File path: assets/images/map_event.png
+  AssetGenImage get mapEvent =>
+      const AssetGenImage('assets/images/map_event.png');
+
+  /// File path: assets/images/map_indicator.png
+  AssetGenImage get mapIndicator =>
+      const AssetGenImage('assets/images/map_indicator.png');
 
   /// File path: assets/images/onboarding_one.png
   AssetGenImage get onboardingOne =>
@@ -100,6 +133,8 @@ class $AssetsImagesGen {
   /// List of all assets
   List<AssetGenImage> get values => [
     errorImage,
+    mapEvent,
+    mapIndicator,
     onboardingOne,
     onboardingThree,
     onboardingTwo,
