@@ -95,7 +95,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             text: _sliderTexts[index],
                             animate: index == _currentPage,
                             style: TextFontStyle.textStyle20c232421SFPro590
-                                .copyWith(fontSize: 30),
+                                .copyWith(fontSize: 20),
                             textAlign: TextAlign.center,
                           ),
                         );

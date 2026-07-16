@@ -6,6 +6,8 @@ import '../../../helpers/ui_helpers.dart';
 import '../widgets/popular_events_list.dart';
 import '../widgets/jazz_events_list.dart';
 import '../widgets/rock_events_list.dart';
+import '../widgets/rewards_marketplace_list.dart';
+import '../widgets/filter_bottom_sheet.dart';
 
 const List<String> _categories = [
   'All',
@@ -24,6 +26,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategoryIndex = 0;
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const FilterBottomSheet(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,17 +88,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      Container(
-                        width: 40.h,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF232D26),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.tune_rounded,
-                          color: Colors.white,
-                          size: 18.sp,
+                      GestureDetector(
+                        onTap: _showFilterBottomSheet,
+                        child: Container(
+                          width: 40.h,
+                          height: 40.h,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF232D26),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.tune_rounded,
+                            color: Colors.white,
+                            size: 18.sp,
+                          ),
                         ),
                       ),
                     ],
@@ -160,6 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // ── Rock and Roll Events List ───────────
               const RockEventsList(),
+              UIHelper.verticalSpace(24.h),
+              const RewardsMarketplaceList(),
             ],
           ),
         ),

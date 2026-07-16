@@ -81,6 +81,14 @@ class $AssetsImagesGen {
   AssetGenImage get errorImage =>
       const AssetGenImage('assets/images/error_image.png');
 
+  /// File path: assets/images/map_event.png
+  AssetGenImage get mapEvent =>
+      const AssetGenImage('assets/images/map_event.png');
+
+  /// File path: assets/images/map_indicator.png
+  AssetGenImage get mapIndicator =>
+      const AssetGenImage('assets/images/map_indicator.png');
+
   /// File path: assets/images/onboarding_one.png
   AssetGenImage get onboardingOne =>
       const AssetGenImage('assets/images/onboarding_one.png');
@@ -100,6 +108,8 @@ class $AssetsImagesGen {
   /// List of all assets
   List<AssetGenImage> get values => [
     errorImage,
+    mapEvent,
+    mapIndicator,
     onboardingOne,
     onboardingThree,
     onboardingTwo,
