@@ -6,6 +6,7 @@ import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/app_network_image.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../presentation/event_details_screen.dart';
 
 class EventCard extends StatelessWidget {
   final String title;
@@ -15,6 +16,9 @@ class EventCard extends StatelessWidget {
   final String imageUrl;
   final VoidCallback onBuyPressed;
   final bool isOverlayStyle;
+  final double? width;
+  final double? height;
+  final VoidCallback? onTap;
 
   const EventCard({
     super.key,
@@ -25,13 +29,41 @@ class EventCard extends StatelessWidget {
     required this.imageUrl,
     required this.onBuyPressed,
     this.isOverlayStyle = true,
+    this.width,
+    this.height,
+    this.onTap,
   });
+
+  void _navigateToDetails(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailsScreen(
+          title: title,
+          location: location,
+          date: date,
+          price: price,
+          imageUrl: imageUrl,
+          description: "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
+          isReward: false,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap ?? () => _navigateToDetails(context),
+      child: _buildCardContent(context),
+    );
+  }
+
+  Widget _buildCardContent(BuildContext context) {
     if (isOverlayStyle) {
       return Container(
-        width: 270.w,
+        width: width ?? 270.w,
+        height: height ?? 300.h,
         decoration: BoxDecoration(
           color: const Color(0xFF1E222B),
           borderRadius: BorderRadius.circular(24.r),
@@ -46,10 +78,7 @@ class EventCard extends StatelessWidget {
             children: [
               // Cover Image
               Positioned.fill(
-                child: AppNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                ),
+                child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
               ),
               // Dark Gradient Overlay
               Positioned.fill(
@@ -96,10 +125,12 @@ class EventCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             location,
-                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13.sp,
-                            ),
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 13.sp,
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -117,10 +148,11 @@ class EventCard extends StatelessWidget {
                         UIHelper.horizontalSpace(6.w),
                         Text(
                           date,
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 12.sp,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 12.sp,
+                              ),
                         ),
                         const Spacer(),
                         Icon(
@@ -131,26 +163,31 @@ class EventCard extends StatelessWidget {
                         UIHelper.horizontalSpace(4.w),
                         Text(
                           price,
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
                     UIHelper.verticalSpace(16.h),
                     // Custom Gradient Buy Ticket Button
                     CustomGradientButton(
-                      onPressed: onBuyPressed,
+                      onPressed: () {
+                        onBuyPressed();
+                        _navigateToDetails(context);
+                      },
                       title: "Buy Ticket",
                       height: 40.h,
                       borderRadius: BorderRadius.circular(20.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: AppColors.c262824,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14.sp,
-                      ),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
                     ),
                   ],
                 ),
@@ -161,7 +198,8 @@ class EventCard extends StatelessWidget {
       );
     } else {
       return Container(
-        width: 270.w,
+        width: width ?? 270.w,
+        height: height ?? 300.h,
         decoration: BoxDecoration(
           color: const Color(0xFF1E222B),
           borderRadius: BorderRadius.circular(24.r),
@@ -200,7 +238,10 @@ class EventCard extends StatelessWidget {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 8.h,
+                            ),
                             color: Colors.white.withValues(alpha: 0.15),
                             child: Row(
                               children: [
@@ -212,10 +253,14 @@ class EventCard extends StatelessWidget {
                                 UIHelper.horizontalSpace(6.w),
                                 Text(
                                   date,
-                                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    fontSize: 12.sp,
-                                  ),
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        fontSize: 12.sp,
+                                      ),
                                 ),
                                 const Spacer(),
                                 Icon(
@@ -226,11 +271,15 @@ class EventCard extends StatelessWidget {
                                 UIHelper.horizontalSpace(4.w),
                                 Text(
                                   price,
-                                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ],
                             ),
@@ -263,10 +312,11 @@ class EventCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       location,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 13.sp,
-                      ),
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontSize: 13.sp,
+                          ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -275,15 +325,19 @@ class EventCard extends StatelessWidget {
               ),
               UIHelper.verticalSpace(12.h),
               CustomGradientButton(
-                onPressed: onBuyPressed,
+                onPressed: () {
+                  onBuyPressed();
+                  _navigateToDetails(context);
+                },
                 title: "Buy Ticket",
                 height: 40.h,
                 borderRadius: BorderRadius.circular(20.r),
-                textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: AppColors.c262824,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14.sp,
-                ),
+                textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                    .copyWith(
+                      color: AppColors.c262824,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14.sp,
+                    ),
               ),
             ],
           ),

@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../widgets/popular_events_list.dart';
-import '../widgets/jazz_events_list.dart';
-import '../widgets/rock_events_list.dart';
+import '../../event/widgets/popular_events_list.dart';
+import '../../event/widgets/jazz_events_list.dart';
+import '../../event/widgets/rock_events_list.dart';
 import '../widgets/rewards_marketplace_list.dart';
 import '../widgets/filter_bottom_sheet.dart';
 

@@ -6,6 +6,7 @@ import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/app_network_image.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../../event/presentation/event_details_screen.dart';
 
 class RewardCard extends StatelessWidget {
   final String title;
@@ -15,6 +16,9 @@ class RewardCard extends StatelessWidget {
   final String imageUrl;
   final String brandLogoUrl;
   final VoidCallback onRedeemPressed;
+  final double? width;
+  final double? height;
+  final VoidCallback? onTap;
 
   const RewardCard({
     super.key,
@@ -25,12 +29,36 @@ class RewardCard extends StatelessWidget {
     required this.imageUrl,
     required this.brandLogoUrl,
     required this.onRedeemPressed,
+    this.width,
+    this.height,
+    this.onTap,
   });
+
+  void _navigateToDetails(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailsScreen(
+          title: title,
+          location: "Divine Art Festival",
+          date: expiryDate,
+          price: "$points pts",
+          imageUrl: imageUrl,
+          description: description,
+          points: points,
+          isReward: true,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 270.w,
+    return GestureDetector(
+      onTap: onTap ?? () => _navigateToDetails(context),
+      child: Container(
+      width: width ?? 270.w,
+      height: height,
       decoration: BoxDecoration(
         color: const Color(0xFF1E222B),
         borderRadius: BorderRadius.circular(24.r),
@@ -169,7 +197,10 @@ class RewardCard extends StatelessWidget {
             UIHelper.verticalSpace(12.h),
             // Redeem Reward Button
             CustomGradientButton(
-              onPressed: onRedeemPressed,
+              onPressed: () {
+                onRedeemPressed();
+                _navigateToDetails(context);
+              },
               title: "Redeem Reward",
               height: 40.h,
               borderRadius: BorderRadius.circular(20.r),
@@ -183,6 +214,6 @@ class RewardCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }

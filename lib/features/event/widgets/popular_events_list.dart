@@ -6,25 +6,27 @@ import '../../../helpers/ui_helpers.dart';
 import '../model/event_model.dart';
 import 'event_card.dart';
 
-class RockEventsList extends StatelessWidget {
-  const RockEventsList({super.key});
+import '../presentation/popular_events_screen.dart';
 
-  static const List<EventModel> _rockEvents = [
+class PopularEventsList extends StatelessWidget {
+  const PopularEventsList({super.key});
+
+  static const List<EventModel> _popularEvents = [
     EventModel(
       title: "Ella's Creative Showcase",
       location: "Divine Art Festival",
       date: "SEP 21 · 11:00 AM",
-      price: "\$.50",
+      price: "\$50",
       imageUrl:
-          "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
     ),
     EventModel(
       title: "Ella's Creative Showcase",
       location: "Divine Art Festival",
       date: "SEP 21 · 11:00 AM",
-      price: "\$.50",
+      price: "\$50",
       imageUrl:
-          "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
     ),
   ];
 
@@ -39,14 +41,21 @@ class RockEventsList extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Rock and Roll Events",
+                "Popular Events",
                 style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PopularEventsScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   "See All",
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
@@ -64,9 +73,9 @@ class RockEventsList extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 24.w),
-            itemCount: _rockEvents.length,
+            itemCount: _popularEvents.length,
             itemBuilder: (context, index) {
-              final event = _rockEvents[index];
+              final event = _popularEvents[index];
               return Padding(
                 padding: EdgeInsets.only(right: 16.w),
                 child: EventCard(

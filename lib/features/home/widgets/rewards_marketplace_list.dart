@@ -8,6 +8,8 @@ import 'reward_card.dart';
 
 import '../../../common_widgets/custom_gradient_button.dart';
 
+import '../presentation/rewards_screen.dart';
+
 class RewardsMarketplaceList extends StatelessWidget {
   const RewardsMarketplaceList({super.key});
 
@@ -136,7 +138,14 @@ class RewardsMarketplaceList extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RewardsScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   "See All",
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(

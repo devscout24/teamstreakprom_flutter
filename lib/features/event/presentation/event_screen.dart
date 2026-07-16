@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../home/widgets/popular_events_list.dart';
-import '../../home/widgets/jazz_events_list.dart';
-import '../../home/widgets/rock_events_list.dart';
-import '../../home/widgets/nearby_events_map.dart';
+import '../widgets/popular_events_list.dart';
+import '../widgets/jazz_events_list.dart';
+import '../widgets/rock_events_list.dart';
+import '../widgets/nearby_events_map.dart';
 import '../../home/widgets/filter_bottom_sheet.dart';
 
 const List<String> _categories = [
@@ -70,17 +70,14 @@ class _EventScreenState extends State<EventScreen> {
                       UIHelper.horizontalSpace(12.w),
                       Expanded(
                         child: TextField(
-                          style: TextFontStyle
-                              .textStyle14cFFFFFFSFProRounded400
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                               .copyWith(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: "Search...",
                             hintStyle: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
-                                  color: Colors.white.withValues(
-                                    alpha: 0.4,
-                                  ),
+                                  color: Colors.white.withValues(alpha: 0.4),
                                 ),
                             border: InputBorder.none,
                             isDense: true,
