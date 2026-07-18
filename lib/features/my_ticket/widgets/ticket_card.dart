@@ -4,6 +4,7 @@ import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../../../common_widgets/gradient_container.dart';
 
 /// A ticket card matching the design: QR code on the left, event details
 /// on the right, and two full-width action buttons at the bottom.
@@ -36,19 +37,7 @@ class TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [-0.375, 1.2411],
-          colors: [
-            Color(0x1AF28F31), // rgba(242,143,49, 0.10)
-            Color(0x1A72E84F), // rgba(114,232,79, 0.10)
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16.r),
-      ),
+    return GradientContainer(
       padding: EdgeInsets.all(14.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -81,7 +70,7 @@ class TicketCard extends StatelessWidget {
                       style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: Colors.white.withValues(alpha: 0.85),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -147,7 +136,7 @@ class TicketCard extends StatelessWidget {
                               .copyWith(
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                                color: Colors.white.withValues(alpha: 0.85),
                               ),
                         ),
                       ],

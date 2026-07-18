@@ -57,163 +57,193 @@ class RewardCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap ?? () => _navigateToDetails(context),
       child: Container(
-      width: width ?? 270.w,
-      height: height,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E222B),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1.w,
+        width: width ?? 270.w,
+        height: height,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E222B),
+          borderRadius: BorderRadius.circular(24.r),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1.w,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // Product Image Container
             Container(
-              height: 120.h,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(16.r),
+                color: const Color(0xFF1B1D2A),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24.r),
+                  topRight: Radius.circular(24.r),
+                ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.r),
-                child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
-              ),
-            ),
-            UIHelper.verticalSpace(12.h),
-            // Product Title
-            Text(
-              title,
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            UIHelper.verticalSpace(4.h),
-            // Description
-            Text(
-              description,
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                color: Colors.white.withValues(alpha: 0.5),
-                fontSize: 12.sp,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            UIHelper.verticalSpace(8.h),
-            // Expiry date info line
-            RichText(
-              text: TextSpan(
-                text: "Exp: ",
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: const Color(0xFFF28F31),
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'SF Pro',
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24.r),
+                  topRight: Radius.circular(24.r),
                 ),
+                child: AppNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  height: 140,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                left: 8.w,
+                right: 8.w,
+                top: 14.h,
+                bottom: 8.h,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextSpan(
-                    text: expiryDate,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w400,
+                  // Product Title
+                  Text(
+                    title,
+                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                      fontSize: 14.sp,
+
+                      fontWeight: FontWeight.w700,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  UIHelper.verticalSpace(8.h),
+                  // Description
+                  Text(
+                    description,
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: AppColors.cC6C6C6,
+                          fontSize: 11.sp,
+                          height: 1.4,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  UIHelper.verticalSpace(8.h),
+                  // Expiry date info line
+                  RichText(
+                    text: TextSpan(
+                      text: "Exp: ",
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: const Color(0xFFF28F31),
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'SF Pro',
+                          ),
+                      children: [
+                        TextSpan(
+                          text: expiryDate,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  UIHelper.verticalSpace(12.h),
+                  // Brand Logo and Points badge Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Brand Logo circle
+                      Container(
+                        width: 32.w,
+                        height: 32.w,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: EdgeInsets.all(4.w),
+                        child: ClipOval(
+                          child: AppNetworkImage(
+                            imageUrl: brandLogoUrl,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                      // Points badge pill
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF23262F),
+                          borderRadius: BorderRadius.circular(100.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Assets.icons.pointIcon.image(
+                              width: 16.w,
+                              height: 16.w,
+                            ),
+                            UIHelper.horizontalSpace(6.w),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: points,
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                  TextSpan(
+                                    text: " pts",
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  UIHelper.verticalSpace(20.h),
+                  // Redeem Reward Button
+                  CustomGradientButton(
+                    onPressed: () {
+                      onRedeemPressed();
+                      _navigateToDetails(context);
+                    },
+                    title: "Redeem Reward",
+                    height: 50.h,
+                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: const Color(0xFF181A20),
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                 ],
               ),
             ),
-            UIHelper.verticalSpace(12.h),
-            // Brand Logo and Points badge Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Brand Logo circle
-                Container(
-                  width: 32.w,
-                  height: 32.w,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  padding: EdgeInsets.all(4.w),
-                  child: ClipOval(
-                    child: AppNetworkImage(
-                      imageUrl: brandLogoUrl,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                // Points badge pill
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 6.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF131722),
-                    borderRadius: BorderRadius.circular(100.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [
-                            AppColors.primaryColorFirst,
-                            AppColors.primaryColorSecond,
-                          ],
-                        ).createShader(bounds),
-                        blendMode: BlendMode.srcIn,
-                        child: Image.asset(
-                          Assets.icons.pointIcon.path,
-                          width: 14.w,
-                          height: 14.w,
-                          color: Colors.white,
-                        ),
-                      ),
-                      UIHelper.horizontalSpace(4.w),
-                      Text(
-                        "$points pts",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            UIHelper.verticalSpace(12.h),
-            // Redeem Reward Button
-            CustomGradientButton(
-              onPressed: () {
-                onRedeemPressed();
-                _navigateToDetails(context);
-              },
-              title: "Redeem Reward",
-              height: 40.h,
-              borderRadius: BorderRadius.circular(20.r),
-              textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                  .copyWith(
-                    color: AppColors.c262824,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14.sp,
-                  ),
-            ),
           ],
         ),
       ),
-    ));
+    );
   }
 }

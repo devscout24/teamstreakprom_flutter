@@ -130,6 +130,10 @@ class $AssetsImagesGen {
   AssetGenImage get placeholderImage =>
       const AssetGenImage('assets/images/placeholder_image.jpeg');
 
+  /// File path: assets/images/point_background.png
+  AssetGenImage get pointBackground =>
+      const AssetGenImage('assets/images/point_background.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     errorImage,
@@ -139,6 +143,7 @@ class $AssetsImagesGen {
     onboardingThree,
     onboardingTwo,
     placeholderImage,
+    pointBackground,
   ];
 }
 
