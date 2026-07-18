@@ -5,6 +5,8 @@ import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/ticket_card.dart';
+import 'ticket_details_screen.dart';
+import '../widgets/cancel_ticket_bottom_sheet.dart';
 
 // ── Minimal data model ──────────────────────────────────────────────────
 class _TicketModel {
@@ -118,17 +120,48 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                         final ticket = _filtered[index];
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
-                          child: TicketCard(
-                            eventName: ticket.eventName,
-                            dateTime: ticket.dateTime,
-                            location: ticket.location,
-                            ticketCount: ticket.ticketCount,
-                            price: ticket.price,
-                            showActions: _tabIndex == 0,
-                            viewLabel: 'View',
-                            cancelLabel: 'Cancel',
-                            onViewPressed: () {},
-                            onCancelPressed: () {},
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TicketDetailsScreen(
+                                    eventName: ticket.eventName,
+                                    dateTime: ticket.dateTime,
+                                    location: ticket.location,
+                                    ticketCount: ticket.ticketCount,
+                                    price: ticket.price,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: TicketCard(
+                              eventName: ticket.eventName,
+                              dateTime: ticket.dateTime,
+                              location: ticket.location,
+                              ticketCount: ticket.ticketCount,
+                              price: ticket.price,
+                              showActions: _tabIndex == 0,
+                              viewLabel: 'View',
+                              cancelLabel: 'Cancel',
+                              onViewPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TicketDetailsScreen(
+                                      eventName: ticket.eventName,
+                                      dateTime: ticket.dateTime,
+                                      location: ticket.location,
+                                      ticketCount: ticket.ticketCount,
+                                      price: ticket.price,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onCancelPressed: () {
+                                showCancelTicketBottomSheet(context);
+                              },
+                            ),
                           ),
                         );
                       },

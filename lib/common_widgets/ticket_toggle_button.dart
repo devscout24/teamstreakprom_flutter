@@ -16,6 +16,9 @@ class TicketToggleButton extends StatelessWidget {
     required this.onChanged,
     this.height,
     this.borderRadius,
+    this.backgroundColor,
+    this.padding,
+    this.spacing,
   });
 
   final String leftLabel;
@@ -26,6 +29,9 @@ class TicketToggleButton extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final double? height;
   final double? borderRadius;
+  final Color? backgroundColor;
+  final EdgeInsetsGeometry? padding;
+  final double? spacing;
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +39,13 @@ class TicketToggleButton extends StatelessWidget {
     final double r = borderRadius ?? 100.r;
     return Container(
       height: h,
-      padding: EdgeInsets.all(4.w),
+      padding: padding ?? EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: AppColors.c1C2027,
+        color: backgroundColor ?? AppColors.c1C2027,
         borderRadius: BorderRadius.circular(r),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _TabItem(
             label: leftLabel,
@@ -47,6 +54,7 @@ class TicketToggleButton extends StatelessWidget {
             tabHeight: h - 8,
             onTap: () => onChanged(0),
           ),
+          if (spacing != null) SizedBox(width: spacing),
           _TabItem(
             label: rightLabel,
             isSelected: selectedIndex == 1,

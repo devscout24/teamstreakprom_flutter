@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,6 +8,7 @@ import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/product_details_bottom_sheet.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
 
@@ -374,93 +376,21 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   UIHelper.verticalSpace(24.h),
 
                   // Info toggle buttons (Event Info vs Reward Info)
-                  Container(
-                    height: 48.h,
-                    padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E222B),
-                      borderRadius: BorderRadius.circular(100.r),
-                    ),
-                    child: Row(
-                      children: [
-                        // Event Info button
-                        Expanded(
-                          child: CustomGradientButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedTabIndex = 0;
-                              });
-                            },
-                            title: "Event Info",
-                            height: 40.h,
-                            borderRadius: BorderRadius.circular(100.r),
-                            gradient: _selectedTabIndex == 0
-                                ? const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      AppColors.primaryColorFirst,
-                                      AppColors.primaryColorSecond,
-                                    ],
-                                  )
-                                : null,
-                            border: _selectedTabIndex != 0
-                                ? Border.all(
-                                    color: AppColors.primaryColorSecond,
-                                    width: 1.w,
-                                  )
-                                : null,
-                            textStyle: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: _selectedTabIndex == 0
-                                      ? const Color(0xFF262824)
-                                      : AppColors.primaryColorSecond,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(10.w),
-                        // Reward Info button
-                        Expanded(
-                          child: CustomGradientButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedTabIndex = 1;
-                              });
-                            },
-                            title: "Reward Info",
-                            height: 40.h,
-                            borderRadius: BorderRadius.circular(100.r),
-                            gradient: _selectedTabIndex == 1
-                                ? const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      AppColors.primaryColorFirst,
-                                      AppColors.primaryColorSecond,
-                                    ],
-                                  )
-                                : null,
-                            border: _selectedTabIndex != 1
-                                ? Border.all(
-                                    color: AppColors.primaryColorSecond,
-                                    width: 1.w,
-                                  )
-                                : null,
-                            textStyle: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: _selectedTabIndex == 1
-                                      ? const Color(0xFF262824)
-                                      : AppColors.primaryColorSecond,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                        ),
-                      ],
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(83.r),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+                      child: TicketToggleButton(
+                        leftLabel: "Event Info",
+                        rightLabel: "Reward Info",
+                        selectedIndex: _selectedTabIndex,
+                        onChanged: (index) {
+                          setState(() {
+                            _selectedTabIndex = index;
+                          });
+                        },
+                        height: 50.h,
+                      ),
                     ),
                   ),
                   UIHelper.verticalSpace(24.h),

@@ -106,11 +106,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
           Container(
             width: 44.w,
             height: 44.w,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-            ),
+            decoration: const BoxDecoration(shape: BoxShape.circle),
             child: const AppNetworkImage(
-              imageUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
+              imageUrl:
+                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
               borderRadius: BorderRadius.all(Radius.circular(100)),
             ),
           ),
@@ -137,11 +136,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
                       child: Text(
                         "Divine Art Festival",
                         overflow: TextOverflow.ellipsis,
-                        style: TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
                       ),
                     ),
                   ],
@@ -161,7 +161,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
               children: [
                 ShaderMask(
                   shaderCallback: (bounds) => const LinearGradient(
-                    colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+                    colors: [
+                      AppColors.primaryColorFirst,
+                      AppColors.primaryColorSecond,
+                    ],
                   ).createShader(bounds),
                   blendMode: BlendMode.srcIn,
                   child: Image.asset(
@@ -183,11 +186,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     children: [
                       TextSpan(
                         text: "pts",
-                        style: TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.primaryColorSecond.withValues(alpha: 0.8),
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.primaryColorSecond.withValues(
+                                alpha: 0.8,
+                              ),
+                            ),
                       ),
                     ],
                   ),
@@ -214,10 +220,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     color: Color(0xFFF28F31),
                     shape: BoxShape.circle,
                   ),
-                  constraints: BoxConstraints(
-                    minWidth: 14.w,
-                    minHeight: 14.w,
-                  ),
+                  constraints: BoxConstraints(minWidth: 14.w, minHeight: 14.w),
                   child: Center(
                     child: Text(
                       "3",
@@ -245,10 +248,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
           children: [
             _buildHeader(),
             Expanded(
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: _screens,
-              ),
+              child: IndexedStack(index: _selectedIndex, children: _screens),
             ),
           ],
         ),
@@ -269,10 +269,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0x1AF8FFF5),
-                Color(0x1AB3E588),
-              ],
+              colors: [Color(0x1AF8FFF5), Color(0x1AB3E588)],
             ),
           ),
           child: SafeArea(

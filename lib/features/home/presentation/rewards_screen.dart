@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -7,6 +8,7 @@ import '../../../common_widgets/custom_back_button.dart';
 import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/reward_card.dart';
 import '../model/reward_model.dart';
+import '../../../common_widgets/ticket_toggle_button.dart';
 
 class RewardsScreen extends StatefulWidget {
   const RewardsScreen({super.key});
@@ -16,15 +18,7 @@ class RewardsScreen extends StatefulWidget {
 }
 
 class _RewardsScreenState extends State<RewardsScreen> {
-  int _selectedCategoryIndex = 0;
-
-  static const List<String> _categories = [
-    'All',
-    'Shoes',
-    'Clothing',
-    'Accessories',
-    'Electronics',
-  ];
+  int _selectedTabIndex = 0;
 
   static const List<RewardModel> _rewards = [
     RewardModel(
@@ -82,10 +76,80 @@ class _RewardsScreenState extends State<RewardsScreen> {
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           UIHelper.verticalSpace(12.h),
+
+          // Points Banner
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Container(
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                gradient: const LinearGradient(
+                  colors: [AppColors.cE0BA68, AppColors.primaryColorSecond],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Assets.icons.pointIcon.image(height: 24.sp, width: 24.sp),
+                      UIHelper.horizontalSpace(8.w),
+                      Text(
+                        "My Point",
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        "95",
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 32.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      Text(
+                        " pts",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(fontSize: 14.sp),
+                      ),
+                    ],
+                  ),
+                  UIHelper.verticalSpace(16.h),
+                  Text(
+                    "Earn 325 more points to unlock more rewards.",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(fontSize: 13.sp),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          UIHelper.verticalSpace(24.h),
+
+          // Toggle Button
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: TicketToggleButton(
+              leftLabel: 'Marketplace',
+              rightLabel: 'My Rewards',
+              selectedIndex: _selectedTabIndex,
+              onChanged: (i) => setState(() => _selectedTabIndex = i),
+              height: 48.h,
+            ),
+          ),
+          UIHelper.verticalSpace(24.h),
 
           // Search Bar
           Padding(
@@ -148,83 +212,35 @@ class _RewardsScreenState extends State<RewardsScreen> {
           ),
           UIHelper.verticalSpace(24.h),
 
-          // Categories list
-          SizedBox(
-            height: 38.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final isSelected = _selectedCategoryIndex == index;
-                return Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedCategoryIndex = index;
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.cA8FF8E
-                            : const Color(0xFF1E222B),
-                        borderRadius: BorderRadius.circular(100.r),
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.transparent
-                              : Colors.white.withValues(alpha: 0.05),
-                          width: 1.w,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          _categories[index],
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: isSelected
-                                    ? Colors.black
-                                    : Colors.white.withValues(alpha: 0.7),
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+          // Grid screen
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16.h,
+              crossAxisSpacing: 16.w,
+              childAspectRatio: 0.41,
             ),
-          ),
-          UIHelper.verticalSpace(24.h),
-
-          // List screen
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
               itemCount: _rewards.length,
               itemBuilder: (context, index) {
                 final reward = _rewards[index];
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 20.h),
-                  child: RewardCard(
-                    title: reward.title,
-                    description: reward.description,
-                    expiryDate: reward.expiryDate,
-                    points: reward.points,
-                    imageUrl: reward.imageUrl,
-                    brandLogoUrl: reward.brandLogoUrl,
-                    width: double.infinity,
-                    onRedeemPressed: _redeemRewardDirectly,
-                  ),
+                return RewardCard(
+                  title: reward.title,
+                  description: reward.description,
+                  expiryDate: reward.expiryDate,
+                  points: reward.points,
+                  imageUrl: reward.imageUrl,
+                  brandLogoUrl: reward.brandLogoUrl,
+                  onRedeemPressed: _redeemRewardDirectly,
+                  width: double.infinity,
                 );
               },
             ),
-          ),
-        ],
+            UIHelper.verticalSpace(24.h),
+          ],
+        ),
       ),
     );
   }
