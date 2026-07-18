@@ -44,7 +44,8 @@ class EventCard extends StatelessWidget {
           date: date,
           price: price,
           imageUrl: imageUrl,
-          description: "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
+          description:
+              "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
           isReward: false,
         ),
       ),
@@ -62,7 +63,7 @@ class EventCard extends StatelessWidget {
   Widget _buildCardContent(BuildContext context) {
     if (isOverlayStyle) {
       return Container(
-        width: width ?? 270.w,
+        width: width ?? 290.w,
         height: height ?? 300.h,
         decoration: BoxDecoration(
           color: const Color(0xFF1E222B),
