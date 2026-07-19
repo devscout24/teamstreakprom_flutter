@@ -64,50 +64,61 @@ class _NavigationScreenState extends State<NavigationScreen> {
           });
         },
         behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedScale(
-              scale: isSelected ? 1.15 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutBack,
-              child: isSelected
-                  ? ShaderMask(
-                      shaderCallback: (bounds) =>
-                          _activeGradient.createShader(bounds),
-                      blendMode: BlendMode.srcIn,
-                      child: Image.asset(
-                        iconPath,
-                        width: 24.w,
-                        height: 24.w,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Image.asset(
-                      iconPath,
-                      width: 24.w,
-                      height: 24.w,
-                      color: Colors.white.withValues(alpha: 0.5),
-                    ),
-            ),
-            UIHelper.verticalSpace(6.h),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                fontFamily: 'SF Pro',
-                fontSize: isSelected ? 11.5.sp : 11.sp,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? AppColors.primaryColorSecond
-                    : Colors.white.withValues(alpha: 0.5),
-              ),
-              child: Text(label),
-            ),
-          ],
-        ),
+        child: _buildNavItemContent(isSelected, iconPath, label),
       ),
+    );
+  }
+
+  Widget _buildNavItemContent(bool isSelected, String iconPath, String label) {
+    Widget iconWidget = Image.asset(
+      iconPath,
+      width: 24.w,
+      height: 24.w,
+      color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5),
+    );
+
+    if (isSelected) {
+      iconWidget = ShaderMask(
+        shaderCallback: (bounds) => _activeGradient.createShader(bounds),
+        blendMode: BlendMode.srcIn,
+        child: iconWidget,
+      );
+    }
+
+    Widget textWidget = Text(label);
+    if (isSelected) {
+      textWidget = ShaderMask(
+        shaderCallback: (bounds) => _activeGradient.createShader(bounds),
+        blendMode: BlendMode.srcIn,
+        child: textWidget,
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedScale(
+          scale: isSelected ? 1.15 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutBack,
+          child: iconWidget,
+        ),
+        UIHelper.verticalSpace(6.h),
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+            fontFamily: 'SF Pro',
+            fontSize: isSelected ? 11.5.sp : 11.sp,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.5),
+          ),
+          child: textWidget,
+        ),
+      ],
     );
   }
 
@@ -269,7 +280,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            if (_selectedIndex != 4) _buildHeader(),
             Expanded(
               child: IndexedStack(index: _selectedIndex, children: _screens),
             ),

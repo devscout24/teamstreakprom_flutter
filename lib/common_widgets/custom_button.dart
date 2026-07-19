@@ -17,6 +17,7 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.textStyle,
     this.padding,
+    this.icon,
   });
 
   final VoidCallback? onPressed;
@@ -29,6 +30,7 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final TextStyle? textStyle;
   final EdgeInsetsGeometry? padding;
+  final Widget? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +42,10 @@ class CustomButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? AppColors.allPrimaryColor,
           foregroundColor: foregroundColor ?? AppColors.cFFFFFF,
-          disabledBackgroundColor: 
+          disabledBackgroundColor:
               (backgroundColor ?? AppColors.allPrimaryColor).withOpacity(0.5),
-          disabledForegroundColor: 
-              (foregroundColor ?? AppColors.cFFFFFF).withOpacity(0.5),
+          disabledForegroundColor: (foregroundColor ?? AppColors.cFFFFFF)
+              .withOpacity(0.5),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius ?? BorderRadius.circular(12.r),
@@ -61,10 +63,17 @@ class CustomButton extends StatelessWidget {
                   ),
                 ),
               )
-            : Text(
-                title,
-                style: textStyle ?? TextFontStyle.textStyle16cFFFFFFDMSans600,
-                textAlign: TextAlign.center,
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) ...[icon!, SizedBox(width: 8.w)],
+                  Text(
+                    title,
+                    style:
+                        textStyle ?? TextFontStyle.textStyle16cFFFFFFDMSans600,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
       ),
     );
@@ -92,10 +101,10 @@ Widget customButton({
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? AppColors.allPrimaryColor,
         foregroundColor: foregroundColor ?? AppColors.cFFFFFF,
-        disabledBackgroundColor: 
-            (backgroundColor ?? AppColors.allPrimaryColor).withOpacity(0.5),
-        disabledForegroundColor: 
-            (foregroundColor ?? AppColors.cFFFFFF).withOpacity(0.5),
+        disabledBackgroundColor: (backgroundColor ?? AppColors.allPrimaryColor)
+            .withOpacity(0.5),
+        disabledForegroundColor: (foregroundColor ?? AppColors.cFFFFFF)
+            .withOpacity(0.5),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius ?? BorderRadius.circular(12.r),

@@ -25,6 +25,10 @@ class $AssetsGifGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/delete_icon.png
+  AssetGenImage get deleteIcon =>
+      const AssetGenImage('assets/icons/delete_icon.png');
+
   /// File path: assets/icons/event_icon.png
   AssetGenImage get eventIcon =>
       const AssetGenImage('assets/icons/event_icon.png');
@@ -37,6 +41,10 @@ class $AssetsIconsGen {
   AssetGenImage get googleLogo =>
       const AssetGenImage('assets/icons/google_logo.png');
 
+  /// File path: assets/icons/helpandsupport_icon.png
+  AssetGenImage get helpandsupportIcon =>
+      const AssetGenImage('assets/icons/helpandsupport_icon.png');
+
   /// File path: assets/icons/home_icon.png
   AssetGenImage get homeIcon =>
       const AssetGenImage('assets/icons/home_icon.png');
@@ -45,9 +53,21 @@ class $AssetsIconsGen {
   AssetGenImage get instragramIcon =>
       const AssetGenImage('assets/icons/instragram_icon.png');
 
+  /// File path: assets/icons/invite_icon.png
+  AssetGenImage get inviteIcon =>
+      const AssetGenImage('assets/icons/invite_icon.png');
+
+  /// File path: assets/icons/lock_image.png
+  AssetGenImage get lockImage =>
+      const AssetGenImage('assets/icons/lock_image.png');
+
   /// File path: assets/icons/messenger_icon.png
   AssetGenImage get messengerIcon =>
       const AssetGenImage('assets/icons/messenger_icon.png');
+
+  /// File path: assets/icons/notification_icon copy.png
+  AssetGenImage get notificationIconCopy =>
+      const AssetGenImage('assets/icons/notification_icon copy.png');
 
   /// File path: assets/icons/notification_icon.png
   AssetGenImage get notificationIcon =>
@@ -56,6 +76,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/point_icon.png
   AssetGenImage get pointIcon =>
       const AssetGenImage('assets/icons/point_icon.png');
+
+  /// File path: assets/icons/profile_icon.png
+  AssetGenImage get profileIcon =>
+      const AssetGenImage('assets/icons/profile_icon.png');
 
   /// File path: assets/icons/rewards.png
   AssetGenImage get rewards => const AssetGenImage('assets/icons/rewards.png');
@@ -72,6 +96,10 @@ class $AssetsIconsGen {
   AssetGenImage get telegramIcon =>
       const AssetGenImage('assets/icons/telegram_icon.png');
 
+  /// File path: assets/icons/terms_condition_icon.png
+  AssetGenImage get termsConditionIcon =>
+      const AssetGenImage('assets/icons/terms_condition_icon.png');
+
   /// File path: assets/icons/threat_icon.png
   AssetGenImage get threatIcon =>
       const AssetGenImage('assets/icons/threat_icon.png');
@@ -82,18 +110,25 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
+    deleteIcon,
     eventIcon,
     gmailIcon,
     googleLogo,
+    helpandsupportIcon,
     homeIcon,
     instragramIcon,
+    inviteIcon,
+    lockImage,
     messengerIcon,
+    notificationIconCopy,
     notificationIcon,
     pointIcon,
+    profileIcon,
     rewards,
     settingIcon,
     splashLogo,
     telegramIcon,
+    termsConditionIcon,
     threatIcon,
     ticketIcon,
   ];
