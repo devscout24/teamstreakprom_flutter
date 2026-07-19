@@ -9,9 +9,12 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
 
 class SigninScreen extends StatefulWidget {
-  const SigninScreen({super.key});
+  final AccountType? accountType;
+
+  const SigninScreen({super.key, this.accountType});
 
   @override
   State<SigninScreen> createState() => _SigninScreenState();
@@ -109,7 +112,11 @@ class _SigninScreenState extends State<SigninScreen> {
                 // Login Button
                 CustomGradientButton(
                   onPressed: () {
-                    NavigationService.navigateTo(Routes.pickInterestScreen);
+                    if (widget.accountType == AccountType.host) {
+                      NavigationService.navigateTo(Routes.subscriptionScreen);
+                    } else {
+                      NavigationService.navigateTo(Routes.pickInterestScreen);
+                    }
                   },
                   title: "Log In",
                 ),
@@ -168,7 +175,15 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              NavigationService.navigateTo(Routes.signUpScreen);
+                              if (widget.accountType == AccountType.host) {
+                                NavigationService.navigateTo(
+                                  Routes.personalAccountInformationScreen,
+                                );
+                              } else {
+                                NavigationService.navigateTo(
+                                  Routes.signUpScreen,
+                                );
+                              }
                             },
                         ),
                       ],

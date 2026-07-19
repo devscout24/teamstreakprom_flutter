@@ -55,7 +55,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
           "Hosts organize public events such as concerts, festivals, sports, comedy clubs, book readings. Customers earn loyalty points from ticket purchases. Those points unlock exclusive rewards",
       popupTitle2: "How does a Host Account Work?",
       popupDesc2:
-          "Hosts are commercial entities that organize live events, such as entertainment venues, comedy clubs, and author readings. Any public or ticketed gathering qualifies as a host event. Furthermore, hosts can engage their audiences by offering custom rewards that attendees unlock using loyalty points earned from ticket purchases.",
+          "Hosts are commercial entities that organize live events, such as entertainment venues, comedy clubs, and author readings. Any public or ticketed gathering qualifies as a host_features event. Furthermore, hosts can engage their audiences by offering custom rewards that attendees unlock using loyalty points earned from ticket purchases.",
     ),
     AccountTypeData(
       type: AccountType.businessPartner,
@@ -63,7 +63,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
       shortDescription: "Offer rewards and connect with local communities.",
       popupTitle1: "Who is a Business Partner?",
       popupDesc1:
-          "Strategic business partners offer exclusive deals and discounts that can be unlocked using user-generated points. Users accumulate these points by purchasing tickets to host events.",
+          "Strategic business partners offer exclusive deals and discounts that can be unlocked using user-generated points. Users accumulate these points by purchasing tickets to host_features events.",
       popupTitle2: "How does a Business Partner Account Work?",
       popupDesc2:
           "These rewards are exclusively available to authenticated Streak App users, ensuring a closed-loop and highly targeted ecosystem.",
@@ -357,12 +357,10 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
 
               CustomGradientButton(
                 onPressed: () {
-                  if (_selectedType == AccountType.user) {
-                    // Navigate to SigninScreen using NavigationService
-                    NavigationService.navigateToReplacement(
-                      Routes.signInScreen,
-                    );
-                  }
+                  NavigationService.navigateToWithArgs(
+                    Routes.signInScreen,
+                    {'accountType': _selectedType},
+                  );
                 },
                 title: "Continue",
               ),
