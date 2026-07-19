@@ -12,6 +12,17 @@ import '../features/auth/presentation/create_new_password_screen.dart';
 import '../features/onboarding/presentation/pick_interest_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/navigation_screen.dart';
+import '../features/host_features/auth/presentation/personal_account_information.dart';
+import '../features/host_features/auth/presentation/business_details.dart';
+import '../features/host_features/auth/presentation/verify_identity.dart';
+import '../features/host_features/auth/presentation/upload_business_documents.dart';
+import '../features/host_features/subscription_screen/presentation/subscription_screen.dart';
+import '../features/host_features/bottom_nav_bar/presentation/host_navigation_screen.dart';
+import '../features/host_features/host_home/presentation/all_events_screen.dart';
+import '../features/host_features/host_earning/presentation/earning_overview_screen.dart';
+import '../features/host_features/host_events/presentation/create_event_wizard.dart';
+import '../features/host_features/host_scan/presentation/qr_scanner_screen.dart';
+import '../features/host_features/host_scan/presentation/scan_result_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -27,6 +38,19 @@ final class Routes {
   static const String otpScreen = '/OtpScreen';
   static const String createNewPasswordScreen = '/CreateNewPassword';
   static const String setPassword = '/SetPassword';
+  // Host Auth Routes
+  static const String personalAccountInformationScreen = '/personalAccountInformation';
+  static const String businessDetailsScreen = '/businessDetails';
+  static const String verifyIdentityScreen = '/verifyIdentity';
+  static const String uploadBusinessDocumentsScreen = '/uploadBusinessDocuments';
+  static const String subscriptionScreen = '/subscriptionScreen';
+  static const String hostNavigationScreen = '/hostNavigation';
+  static const String allEventsScreen = '/allEvents';
+  static const String createEventScreen = '/createEvent';
+  static const String earningOverviewScreen = '/earningOverview';
+  static const String qrScannerScreen = '/qrScanner';
+  static const String scanResultScreen = '/scanResult';
+
   //products_with_pagination
   static const String productsWithPagination = '/ProductsWithPagination';
   //ProductsScreen
@@ -60,10 +84,14 @@ final class RouteGenerator {
               );
 
       case Routes.signInScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final accountType = args?['accountType'] as AccountType?;
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const SigninScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => SigninScreen(accountType: accountType),
+              )
             : _FadedTransitionRoute(
-                widget: const SigninScreen(),
+                widget: SigninScreen(accountType: accountType),
                 settings: settings,
               );
 
@@ -112,6 +140,116 @@ final class RouteGenerator {
               )
             : _FadedTransitionRoute(
                 widget: const CreateNewPasswordScreen(),
+                settings: settings,
+              );
+
+      case Routes.personalAccountInformationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const PersonalAccountInformationScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const PersonalAccountInformationScreen(),
+                settings: settings,
+              );
+
+      case Routes.businessDetailsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const BusinessDetailsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const BusinessDetailsScreen(),
+                settings: settings,
+              );
+
+      case Routes.verifyIdentityScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const VerifyIdentityScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const VerifyIdentityScreen(),
+                settings: settings,
+              );
+
+      case Routes.uploadBusinessDocumentsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const UploadBusinessDocumentsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const UploadBusinessDocumentsScreen(),
+                settings: settings,
+              );
+
+      case Routes.subscriptionScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const SubscriptionScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const SubscriptionScreen(),
+                settings: settings,
+              );
+
+      case Routes.hostNavigationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const HostNavigationScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const HostNavigationScreen(),
+                settings: settings,
+              );
+
+      case Routes.allEventsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const AllEventsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const AllEventsScreen(),
+                settings: settings,
+              );
+
+      case Routes.createEventScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const CreateEventWizard(),
+              )
+            : _FadedTransitionRoute(
+                widget: const CreateEventWizard(),
+                settings: settings,
+              );
+
+      case Routes.earningOverviewScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const EarningOverviewScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const EarningOverviewScreen(),
+                settings: settings,
+              );
+
+      case Routes.qrScannerScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const QrScannerScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const QrScannerScreen(),
+                settings: settings,
+              );
+
+      case Routes.scanResultScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const ScanResultScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const ScanResultScreen(),
                 settings: settings,
               );
 

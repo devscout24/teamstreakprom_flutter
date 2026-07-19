@@ -50,6 +50,9 @@ dependencies:
   flutter_gen: ^5.15.0
   smooth_page_indicator: ^2.0.1
   carousel_slider: ^5.1.2
+  image_picker: ^1.2.2
+  file_picker: ^8.1.7
+  mobile_scanner: ^6.0.0
 
 
 dev_dependencies:

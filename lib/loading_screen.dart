@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
 import 'package:teamstreakpromo/features/auth/presentation/signin_screen.dart';
 import 'package:teamstreakpromo/features/home/presentation/home_screen.dart';
 
@@ -90,6 +91,6 @@ class _LoadingState extends State<Loading> {
       return const OnBoardingScreen();
     }
 
-    return const SigninScreen();
+    return const ChooseAccountTypeScreen();
   }
 }

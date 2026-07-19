@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:teamstreakpromo/loading_screen.dart';
 import 'constants/custome_theme.dart';
+import 'features/host_features/bottom_nav_bar/presentation/host_navigation_screen.dart';
 import 'gen/colors.gen.dart';
 import 'helpers/all_routes.dart';
 import 'helpers/di.dart';
@@ -79,7 +80,7 @@ class UtillScreenMobile extends StatelessWidget {
             },
             navigatorKey: NavigationService.navigatorKey,
             onGenerateRoute: RouteGenerator.generateRoute,
-            home: Loading(),
+            home: HostNavigationScreen(),
           ),
         );
       },
