@@ -4,6 +4,7 @@ import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
+import '../presentation/nearby_event_map_screen.dart';
 
 class NearbyEventsMap extends StatelessWidget {
   const NearbyEventsMap({super.key});
@@ -46,35 +47,45 @@ class NearbyEventsMap extends StatelessWidget {
         UIHelper.verticalSpace(16.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Container(
-            height: 230.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.05),
-                width: 1.w,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NearbyEventMapScreen(),
+                ),
+              );
+            },
+            child: Container(
+              height: 230.h,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  width: 1.w,
+                ),
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24.r),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      Assets.images.mapEvent.path,
-                      fit: BoxFit.cover,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24.r),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        Assets.images.mapEvent.path,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  Center(
-                    child: Image.asset(
-                      Assets.images.mapIndicator.path,
-                      width: 44.w,
-                      height: 44.w,
-                      fit: BoxFit.contain,
+                    Center(
+                      child: Image.asset(
+                        Assets.images.mapIndicator.path,
+                        width: 44.w,
+                        height: 44.w,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

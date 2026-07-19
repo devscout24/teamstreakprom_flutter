@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:teamstreakpromo/features/notification/presentation/notification_screen.dart';
 import '../features/auth/presentation/choose_account_type_screen.dart';
 import '../features/auth/presentation/signin_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
@@ -38,6 +39,7 @@ final class Routes {
   static const String homeScreen = '/home_screen';
   static const String navigationScreen = '/NavigationScreen';
   static const String profile = '/Profile';
+  static const String notificationScreen = '/notificationScreen';
 }
 
 final class RouteGenerator {
@@ -62,6 +64,16 @@ final class RouteGenerator {
             ? CupertinoPageRoute(builder: (context) => const SigninScreen())
             : _FadedTransitionRoute(
                 widget: const SigninScreen(),
+                settings: settings,
+              );
+
+      case Routes.notificationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const NotificationScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const NotificationScreen(),
                 settings: settings,
               );
 

@@ -18,7 +18,8 @@ const List<String> _categories = [
 ];
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onNavigateToRewards;
+  const HomeScreen({super.key, this.onNavigateToRewards});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // ── Search & Filter Row ──────────────────
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Container(
                   height: 52.h,
                   decoration: BoxDecoration(
@@ -70,17 +71,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       UIHelper.horizontalSpace(12.w),
                       Expanded(
                         child: TextField(
-                          style: TextFontStyle
-                              .textStyle14cFFFFFFSFProRounded400
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                               .copyWith(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: "Search...",
                             hintStyle: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
-                                  color: Colors.white.withValues(
-                                    alpha: 0.4,
-                                  ),
+                                  color: Colors.white.withValues(alpha: 0.4),
                                 ),
                             border: InputBorder.none,
                             isDense: true,
@@ -115,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 38.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   itemCount: _categories.length,
                   itemBuilder: (context, index) {
                     final isSelected = _selectedCategoryIndex == index;
@@ -175,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // ── Rock and Roll Events List ───────────
               const RockEventsList(),
               UIHelper.verticalSpace(24.h),
-              const RewardsMarketplaceList(),
+              RewardsMarketplaceList(onSeeAllTapped: widget.onNavigateToRewards),
             ],
           ),
         ),

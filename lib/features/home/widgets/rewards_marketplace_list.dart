@@ -10,7 +10,8 @@ import 'reward_card.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 
 class RewardsMarketplaceList extends StatelessWidget {
-  const RewardsMarketplaceList({super.key});
+  final VoidCallback? onSeeAllTapped;
+  const RewardsMarketplaceList({super.key, this.onSeeAllTapped});
 
   static const List<RewardModel> _rewards = [
     RewardModel(
@@ -140,7 +141,7 @@ class RewardsMarketplaceList extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: onSeeAllTapped ?? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
