@@ -8,8 +8,9 @@ import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
+import '../../../helpers/all_routes.dart';
+import '../../../helpers/navigation_service.dart';
 import '../../../helpers/ui_helpers.dart';
-import 'account_settings_screen.dart';
 import '../widgets/settings_item.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -173,12 +174,7 @@ class SettingsScreen extends StatelessWidget {
               iconPath: Assets.icons.profileIcon.path,
               title: "Account Settings",
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountSettingsScreen(),
-                  ),
-                );
+                NavigationService.navigateTo(Routes.accountSettingsScreen);
               },
             ),
 
@@ -190,6 +186,9 @@ class SettingsScreen extends StatelessWidget {
             SettingsItem(
               iconPath: Assets.icons.notificationIcon.path,
               title: "Notification Preferences",
+              onTap: () {
+                NavigationService.navigateTo(Routes.notificationSettingsScreen);
+              },
             ),
 
             _buildSectionHeader("Support"),

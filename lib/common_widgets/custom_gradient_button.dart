@@ -39,14 +39,15 @@ class CustomGradientButton extends StatelessWidget {
           gradient: border != null
               ? null
               : (gradient ??
-                  LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primaryColorFirst.withValues(alpha: 0.85),
-                      AppColors.primaryColorSecond.withValues(alpha: 0.85),
-                    ],
-                  )),
+                    LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primaryColorFirst.withValues(alpha: 0.85),
+
+                        AppColors.primaryColorSecond.withValues(alpha: 0.85),
+                      ],
+                    )),
           border: border,
           borderRadius: effectiveBorderRadius,
         ),
