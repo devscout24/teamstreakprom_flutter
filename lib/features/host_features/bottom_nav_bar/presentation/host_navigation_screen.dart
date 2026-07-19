@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/settings/presentation/settings_screen.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 
@@ -33,7 +34,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
         },
       ),
       const EarningOverviewScreen(),
-      const _HostSettingsPage(),
+      const SettingsScreen(),
     ];
   }
 
@@ -181,60 +182,6 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
                 ),
         ],
       ),
-    );
-  }
-}
-class _HostSettingsPage extends StatelessWidget {
-  const _HostSettingsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          UIHelper.verticalSpace(60),
-          Text(
-            "Settings",
-            style: TextStyle(
-              fontFamily: "SF Pro Rounded",
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          UIHelper.verticalSpace(20),
-          Expanded(
-            child: ListView(
-              children: [
-                _buildSettingsTile(icon: Icons.person_outline, title: "Account Information"),
-                _buildSettingsTile(icon: Icons.notifications_none, title: "Notifications"),
-                _buildSettingsTile(icon: Icons.lock_outline, title: "Security"),
-                _buildSettingsTile(icon: Icons.help_outline, title: "Support & Help"),
-                _buildSettingsTile(icon: Icons.info_outline, title: "About App"),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile({required IconData icon, required String title}) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 4.h),
-      leading: Icon(icon, color: Colors.white, size: 24.w),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontFamily: "SF Pro",
-          fontSize: 16.sp,
-          color: Colors.white,
-        ),
-      ),
-      trailing: Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.3), size: 20.w),
-      onTap: () {},
     );
   }
 }
