@@ -44,21 +44,24 @@ class _MarketplaceRewardDetailsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: EdgeInsets.all(8.w),
-          child: const CustomBackButton(),
-        ),
-        title: Text(
-          "Reward Info",
-          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Padding(
+          padding: EdgeInsets.all(8.r),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: const CustomBackButton(),
+            title: Text(
+              "Reward Info",
+              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
           ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),

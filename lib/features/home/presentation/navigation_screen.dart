@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
 import 'home_screen.dart';
@@ -21,13 +23,25 @@ class NavigationScreen extends StatefulWidget {
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    EventScreen(),
-    RewardsScreen(),
-    MyTicketScreen(),
-    SettingsScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      HomeScreen(
+        onNavigateToRewards: () {
+          setState(() {
+            _selectedIndex = 2; // Switch to Rewards tab
+          });
+        },
+      ),
+      const EventScreen(),
+      const RewardsScreen(),
+      const MyTicketScreen(),
+      const SettingsScreen(),
+    ];
+  }
 
   static const Gradient _activeGradient = LinearGradient(
     begin: Alignment.topCenter,
@@ -202,37 +216,46 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
           ),
           UIHelper.horizontalSpace(12.w),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Image.asset(
-                Assets.icons.notificationIcon.path,
-                width: 24.w,
-                height: 24.w,
-                color: Colors.white,
-              ),
-              Positioned(
-                top: -2.h,
-                right: -2.w,
-                child: Container(
-                  padding: EdgeInsets.all(4.w),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF28F31),
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: BoxConstraints(minWidth: 14.w, minHeight: 14.w),
-                  child: Center(
-                    child: Text(
-                      "3",
-                      style: TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w700,
+          GestureDetector(
+            onTap: () {
+              NavigationService.navigateTo(Routes.notificationScreen);
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Image.asset(
+                  Assets.icons.notificationIcon.path,
+                  width: 24.w,
+                  height: 24.w,
+                  color: Colors.white,
+                ),
+                Positioned(
+                  top: -2.h,
+                  right: -2.w,
+                  child: Container(
+                    padding: EdgeInsets.all(4.w),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF28F31),
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 14.w,
+                      minHeight: 14.w,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "3",
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
