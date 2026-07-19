@@ -56,7 +56,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       title: "Unlock Exclusive Rewards",
       description:
           "Redeem points for rewards from event hosts and local businesses.",
-      buttonText: "Get Started",
+      buttonText: "Connect To Community",
     ),
   ];
 
