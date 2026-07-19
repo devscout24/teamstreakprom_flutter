@@ -48,7 +48,7 @@ class _EventScreenState extends State<EventScreen> {
             children: [
               // ── Search & Filter Row ──────────────────
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Container(
                   height: 52.h,
                   decoration: BoxDecoration(
@@ -112,7 +112,7 @@ class _EventScreenState extends State<EventScreen> {
                 height: 38.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   itemCount: _categories.length,
                   itemBuilder: (context, index) {
                     final isSelected = _selectedCategoryIndex == index;

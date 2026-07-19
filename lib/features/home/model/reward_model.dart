@@ -1,3 +1,8 @@
+enum RewardType {
+  marketplace,
+  event,
+}
+
 class RewardModel {
   final String title;
   final String description;
@@ -5,6 +10,7 @@ class RewardModel {
   final String points;
   final String imageUrl;
   final String brandLogoUrl;
+  final RewardType type;
 
   const RewardModel({
     required this.title,
@@ -13,5 +19,6 @@ class RewardModel {
     required this.points,
     required this.imageUrl,
     required this.brandLogoUrl,
+    this.type = RewardType.marketplace,
   });
 }

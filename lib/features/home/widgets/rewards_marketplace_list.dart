@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/rewards/presentation/rewards_screen.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -7,8 +8,6 @@ import '../model/reward_model.dart';
 import 'reward_card.dart';
 
 import '../../../common_widgets/custom_gradient_button.dart';
-
-import '../presentation/rewards_screen.dart';
 
 class RewardsMarketplaceList extends StatelessWidget {
   const RewardsMarketplaceList({super.key});
@@ -19,16 +18,20 @@ class RewardsMarketplaceList extends StatelessWidget {
       description: "NIKE is a leading athletic shoe brand known.",
       expiryDate: "23 Oct, 2024",
       points: "95",
-      imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
-      brandLogoUrl: "https://w7.pngwing.com/pngs/384/870/png-transparent-nike-swoosh-logo-brand-nike-angle-active-shirt-black.png",
+      imageUrl:
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
+      brandLogoUrl:
+          "https://w7.pngwing.com/pngs/384/870/png-transparent-nike-swoosh-logo-brand-nike-angle-active-shirt-black.png",
     ),
     RewardModel(
       title: "Adidas Courtblock Shoes",
       description: "NIKE is a leading athletic shoe brand known.",
       expiryDate: "23 Oct, 2024",
       points: "95",
-      imageUrl: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=400&q=80",
-      brandLogoUrl: "https://w7.pngwing.com/pngs/384/870/png-transparent-nike-swoosh-logo-brand-nike-angle-active-shirt-black.png",
+      imageUrl:
+          "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=400&q=80",
+      brandLogoUrl:
+          "https://w7.pngwing.com/pngs/384/870/png-transparent-nike-swoosh-logo-brand-nike-angle-active-shirt-black.png",
     ),
   ];
 
@@ -63,10 +66,7 @@ class RewardsMarketplaceList extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.08),
-                height: 1.h,
-              ),
+              Divider(color: Colors.white.withValues(alpha: 0.08), height: 1.h),
               UIHelper.verticalSpace(24.h),
               Row(
                 children: [
@@ -85,11 +85,12 @@ class RewardsMarketplaceList extends StatelessWidget {
                         ),
                         child: Text(
                           "Cancel",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: const Color(0xFF1E222B),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15.sp,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: const Color(0xFF1E222B),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15.sp,
+                              ),
                         ),
                       ),
                     ),
@@ -104,11 +105,12 @@ class RewardsMarketplaceList extends StatelessWidget {
                       title: "Confirm",
                       height: 48.h,
                       borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: const Color(0xFF262824),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15.sp,
-                      ),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: const Color(0xFF262824),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15.sp,
+                          ),
                     ),
                   ),
                 ],
@@ -126,7 +128,7 @@ class RewardsMarketplaceList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -148,10 +150,11 @@ class RewardsMarketplaceList extends StatelessWidget {
                 },
                 child: Text(
                   "See All",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                    color: AppColors.cFFFFFF,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                      .copyWith(
+                        color: AppColors.cFFFFFF,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
@@ -162,7 +165,7 @@ class RewardsMarketplaceList extends StatelessWidget {
           height: 350.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: _rewards.length,
             itemBuilder: (context, index) {
               final reward = _rewards[index];

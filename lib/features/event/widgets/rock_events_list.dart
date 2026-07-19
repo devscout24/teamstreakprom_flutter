@@ -36,7 +36,7 @@ class RockEventsList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -58,10 +58,11 @@ class RockEventsList extends StatelessWidget {
                 },
                 child: Text(
                   "See All",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                    color: AppColors.cFFFFFF,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                      .copyWith(
+                        color: AppColors.cFFFFFF,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
@@ -72,7 +73,7 @@ class RockEventsList extends StatelessWidget {
           height: 300.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: _rockEvents.length,
             itemBuilder: (context, index) {
               final event = _rockEvents[index];
