@@ -12,6 +12,17 @@ import '../features/auth/presentation/create_new_password_screen.dart';
 import '../features/onboarding/presentation/pick_interest_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/navigation_screen.dart';
+import '../features/host_features/auth/presentation/personal_account_information.dart';
+import '../features/host_features/auth/presentation/business_details.dart';
+import '../features/host_features/auth/presentation/verify_identity.dart';
+import '../features/host_features/auth/presentation/upload_business_documents.dart';
+import '../features/host_features/subscription_screen/presentation/subscription_screen.dart';
+import '../features/host_features/bottom_nav_bar/presentation/host_navigation_screen.dart';
+import '../features/host_features/host_home/presentation/all_events_screen.dart';
+import '../features/host_features/host_earning/presentation/earning_overview_screen.dart';
+import '../features/host_features/host_events/presentation/create_event_wizard.dart';
+import '../features/host_features/host_scan/presentation/qr_scanner_screen.dart';
+import '../features/host_features/host_scan/presentation/scan_result_screen.dart';
 import '../features/settings/presentation/account_settings_screen.dart';
 import '../features/settings/presentation/edit_profile_screen.dart';
 import '../features/settings/presentation/notification_settings_screen.dart';
@@ -33,6 +44,21 @@ final class Routes {
   static const String otpScreen = '/OtpScreen';
   static const String createNewPasswordScreen = '/CreateNewPassword';
   static const String setPassword = '/SetPassword';
+  // Host Auth Routes
+  static const String personalAccountInformationScreen =
+      '/personalAccountInformation';
+  static const String businessDetailsScreen = '/businessDetails';
+  static const String verifyIdentityScreen = '/verifyIdentity';
+  static const String uploadBusinessDocumentsScreen =
+      '/uploadBusinessDocuments';
+  static const String subscriptionScreen = '/subscriptionScreen';
+  static const String hostNavigationScreen = '/hostNavigation';
+  static const String allEventsScreen = '/allEvents';
+  static const String createEventScreen = '/createEvent';
+  static const String earningOverviewScreen = '/earningOverview';
+  static const String qrScannerScreen = '/qrScanner';
+  static const String scanResultScreen = '/scanResult';
+
   //products_with_pagination
   static const String productsWithPagination = '/ProductsWithPagination';
   //ProductsScreen
@@ -48,7 +74,8 @@ final class Routes {
   static const String notificationScreen = '/notificationScreen';
   static const String accountSettingsScreen = '/accountSettingsScreen';
   static const String editProfileScreen = '/editProfileScreen';
-  static const String notificationSettingsScreen = '/notificationSettingsScreen';
+  static const String notificationSettingsScreen =
+      '/notificationSettingsScreen';
   static const String securityScreen = '/securityScreen';
   static const String inviteFriendScreen = '/inviteFriendScreen';
   static const String termsConditionScreen = '/termsConditionScreen';
@@ -72,10 +99,14 @@ final class RouteGenerator {
               );
 
       case Routes.signInScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final accountType = args?['accountType'] as AccountType?;
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const SigninScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => SigninScreen(accountType: accountType),
+              )
             : _FadedTransitionRoute(
-                widget: const SigninScreen(),
+                widget: SigninScreen(accountType: accountType),
                 settings: settings,
               );
 
@@ -127,6 +158,110 @@ final class RouteGenerator {
                 settings: settings,
               );
 
+      case Routes.personalAccountInformationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const PersonalAccountInformationScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const PersonalAccountInformationScreen(),
+                settings: settings,
+              );
+
+      case Routes.businessDetailsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const BusinessDetailsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const BusinessDetailsScreen(),
+                settings: settings,
+              );
+
+      case Routes.verifyIdentityScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const VerifyIdentityScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const VerifyIdentityScreen(),
+                settings: settings,
+              );
+
+      case Routes.uploadBusinessDocumentsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const UploadBusinessDocumentsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const UploadBusinessDocumentsScreen(),
+                settings: settings,
+              );
+
+      case Routes.subscriptionScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const SubscriptionScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const SubscriptionScreen(),
+                settings: settings,
+              );
+
+      case Routes.hostNavigationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const HostNavigationScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const HostNavigationScreen(),
+                settings: settings,
+              );
+
+      case Routes.allEventsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const AllEventsScreen())
+            : _FadedTransitionRoute(
+                widget: const AllEventsScreen(),
+                settings: settings,
+              );
+
+      case Routes.createEventScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const CreateEventWizard(),
+              )
+            : _FadedTransitionRoute(
+                widget: const CreateEventWizard(),
+                settings: settings,
+              );
+
+      case Routes.earningOverviewScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const EarningOverviewScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const EarningOverviewScreen(),
+                settings: settings,
+              );
+
+      case Routes.qrScannerScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const QrScannerScreen())
+            : _FadedTransitionRoute(
+                widget: const QrScannerScreen(),
+                settings: settings,
+              );
+
+      case Routes.scanResultScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const ScanResultScreen())
+            : _FadedTransitionRoute(
+                widget: const ScanResultScreen(),
+                settings: settings,
+              );
+
       case Routes.pickInterestScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
@@ -156,7 +291,9 @@ final class RouteGenerator {
 
       case Routes.accountSettingsScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const AccountSettingsScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => const AccountSettingsScreen(),
+              )
             : _FadedTransitionRoute(
                 widget: const AccountSettingsScreen(),
                 settings: settings,
@@ -164,7 +301,9 @@ final class RouteGenerator {
 
       case Routes.editProfileScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const EditProfileScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => const EditProfileScreen(),
+              )
             : _FadedTransitionRoute(
                 widget: const EditProfileScreen(),
                 settings: settings,
@@ -172,7 +311,9 @@ final class RouteGenerator {
 
       case Routes.notificationSettingsScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const NotificationSettingsScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => const NotificationSettingsScreen(),
+              )
             : _FadedTransitionRoute(
                 widget: const NotificationSettingsScreen(),
                 settings: settings,
@@ -188,7 +329,9 @@ final class RouteGenerator {
 
       case Routes.inviteFriendScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const InviteFriendScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => const InviteFriendScreen(),
+              )
             : _FadedTransitionRoute(
                 widget: const InviteFriendScreen(),
                 settings: settings,
@@ -196,7 +339,9 @@ final class RouteGenerator {
 
       case Routes.termsConditionScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(builder: (context) => const TermsConditionScreen())
+            ? CupertinoPageRoute(
+                builder: (context) => const TermsConditionScreen(),
+              )
             : _FadedTransitionRoute(
                 widget: const TermsConditionScreen(),
                 settings: settings,

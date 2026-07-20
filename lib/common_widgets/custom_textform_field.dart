@@ -13,6 +13,9 @@ class CustomTextFormField extends StatefulWidget {
     this.textInputAction,
     this.keyboardType,
     this.labelText,
+    this.maxLines = 1,
+    this.minLines,
+    this.borderRadius,
   });
 
   final TextEditingController controller;
@@ -23,6 +26,12 @@ class CustomTextFormField extends StatefulWidget {
   final IconData? prefixIcon;
   final TextInputAction? textInputAction;
   final TextInputType? keyboardType;
+
+  final int? maxLines;
+  final int? minLines;
+
+  /// Custom border radius
+  final BorderRadius? borderRadius;
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -39,12 +48,17 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius =
+        widget.borderRadius ?? BorderRadius.circular(100.r);
+
     return TextFormField(
       controller: widget.controller,
       validator: widget.validator,
       obscureText: _obscureText,
       textInputAction: widget.textInputAction,
       keyboardType: widget.keyboardType,
+      maxLines: widget.isPassword ? 1 : widget.maxLines,
+      minLines: widget.isPassword ? 1 : widget.minLines,
       style: TextStyle(
         fontFamily: "SF Pro Rounded",
         fontSize: 15.sp,
@@ -62,45 +76,60 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         ),
         filled: true,
         fillColor: AppColors.c242A34,
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 20.w,
+          vertical: 18.h,
+        ),
         prefixIcon: widget.prefixIcon != null
             ? Icon(
-                widget.prefixIcon,
-                color: Colors.white.withValues(alpha: 0.4),
-              )
+          widget.prefixIcon,
+          color: Colors.white.withValues(alpha: 0.4),
+        )
             : null,
         suffixIcon: widget.isPassword
             ? IconButton(
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.white,
-                  size: 20.w,
-                ),
-              )
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+          icon: Icon(
+            _obscureText
+                ? Icons.visibility_off
+                : Icons.visibility,
+            color: Colors.white,
+            size: 20.w,
+          ),
+        )
             : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100.r),
+          borderRadius: borderRadius,
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: borderRadius,
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100.r),
+          borderRadius: borderRadius,
           borderSide: BorderSide(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.white.withValues(alpha: .2),
             width: 1.w,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100.r),
-          borderSide: BorderSide.none,
-        ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100.r),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          borderRadius: borderRadius,
+          borderSide: BorderSide(
+            color: Colors.redAccent,
+            width: 1.w,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: borderRadius,
+          borderSide: BorderSide(
+            color: Colors.redAccent,
+            width: 1.w,
+          ),
         ),
       ),
     );
