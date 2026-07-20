@@ -16,6 +16,8 @@ import '../features/settings/presentation/account_settings_screen.dart';
 import '../features/settings/presentation/edit_profile_screen.dart';
 import '../features/settings/presentation/notification_settings_screen.dart';
 import '../features/settings/presentation/security_screen.dart';
+import '../features/settings/presentation/invite_friend_screen.dart';
+import '../features/settings/presentation/terms_condition_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -48,6 +50,8 @@ final class Routes {
   static const String editProfileScreen = '/editProfileScreen';
   static const String notificationSettingsScreen = '/notificationSettingsScreen';
   static const String securityScreen = '/securityScreen';
+  static const String inviteFriendScreen = '/inviteFriendScreen';
+  static const String termsConditionScreen = '/termsConditionScreen';
 }
 
 final class RouteGenerator {
@@ -179,6 +183,22 @@ final class RouteGenerator {
             ? CupertinoPageRoute(builder: (context) => const SecurityScreen())
             : _FadedTransitionRoute(
                 widget: const SecurityScreen(),
+                settings: settings,
+              );
+
+      case Routes.inviteFriendScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const InviteFriendScreen())
+            : _FadedTransitionRoute(
+                widget: const InviteFriendScreen(),
+                settings: settings,
+              );
+
+      case Routes.termsConditionScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const TermsConditionScreen())
+            : _FadedTransitionRoute(
+                widget: const TermsConditionScreen(),
                 settings: settings,
               );
 

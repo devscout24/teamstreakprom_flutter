@@ -72,7 +72,7 @@ class RewardsPointDetailsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           children: [
             // Points Banner (Reused Design)

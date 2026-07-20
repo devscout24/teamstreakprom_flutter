@@ -114,7 +114,7 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                     )
                   : ListView.builder(
                       key: ValueKey(_tabIndex),
-                      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+                      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
                       itemCount: _filtered.length,
                       itemBuilder: (context, index) {
                         final ticket = _filtered[index];

@@ -37,7 +37,7 @@ class AccountSettingsScreen extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
           children: [
             SettingsItem(
@@ -54,7 +54,6 @@ class AccountSettingsScreen extends StatelessWidget {
                 NavigationService.navigateTo(Routes.securityScreen);
               },
             ),
-            const Spacer(),
             // Delete Account Button
             CustomButton(
               onPressed: () {

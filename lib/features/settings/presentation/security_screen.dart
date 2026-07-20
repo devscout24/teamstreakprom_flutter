@@ -15,9 +15,14 @@ class SecurityScreen extends StatefulWidget {
 }
 
 class _SecurityScreenState extends State<SecurityScreen> {
-  final TextEditingController _oldPasswordController = TextEditingController(text: "12345678");
-  final TextEditingController _newPasswordController = TextEditingController(text: "12345678");
-  final TextEditingController _confirmPasswordController = TextEditingController(text: "12345678");
+  final TextEditingController _oldPasswordController = TextEditingController(
+    text: "12345678",
+  );
+  final TextEditingController _newPasswordController = TextEditingController(
+    text: "12345678",
+  );
+  final TextEditingController _confirmPasswordController =
+      TextEditingController(text: "12345678");
 
   @override
   void dispose() {
@@ -51,7 +56,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -153,7 +153,8 @@ void showProductDetailsBottomSheet({
                           UIHelper.horizontalSpace(6.w),
                           Text(
                             "${product.points} pts",
-                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -230,7 +231,7 @@ void showProductDetailsBottomSheet({
                     Navigator.pop(context);
                     onContinueToPay();
                   },
-                  title: "Continue to Pay",
+                  title: "Continue to Redeem Reward",
                   height: 52.h,
                   borderRadius: BorderRadius.circular(100.r),
                   textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400

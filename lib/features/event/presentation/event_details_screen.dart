@@ -899,7 +899,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         // Get Ticket Button
                         CustomGradientButton(
                           onPressed: _showBookingSuccessDialog,
-                          title: "Get a Ticket",
+                          title: "Buy a Ticket",
                           height: 52.h,
                           borderRadius: BorderRadius.circular(100.r),
                           textStyle: TextFontStyle

@@ -48,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -182,6 +182,9 @@ class SettingsScreen extends StatelessWidget {
             SettingsItem(
               iconPath: Assets.icons.inviteIcon.path,
               title: "Invite friend",
+              onTap: () {
+                NavigationService.navigateTo(Routes.inviteFriendScreen);
+              },
             ),
             SettingsItem(
               iconPath: Assets.icons.notificationIcon.path,
@@ -199,6 +202,9 @@ class SettingsScreen extends StatelessWidget {
             SettingsItem(
               iconPath: Assets.icons.termsConditionIcon.path,
               title: "Terms & Condition",
+              onTap: () {
+                NavigationService.navigateTo(Routes.termsConditionScreen);
+              },
             ),
 
             UIHelper.verticalSpace(32.h),

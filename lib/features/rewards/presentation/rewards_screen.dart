@@ -86,7 +86,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
 
             // Points Banner
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -164,7 +164,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
 
             // Toggle Button
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: TicketToggleButton(
                 leftLabel: 'Marketplace',
                 rightLabel: 'My Rewards',
@@ -177,7 +177,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
             if (_selectedTabIndex == 1) ...[
               UIHelper.verticalSpace(16.h),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: RewardFilterChips(
                   selectedIndex: _selectedFilterIndex,
                   onChanged: (i) => setState(() => _selectedFilterIndex = i),
@@ -190,7 +190,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
             // Search Bar
             if (_selectedTabIndex == 0) ...[
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Container(
                   height: 52.h,
                   decoration: BoxDecoration(
@@ -268,7 +268,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 16.h,
@@ -294,7 +294,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     itemCount: filteredRewards.length,
                     itemBuilder: (context, index) {
                       final reward = filteredRewards[index];
