@@ -198,6 +198,9 @@ class SettingsScreen extends StatelessWidget {
             SettingsItem(
               iconPath: Assets.icons.helpandsupportIcon.path,
               title: "Help & Support",
+              onTap: () {
+                NavigationService.navigateTo(Routes.helpSupportScreen);
+              },
             ),
             SettingsItem(
               iconPath: Assets.icons.termsConditionIcon.path,

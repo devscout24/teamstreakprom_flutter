@@ -4,9 +4,9 @@ import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
-import '../../../gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
+import '../../event/widgets/invite_friend_bottom_sheet.dart';
 
 class InviteFriendScreen extends StatelessWidget {
   const InviteFriendScreen({super.key});
@@ -121,7 +121,9 @@ class InviteFriendScreen extends StatelessWidget {
               ),
               UIHelper.verticalSpace(16.h),
               CustomGradientButton(
-                onPressed: () {},
+                onPressed: () {
+                  showInviteFriendBottomSheet(context);
+                },
                 title: "Invite friend",
                 height: 52.h,
                 borderRadius: BorderRadius.circular(100.r),

@@ -29,6 +29,10 @@ import '../features/settings/presentation/notification_settings_screen.dart';
 import '../features/settings/presentation/security_screen.dart';
 import '../features/settings/presentation/invite_friend_screen.dart';
 import '../features/settings/presentation/terms_condition_screen.dart';
+import '../features/settings/presentation/help_support_screen.dart';
+import '../features/settings/presentation/support_options_screen.dart';
+import '../features/settings/presentation/submit_problem_screen.dart';
+import '../features/settings/presentation/support_chat_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -79,6 +83,10 @@ final class Routes {
   static const String securityScreen = '/securityScreen';
   static const String inviteFriendScreen = '/inviteFriendScreen';
   static const String termsConditionScreen = '/termsConditionScreen';
+  static const String helpSupportScreen = '/helpSupportScreen';
+  static const String supportOptionsScreen = '/supportOptionsScreen';
+  static const String submitProblemScreen = '/submitProblemScreen';
+  static const String supportChatScreen = '/supportChatScreen';
 }
 
 final class RouteGenerator {
@@ -344,6 +352,57 @@ final class RouteGenerator {
               )
             : _FadedTransitionRoute(
                 widget: const TermsConditionScreen(),
+                settings: settings,
+              );
+
+      case Routes.helpSupportScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const HelpSupportScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const HelpSupportScreen(),
+                settings: settings,
+              );
+
+      case Routes.supportOptionsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const SupportOptionsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const SupportOptionsScreen(),
+                settings: settings,
+              );
+
+      case Routes.submitProblemScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final topic = args?['topic'] as String? ?? 'Others';
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => SubmitProblemScreen(topic: topic),
+              )
+            : _FadedTransitionRoute(
+                widget: SubmitProblemScreen(topic: topic),
+                settings: settings,
+              );
+
+      case Routes.supportChatScreen:
+        final argsChat = settings.arguments as Map<String, dynamic>?;
+        final topicChat = argsChat?['topic'] as String? ?? '';
+        final problemChat = argsChat?['problem'] as String? ?? '';
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => SupportChatScreen(
+                  topic: topicChat,
+                  problem: problemChat,
+                ),
+              )
+            : _FadedTransitionRoute(
+                widget: SupportChatScreen(
+                  topic: topicChat,
+                  problem: problemChat,
+                ),
                 settings: settings,
               );
 
