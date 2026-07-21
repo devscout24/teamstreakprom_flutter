@@ -63,7 +63,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         fontFamily: "SF Pro Rounded",
         fontSize: 15.sp,
         fontWeight: FontWeight.w400,
-        color: Colors.white,
+        color: AppColors.cE9EAE9,
       ),
       cursorColor: Colors.white,
       decoration: InputDecoration(
@@ -72,7 +72,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           fontFamily: "SF Pro",
           fontSize: 15.sp,
           fontWeight: FontWeight.w400,
-          color: AppColors.cFFFFFF.withValues(alpha: .5),
+          color: AppColors.cFFFFFF.withValues(alpha: .3),
         ),
         filled: true,
         fillColor: AppColors.c242A34,

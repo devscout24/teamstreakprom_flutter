@@ -48,7 +48,7 @@ class TicketDetailsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           children: [
             // The main ticket container
@@ -109,7 +109,7 @@ class TicketDetailsScreen extends StatelessWidget {
             CustomGradientButton(
               onPressed: () {},
               title: "Download Ticket",
-              height: 52.h,
+              height: 50.h,
               borderRadius: BorderRadius.circular(100.r),
 
               textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400

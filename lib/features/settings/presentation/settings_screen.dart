@@ -8,8 +8,9 @@ import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
+import '../../../helpers/all_routes.dart';
+import '../../../helpers/navigation_service.dart';
 import '../../../helpers/ui_helpers.dart';
-import 'account_settings_screen.dart';
 import '../widgets/settings_item.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -47,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -173,12 +174,7 @@ class SettingsScreen extends StatelessWidget {
               iconPath: Assets.icons.profileIcon.path,
               title: "Account Settings",
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountSettingsScreen(),
-                  ),
-                );
+                NavigationService.navigateTo(Routes.accountSettingsScreen);
               },
             ),
 
@@ -186,20 +182,32 @@ class SettingsScreen extends StatelessWidget {
             SettingsItem(
               iconPath: Assets.icons.inviteIcon.path,
               title: "Invite friend",
+              onTap: () {
+                NavigationService.navigateTo(Routes.inviteFriendScreen);
+              },
             ),
             SettingsItem(
               iconPath: Assets.icons.notificationIcon.path,
               title: "Notification Preferences",
+              onTap: () {
+                NavigationService.navigateTo(Routes.notificationSettingsScreen);
+              },
             ),
 
             _buildSectionHeader("Support"),
             SettingsItem(
               iconPath: Assets.icons.helpandsupportIcon.path,
               title: "Help & Support",
+              onTap: () {
+                NavigationService.navigateTo(Routes.helpSupportScreen);
+              },
             ),
             SettingsItem(
               iconPath: Assets.icons.termsConditionIcon.path,
               title: "Terms & Condition",
+              onTap: () {
+                NavigationService.navigateTo(Routes.termsConditionScreen);
+              },
             ),
 
             UIHelper.verticalSpace(32.h),

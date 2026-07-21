@@ -32,7 +32,7 @@ class NotificationScreen extends StatelessWidget {
         ),
       ),
       body: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         itemCount: 4,
         separatorBuilder: (context, index) =>
             Divider(color: Colors.white.withValues(alpha: 0.1), height: 32.h),

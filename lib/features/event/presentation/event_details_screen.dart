@@ -304,7 +304,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
             // ── Details Body ─────────────────────────────────────────
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -899,7 +899,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         // Get Ticket Button
                         CustomGradientButton(
                           onPressed: _showBookingSuccessDialog,
-                          title: "Get a Ticket",
+                          title: "Buy a Ticket",
                           height: 52.h,
                           borderRadius: BorderRadius.circular(100.r),
                           textStyle: TextFontStyle

@@ -26,10 +26,7 @@ class SubscriptionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: [
-        AppColors.primaryColorFirst,
-        AppColors.primaryColorSecond,
-      ],
+      colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     );
@@ -55,7 +52,9 @@ class SubscriptionScreen extends StatelessWidget {
                       fontFamily: "SF Pro Rounded",
                     ),
                   ),
-                  SizedBox(width: 40.w), // Empty spacing to balance the back button
+                  SizedBox(
+                    width: 40.w,
+                  ), // Empty spacing to balance the back button
                 ],
               ),
               UIHelper.verticalSpace(24),
@@ -71,7 +70,10 @@ class SubscriptionScreen extends StatelessWidget {
                     ),
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 24.h,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E222B).withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(32.r),
@@ -146,8 +148,15 @@ class SubscriptionScreen extends StatelessWidget {
                                   Container(
                                     width: 20.w,
                                     height: 20.w,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primaryColorSecond,
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.primaryColorFirst,
+                                          AppColors.primaryColorSecond,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -163,7 +172,9 @@ class SubscriptionScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: "SF Pro",
                                         fontSize: 14.sp,
-                                        color: Colors.white.withValues(alpha: 0.9),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
                                         fontWeight: FontWeight.w400,
                                       ),
                                     ),

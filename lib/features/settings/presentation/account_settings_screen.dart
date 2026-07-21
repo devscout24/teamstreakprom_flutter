@@ -5,6 +5,8 @@ import '../../../common_widgets/custom_button.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
+import '../../../helpers/all_routes.dart';
+import '../../../helpers/navigation_service.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../widgets/settings_item.dart';
 
@@ -35,24 +37,23 @@ class AccountSettingsScreen extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
           children: [
             SettingsItem(
               iconPath: Assets.icons.profileIcon.path, // placeholder
               title: "View Profile",
               onTap: () {
-                // Navigate to View Profile
+                NavigationService.navigateTo(Routes.editProfileScreen);
               },
             ),
             SettingsItem(
               iconPath: Assets.icons.lockImage.path, // placeholder
               title: "Security",
               onTap: () {
-                // Navigate to Security
+                NavigationService.navigateTo(Routes.securityScreen);
               },
             ),
-            const Spacer(),
             // Delete Account Button
             CustomButton(
               onPressed: () {
@@ -105,7 +106,7 @@ class AccountSettingsScreen extends StatelessWidget {
                 "Delete Account",
                 style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                   fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               UIHelper.verticalSpace(16.h),
@@ -161,8 +162,7 @@ class AccountSettingsScreen extends StatelessWidget {
                       height: 52.h,
                       backgroundColor: const Color(0xFFC72C2C),
                       borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle
-                          .textStyle14cFFFFFFSFProRounded400
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,

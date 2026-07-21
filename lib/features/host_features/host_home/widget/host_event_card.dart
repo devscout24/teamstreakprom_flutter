@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 
 class HostEventCard extends StatelessWidget {
   final String imageUrl;
@@ -21,22 +22,14 @@ class HostEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GradientContainer(
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        // Applied the exact yellow-orange to lime-green translucent gradient colors requested by the user
-        gradient: const LinearGradient(
-          colors: [
-            Color(0x24F28F31),  Color(0x3772E84F),
-          ],
-          begin: Alignment(0.50, -0.37),
-          end: Alignment(0.50, 1.24),
-        ),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+      gradient: const LinearGradient(
+        colors: [Color(0x24F28F31), Color(0x3772E84F)],
+        begin: Alignment(0.50, -0.37),
+        end: Alignment(0.50, 1.24),
       ),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Row(
         children: [
           // Event Image Placeholder / Network Image
@@ -51,7 +44,10 @@ class HostEventCard extends StatelessWidget {
                 width: 100.w,
                 height: 70.h,
                 color: AppColors.c242A34,
-                child: Icon(Icons.music_note, color: Colors.white.withValues(alpha: 0.5)),
+                child: Icon(
+                  Icons.music_note,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -110,7 +106,7 @@ class HostEventCard extends StatelessWidget {
                           fontFamily: "SF Pro",
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryColorSecond,
+                          color: AppColors.c59B53E,
                         ),
                       ),
                       Row(
@@ -126,7 +122,7 @@ class HostEventCard extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: "SF Pro",
                               fontSize: 12.sp,
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: AppColors.c9B9C9A,
                             ),
                           ),
                         ],

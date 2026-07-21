@@ -11,26 +11,26 @@ import '../../../common_widgets/custom_gradient_button.dart';
 // Interest model
 class _Interest {
   final String label;
-  final IconData icon;
+  final String iconPath;
 
-  const _Interest({required this.label, required this.icon});
+  const _Interest({required this.label, required this.iconPath});
 }
 
 const List<_Interest> _interests = [
-  _Interest(label: 'Musics', icon: Icons.music_note_rounded),
-  _Interest(label: 'Visual Arts', icon: Icons.palette_outlined),
-  _Interest(label: 'Books', icon: Icons.menu_book_rounded),
-  _Interest(label: 'Business', icon: Icons.trending_up_rounded),
-  _Interest(label: 'Holiday', icon: Icons.photo_camera_outlined),
-  _Interest(label: 'Health', icon: Icons.favorite_outline_rounded),
-  _Interest(label: 'Food', icon: Icons.restaurant_outlined),
-  _Interest(label: 'Sports', icon: Icons.sports_basketball_outlined),
-  _Interest(label: 'Gaming', icon: Icons.videogame_asset_outlined),
-  _Interest(label: 'Coffee', icon: Icons.coffee_outlined),
-  _Interest(label: 'Community', icon: Icons.campaign_outlined),
-  _Interest(label: 'Films', icon: Icons.movie_outlined),
-  _Interest(label: 'Fitness', icon: Icons.self_improvement_outlined),
-  _Interest(label: 'Travel', icon: Icons.travel_explore_rounded),
+  _Interest(label: 'Musics', iconPath: 'assets/icons/music_icon.png'),
+  _Interest(label: 'Visual Arts', iconPath: 'assets/icons/visual_arts_icon.png'),
+  _Interest(label: 'Books', iconPath: 'assets/icons/book_icon.png'),
+  _Interest(label: 'Business', iconPath: 'assets/icons/business_icon.png'),
+  _Interest(label: 'Holiday', iconPath: 'assets/icons/holiday_icon.png'),
+  _Interest(label: 'Health', iconPath: 'assets/icons/health_icon.png'),
+  _Interest(label: 'Food', iconPath: 'assets/icons/food_icon.png'),
+  _Interest(label: 'Sports', iconPath: 'assets/icons/sports_icon.png'),
+  _Interest(label: 'Gaming', iconPath: 'assets/icons/gaming_icon.png'),
+  _Interest(label: 'Coffee', iconPath: 'assets/icons/coffee_icon.png'),
+  _Interest(label: 'Community', iconPath: 'assets/icons/community_icon.png'),
+  _Interest(label: 'Films', iconPath: 'assets/icons/films_icon.png'),
+  _Interest(label: 'Fitness', iconPath: 'assets/icons/fitness_icon.png'),
+  _Interest(label: 'Travel', iconPath: 'assets/icons/travel_icon.png'),
 ];
 
 class PickInterestScreen extends StatefulWidget {
@@ -58,45 +58,47 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header ──────────────────────────────
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  UIHelper.verticalSpace(16),
-                  const CustomBackButton(),
-                  UIHelper.verticalSpace(24),
-                  Text(
-                    'Select the category you like',
-                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'SF Pro',
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header ──────────────────────────────
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    UIHelper.verticalSpace(16),
+                    const CustomBackButton(),
+                    UIHelper.verticalSpace(24),
+                    Text(
+                      'Select the category you like',
+                      style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'SF Pro',
+                      ),
                     ),
-                  ),
-                  UIHelper.verticalSpace(8),
-                  Text(
-                    'Choose between 3 interests, and we\'ll curate the\nbest events for you feed.',
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          color: AppColors.c9B9C9A,
-                          fontFamily: 'SF Pro',
-                        ),
-                  ),
-                  UIHelper.verticalSpace(20),
-                ],
+                    UIHelper.verticalSpace(8),
+                    Text(
+                      'Choose between 3 interests, and we\'ll curate the\nbest events for you feed.',
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c9B9C9A,
+                            fontFamily: 'SF Pro',
+                          ),
+                    ),
+                    UIHelper.verticalSpace(20),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Grid ────────────────────────────────
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+              // ── Grid ────────────────────────────────
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 12.w,
@@ -115,59 +117,92 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
                   },
                 ),
               ),
-            ),
 
-            // ── Bottom Buttons ───────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        NavigationService.navigateToReplacement(
-                          Routes.navigationScreen,
-                        );
-                      },
-                      title: 'Skip',
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        width: 1.w,
+              UIHelper.verticalSpace(30.h),
+
+              // ── Bottom Buttons ───────────────────────
+              Padding(
+                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 24.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(26.r),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.primaryColorFirst,
+                              AppColors.primaryColorSecond,
+                            ],
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(1.w),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.scaffoldColor,
+                              borderRadius: BorderRadius.circular(25.r),
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                NavigationService.navigateToReplacement(
+                                  Routes.navigationScreen,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25.r),
+                                ),
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: Text(
+                                'Skip',
+                                style: TextFontStyle.textStyle16c000000SFPro590
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontFamily: 'SF Pro',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16.sp,
+                                    ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      textStyle: TextFontStyle.textStyle16c000000SFPro590
-                          .copyWith(
-                            color: Colors.white,
-                            fontFamily: 'SF Pro',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16.sp,
-                          ),
                     ),
-                  ),
-                  UIHelper.horizontalSpace(12.w),
-                  // Save button
-                  Expanded(
-                    flex: 3,
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        NavigationService.navigateToReplacement(
-                          Routes.navigationScreen,
-                        );
-                      },
-                      title: 'Save',
-                      textStyle: TextFontStyle.textStyle16c000000SFPro590
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontFamily: 'SF Pro',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
-                          ),
+                    UIHelper.horizontalSpace(12.w),
+                    // Save button
+                    Expanded(
+                      flex: 3,
+                      child: CustomGradientButton(
+                        height: 50.h,
+                        onPressed: () {
+                          NavigationService.navigateToReplacement(
+                            Routes.navigationScreen,
+                          );
+                        },
+                        title: 'Save',
+                        textStyle: TextFontStyle.textStyle16c000000SFPro590
+                            .copyWith(
+                              color: AppColors.c262824,
+                              fontFamily: 'SF Pro',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16.sp,
+                            ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -243,7 +278,7 @@ class _InterestChip extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(interest.icon, size: 20.sp, color: Colors.white),
+                        Image.asset(interest.iconPath, width: 20.sp, height: 20.sp, color: Colors.white),
                         UIHelper.horizontalSpace(8.w),
                         Flexible(
                           child: Text(
@@ -265,9 +300,10 @@ class _InterestChip extends StatelessWidget {
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Icon(
-                        interest.icon,
-                        size: 20.sp,
+                      Image.asset(
+                        interest.iconPath,
+                        width: 20.sp,
+                        height: 20.sp,
                         color: AppColors.c9B9C9A,
                       ),
                       UIHelper.horizontalSpace(8.w),

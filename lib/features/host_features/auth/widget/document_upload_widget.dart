@@ -22,12 +22,9 @@ class DocumentUploadWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: [
-        AppColors.primaryColorFirst,
-        AppColors.primaryColorSecond,
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
+      colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
     );
 
     return FormField<String>(
@@ -113,7 +110,9 @@ class DocumentUploadWidget extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: "SF Pro",
                                         fontSize: 12.sp,
-                                        color: Colors.white.withValues(alpha: 0.5),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.5,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -176,10 +175,7 @@ class DocumentUploadWidget extends StatelessWidget {
                 padding: EdgeInsets.only(left: 12.w, top: 6.h),
                 child: Text(
                   state.errorText ?? '',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 12.sp,
-                  ),
+                  style: TextStyle(color: Colors.redAccent, fontSize: 12.sp),
                 ),
               ),
           ],
@@ -213,10 +209,7 @@ class DashedRectPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final path = Path();
-    path.addRRect(RRect.fromRectAndRadius(
-      rect,
-      Radius.circular(borderRadius),
-    ));
+    path.addRRect(RRect.fromRectAndRadius(rect, Radius.circular(borderRadius)));
 
     final dashedPath = Path();
     double distance = 0.0;

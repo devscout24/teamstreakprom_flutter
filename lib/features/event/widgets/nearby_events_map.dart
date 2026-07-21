@@ -15,7 +15,7 @@ class NearbyEventsMap extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -46,7 +46,7 @@ class NearbyEventsMap extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16.h),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: GestureDetector(
             onTap: () {
               Navigator.push(
