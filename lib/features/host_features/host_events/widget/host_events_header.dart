@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
+import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
 
 class HostEventsHeader extends StatelessWidget {
   final VoidCallback onBack;
@@ -18,24 +19,7 @@ class HostEventsHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Circular Back Button
-        GestureDetector(
-          onTap: onBack,
-          child: Container(
-            padding: EdgeInsets.all(10.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E222B),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
-            ),
-            child: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-              size: 20.w,
-            ),
-          ),
-        ),
+        GestureDetector(onTap: onBack, child: const CustomBackButton()),
 
         // "+ Create New Event" Button
         GestureDetector(
@@ -48,11 +32,7 @@ class HostEventsHeader extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.add,
-                  color: Colors.black,
-                  size: 18.w,
-                ),
+                Icon(Icons.add, color: Colors.black, size: 18.w),
                 SizedBox(width: 4.w),
                 Text(
                   "Create New Event",

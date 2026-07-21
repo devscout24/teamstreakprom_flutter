@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 
@@ -15,24 +16,85 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
   int _activeTicketIndex = 7; // May is index 7 in the 10-point dataset
 
   // 10-point dataset matching the mockup design exactly
-  final List<String> _ticketMonthLabels = ["Jan", "", "Feb", "Mar", "", "Apr", "", "May", "", "Jun"];
-  final List<double> _ticketMonthValues = [130.0, 210.0, 180.0, 310.0, 270.0, 300.0, 105.0, 200.0, 52.0, 400.0];
-  final List<double> _ticketMonthXFractions = [0.0, 0.12, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84, 0.94, 1.0];
+  final List<String> _ticketMonthLabels = [
+    "Jan",
+    "",
+    "Feb",
+    "Mar",
+    "",
+    "Apr",
+    "",
+    "May",
+    "",
+    "Jun",
+  ];
+  final List<double> _ticketMonthValues = [
+    130.0,
+    210.0,
+    180.0,
+    310.0,
+    270.0,
+    300.0,
+    105.0,
+    200.0,
+    52.0,
+    400.0,
+  ];
+  final List<double> _ticketMonthXFractions = [
+    0.0,
+    0.12,
+    0.24,
+    0.36,
+    0.48,
+    0.60,
+    0.72,
+    0.84,
+    0.94,
+    1.0,
+  ];
 
   // 7-point dataset for Week
-  final List<String> _ticketWeekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  final List<double> _ticketWeekValues = [120.0, 200.0, 150.0, 320.0, 90.0, 240.0, 350.0];
-  final List<double> _ticketWeekXFractions = [0.0, 0.166, 0.333, 0.5, 0.666, 0.833, 1.0];
+  final List<String> _ticketWeekLabels = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
+  ];
+  final List<double> _ticketWeekValues = [
+    120.0,
+    200.0,
+    150.0,
+    320.0,
+    90.0,
+    240.0,
+    350.0,
+  ];
+  final List<double> _ticketWeekXFractions = [
+    0.0,
+    0.166,
+    0.333,
+    0.5,
+    0.666,
+    0.833,
+    1.0,
+  ];
 
   @override
   Widget build(BuildContext context) {
     final isWeek = _selectedTicketType == "Week";
     final activeLabels = isWeek ? _ticketWeekLabels : _ticketMonthLabels;
     final activeValues = isWeek ? _ticketWeekValues : _ticketMonthValues;
-    final activeFractions = isWeek ? _ticketWeekXFractions : _ticketMonthXFractions;
+    final activeFractions = isWeek
+        ? _ticketWeekXFractions
+        : _ticketMonthXFractions;
 
     // Calculate dynamic maxValue limit at the parent level to share between Y-axis and chart
-    double maxVal = activeValues.isEmpty ? 100.0 : activeValues.reduce((curr, next) => curr > next ? curr : next);
+    double maxVal = activeValues.isEmpty
+        ? 100.0
+        : activeValues.reduce((curr, next) => curr > next ? curr : next);
     if (maxVal <= 0) maxVal = 100.0;
 
     final double targetLimit = maxVal / 0.8;
@@ -46,15 +108,10 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
     }
     final double maxValue = (targetLimit / interval).ceil() * interval;
 
-    return Container(
+    return GradientContainer(
       padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E222B),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
-      ),
+      borderRadius: BorderRadius.circular(24.r),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -96,9 +153,16 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                   ),
                 ],
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColorSecond.withValues(alpha: 0.2),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF8FFF5), Color(0xFFB3E588)],
+                    ),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
@@ -109,13 +173,13 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                           fontFamily: "SF Pro",
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryColorSecond,
+                          color: const Color(0xFF1A2E0F),
                         ),
                       ),
                       UIHelper.horizontalSpace(4),
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.primaryColorSecond,
+                        color: const Color(0xFF1A2E0F),
                         size: 16.w,
                       ),
                     ],
@@ -148,7 +212,11 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                           final chartWidth = constraints.maxWidth;
                           return GestureDetector(
                             onTapUp: (details) {
-                              _handleLineChartTap(details.localPosition.dx, chartWidth, activeFractions);
+                              _handleLineChartTap(
+                                details.localPosition.dx,
+                                chartWidth,
+                                activeFractions,
+                              );
                             },
                             child: SizedBox(
                               height: 210.h,
@@ -161,8 +229,10 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                                   activeIndex: _activeTicketIndex,
                                   maxValue: maxValue,
                                   lineColor: AppColors.primaryColorSecond,
-                                  gradientColorFirst: AppColors.primaryColorFirst,
-                                  gradientColorSecond: AppColors.primaryColorSecond,
+                                  gradientColorFirst:
+                                      AppColors.primaryColorFirst,
+                                  gradientColorSecond:
+                                      AppColors.primaryColorSecond,
                                 ),
                               ),
                             ),
@@ -173,7 +243,11 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                         scrollDirection: Axis.horizontal,
                         child: GestureDetector(
                           onTapUp: (details) {
-                            _handleLineChartTap(details.localPosition.dx, 580.w, activeFractions);
+                            _handleLineChartTap(
+                              details.localPosition.dx,
+                              580.w,
+                              activeFractions,
+                            );
                           },
                           child: SizedBox(
                             height: 210.h,
@@ -187,7 +261,8 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
                                 maxValue: maxValue,
                                 lineColor: AppColors.primaryColorSecond,
                                 gradientColorFirst: AppColors.primaryColorFirst,
-                                gradientColorSecond: AppColors.primaryColorSecond,
+                                gradientColorSecond:
+                                    AppColors.primaryColorSecond,
                               ),
                             ),
                           ),
@@ -201,7 +276,11 @@ class _TicketSalesChartCardState extends State<TicketSalesChartCard> {
     );
   }
 
-  void _handleLineChartTap(double tapX, double totalWidth, List<double> fractions) {
+  void _handleLineChartTap(
+    double tapX,
+    double totalWidth,
+    List<double> fractions,
+  ) {
     const double startX = 10.0;
     final double endX = totalWidth - 10.0;
     final double totalGraphWidth = endX - startX;
@@ -246,7 +325,8 @@ class _YAxisLabelsPainter extends CustomPainter {
     ];
 
     for (int i = 0; i < yGridValues.length; i++) {
-      final double y = topPadding + graphHeight - (yGridValues[i] / maxValue) * graphHeight;
+      final double y =
+          topPadding + graphHeight - (yGridValues[i] / maxValue) * graphHeight;
 
       textPainter.text = TextSpan(
         text: yGridValues[i].toInt().toString(),
@@ -314,7 +394,8 @@ class _LineChartPainter extends CustomPainter {
     ];
 
     for (int i = 0; i < yGridValues.length; i++) {
-      final double y = topPadding + graphHeight - (yGridValues[i] / maxValue) * graphHeight;
+      final double y =
+          topPadding + graphHeight - (yGridValues[i] / maxValue) * graphHeight;
 
       double currentX = startX;
       const double dashWidth = 5.0;
@@ -333,7 +414,8 @@ class _LineChartPainter extends CustomPainter {
     final List<Offset> points = [];
     for (int i = 0; i < labels.length; i++) {
       final double x = startX + xFractions[i] * totalGraphWidth;
-      final double normalizedY = topPadding + graphHeight - (values[i] / maxValue) * graphHeight;
+      final double normalizedY =
+          topPadding + graphHeight - (values[i] / maxValue) * graphHeight;
       points.add(Offset(x, normalizedY));
     }
 
@@ -346,10 +428,7 @@ class _LineChartPainter extends CustomPainter {
         activePoint.dx + 12.w,
         topPadding + graphHeight,
       );
-      canvas.drawRect(
-        rect,
-        Paint()..color = const Color(0xFF1B1F26),
-      );
+      canvas.drawRect(rect, Paint()..color = const Color(0xFF1B1F26));
     }
 
     // 4. Shaded Area under the curve (straight/corner-based polygonal path)
@@ -379,9 +458,12 @@ class _LineChartPainter extends CustomPainter {
 
     // 6. Draw straight line segments (corner-based polygonal line matching design exactly)
     final linePaint = Paint()
-      ..shader = LinearGradient(
-        colors: [gradientColorFirst, gradientColorSecond],
-      ).createShader(Rect.fromLTWH(startX, topPadding, endX - startX, graphHeight))
+      ..shader =
+          LinearGradient(
+            colors: [gradientColorFirst, gradientColorSecond],
+          ).createShader(
+            Rect.fromLTWH(startX, topPadding, endX - startX, graphHeight),
+          )
       ..strokeWidth = 2.5.w
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -396,9 +478,12 @@ class _LineChartPainter extends CustomPainter {
 
     // 7. Draw Vertex Dots
     final dotPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [gradientColorFirst, gradientColorSecond],
-      ).createShader(Rect.fromLTWH(startX, topPadding, endX - startX, graphHeight))
+      ..shader =
+          LinearGradient(
+            colors: [gradientColorFirst, gradientColorSecond],
+          ).createShader(
+            Rect.fromLTWH(startX, topPadding, endX - startX, graphHeight),
+          )
       ..style = PaintingStyle.fill;
 
     final dotBorderPaint = Paint()
@@ -415,11 +500,19 @@ class _LineChartPainter extends CustomPainter {
     if (activeIndex >= 0 && activeIndex < points.length) {
       final Offset activePoint = points[activeIndex];
       final tooltipPaint = Paint()
-        ..shader = LinearGradient(
-          colors: [gradientColorFirst, gradientColorSecond],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ).createShader(Rect.fromLTWH(activePoint.dx - 28.w, activePoint.dy - 44.h, 56.w, 28.h))
+        ..shader =
+            LinearGradient(
+              colors: [gradientColorFirst, gradientColorSecond],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ).createShader(
+              Rect.fromLTWH(
+                activePoint.dx - 28.w,
+                activePoint.dy - 44.h,
+                56.w,
+                28.h,
+              ),
+            )
         ..style = PaintingStyle.fill;
 
       // Tooltip RRect Box
@@ -429,7 +522,10 @@ class _LineChartPainter extends CustomPainter {
         56.w,
         28.h,
       );
-      final RRect tooltipRRect = RRect.fromRectAndRadius(tooltipRect, Radius.circular(8.r));
+      final RRect tooltipRRect = RRect.fromRectAndRadius(
+        tooltipRect,
+        Radius.circular(8.r),
+      );
       canvas.drawRRect(tooltipRRect, tooltipPaint);
 
       // Tooltip Downward Triangle pointer
@@ -464,7 +560,8 @@ class _LineChartPainter extends CustomPainter {
         canvas,
         Offset(
           tooltipRect.left + (tooltipRect.width - tooltipTextPainter.width) / 2,
-          tooltipRect.top + (tooltipRect.height - tooltipTextPainter.height) / 2,
+          tooltipRect.top +
+              (tooltipRect.height - tooltipTextPainter.height) / 2,
         ),
       );
     }
@@ -489,7 +586,10 @@ class _LineChartPainter extends CustomPainter {
       textPainter.layout();
       textPainter.paint(
         canvas,
-        Offset(points[i].dx - textPainter.width / 2, size.height - textPainter.height),
+        Offset(
+          points[i].dx - textPainter.width / 2,
+          size.height - textPainter.height,
+        ),
       );
     }
   }

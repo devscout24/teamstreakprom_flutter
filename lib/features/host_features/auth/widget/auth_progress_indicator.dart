@@ -16,12 +16,9 @@ class AuthProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: [
-        AppColors.primaryColorFirst,
-        AppColors.primaryColorSecond,
-      ],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
+      colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
     );
 
     return Row(

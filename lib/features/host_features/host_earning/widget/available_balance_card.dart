@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 class AvailableBalanceCard extends StatelessWidget {
   final String balance;
@@ -13,14 +14,10 @@ class AvailableBalanceCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 30.h),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.r),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFF28F31),
-            Color(0xFF72E84F),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        borderRadius: BorderRadius.circular(16.r),
+        image: DecorationImage(
+          image: AssetImage(Assets.images.pointBackground.path),
+          fit: BoxFit.cover,
         ),
       ),
       child: Column(

@@ -34,17 +34,12 @@ class HostEventListCard extends StatelessWidget {
       decoration: BoxDecoration(
         // Applied the exact yellow-orange to lime-green translucent gradient background requested by the user
         gradient: const LinearGradient(
-          colors: [
-            Color(0x24F28F31),
-            Color(0x3772E84F),
-          ],
+          colors: [Color(0x24F28F31), Color(0x3772E84F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +56,11 @@ class HostEventListCard extends StatelessWidget {
                 width: double.infinity,
                 height: 160.h,
                 color: AppColors.c242A34,
-                child: Icon(Icons.music_note, color: Colors.white.withValues(alpha: 0.5), size: 40.w),
+                child: Icon(
+                  Icons.music_note,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  size: 40.w,
+                ),
               ),
             ),
           ),
@@ -156,7 +155,7 @@ class HostEventListCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: AppColors.cBCBCBB.withValues(alpha: .2),
               borderRadius: BorderRadius.circular(16.r),
             ),
             child: Row(
@@ -231,8 +230,7 @@ class HostEventListCard extends StatelessWidget {
                         child: Icon(
                           Icons.delete_outline_rounded,
                           color: Colors.redAccent,
-                          size: 18
-                              .w,
+                          size: 18.w,
                         ),
                       ),
                     ),

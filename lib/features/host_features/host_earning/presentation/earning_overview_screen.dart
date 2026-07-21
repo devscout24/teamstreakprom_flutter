@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
+import '../../../../common_widgets/custom_gradient_button.dart';
 import '../widget/available_balance_card.dart';
 import '../widget/earnings_line_chart.dart';
 
@@ -26,24 +29,7 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                        size: 20.w,
-                      ),
-                    ),
-                  ),
+                  const CustomBackButton(),
                   const Spacer(),
                   Text(
                     "Earning overview",
@@ -75,14 +61,10 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
                     UIHelper.verticalSpace(20),
 
                     // 3. Total Revenue Info Box
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B),
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
+                    GradientContainer(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 16.h,
                       ),
                       child: Row(
                         children: [
@@ -124,35 +106,13 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
                     UIHelper.verticalSpace(36),
 
                     // 4. Request Withdrawal CTA Button
-                    GestureDetector(
-                      onTap: () {
+                    CustomGradientButton(
+                      onPressed: () {
                         _showSuccessWithdrawalDialog();
                       },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16.r),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFFF28F31),
-                              Color(0xFF72E84F),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Request Withdrawal",
-                          style: TextStyle(
-                            fontFamily: "SF Pro Rounded",
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
+                      title: "Request Withdrawal",
+                      height: 52.h,
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                     UIHelper.verticalSpace(40),
                   ],

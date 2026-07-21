@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
+import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
 
 class ScanResultScreen extends StatelessWidget {
   const ScanResultScreen({super.key});
@@ -19,24 +21,7 @@ class ScanResultScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                        size: 20.w,
-                      ),
-                    ),
-                  ),
+                  const CustomBackButton(),
                   const Spacer(),
                   Text(
                     "Scan Result",
@@ -60,15 +45,11 @@ class ScanResultScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     // Main Ticket/QR Card Container
-                    Container(
+                    GradientContainer(
                       width: double.infinity,
                       padding: EdgeInsets.all(20.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B),
-                        borderRadius: BorderRadius.circular(24.r),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
+                      border: Border.all(
+                        color: AppColors.cFFFFFF.withValues(alpha: 0.5),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,9 +64,7 @@ class ScanResultScreen extends StatelessWidget {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16.r),
                               ),
-                              child: CustomPaint(
-                                painter: _QrCodePainter(),
-                              ),
+                              child: CustomPaint(painter: _QrCodePainter()),
                             ),
                           ),
                           UIHelper.verticalSpace(24),
@@ -179,12 +158,15 @@ class ScanResultScreen extends StatelessWidget {
                     // Valid Banner Card
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 16.h,
+                      ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1B2A22),
+                        color: const Color(0xFF1B2A22).withValues(alpha: .7),
                         borderRadius: BorderRadius.circular(16.r),
                         border: Border.all(
-                          color: const Color(0xFF2ECC71).withValues(alpha: 0.2),
+                          color: AppColors.cFFFFFF.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Row(
@@ -287,7 +269,7 @@ class _QrCodePainter extends CustomPainter {
       [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1],
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
       [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
     ];
 
     for (int r = 0; r < mockGrid.length; r++) {
@@ -302,14 +284,25 @@ class _QrCodePainter extends CustomPainter {
     }
   }
 
-  void _drawFinderPattern(Canvas canvas, double x, double y, double size, Paint paint) {
+  void _drawFinderPattern(
+    Canvas canvas,
+    double x,
+    double y,
+    double size,
+    Paint paint,
+  ) {
     // Outer square
     canvas.drawRect(Rect.fromLTWH(x, y, size, size), paint);
     // Inner white space square
     final whitePaint = Paint()..color = Colors.white;
     final double strokeWidth = size * 0.14;
     canvas.drawRect(
-      Rect.fromLTWH(x + strokeWidth, y + strokeWidth, size - strokeWidth * 2, size - strokeWidth * 2),
+      Rect.fromLTWH(
+        x + strokeWidth,
+        y + strokeWidth,
+        size - strokeWidth * 2,
+        size - strokeWidth * 2,
+      ),
       whitePaint,
     );
     // Center filled square
@@ -346,9 +339,7 @@ class _DashedLine extends StatelessWidget {
             return SizedBox(
               width: dashWidth,
               height: dashHeight,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: color),
-              ),
+              child: DecoratedBox(decoration: BoxDecoration(color: color)),
             );
           }),
         );
@@ -376,11 +367,7 @@ class _VerticalDottedLinePainter extends CustomPainter {
 
     double startY = 0;
     while (startY < height) {
-      canvas.drawLine(
-        Offset(0, startY),
-        Offset(0, startY + dashHeight),
-        paint,
-      );
+      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
       startY += dashHeight + dashSpace;
     }
   }

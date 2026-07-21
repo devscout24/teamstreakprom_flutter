@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 
 class EarningsLineChart extends StatefulWidget {
   const EarningsLineChart({super.key});
@@ -12,10 +13,25 @@ class EarningsLineChart extends StatefulWidget {
 
 class _EarningsLineChartState extends State<EarningsLineChart> {
   String _selectedStatPeriod = "Week";
+  int? _activeIndex = 10;
 
   // Data values representing the mockup curve (15 points)
   final List<double> _chartValues = [
-    200, 320, 260, 290, 210, 230, 280, 180, 260, 250, 380, 280, 310, 220, 190
+    200,
+    320,
+    260,
+    290,
+    210,
+    230,
+    280,
+    180,
+    260,
+    250,
+    380,
+    280,
+    310,
+    220,
+    190,
   ];
 
   // X axis labels
@@ -23,15 +39,8 @@ class _EarningsLineChartState extends State<EarningsLineChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GradientContainer(
       padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E222B),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,7 +81,10 @@ class _EarningsLineChartState extends State<EarningsLineChart> {
                   ),
                 ],
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20.r),
@@ -106,11 +118,29 @@ class _EarningsLineChartState extends State<EarningsLineChart> {
           SizedBox(
             height: 220.h,
             width: double.infinity,
-            child: CustomPaint(
-              painter: _EarningsLineChartPainter(
-                values: _chartValues,
-                xMonths: _xAxisMonths,
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return GestureDetector(
+                  onTapUp: (details) {
+                    final double labelWidth = 30.w;
+                    final double graphWidth = constraints.maxWidth - labelWidth;
+                    final double segmentWidth = graphWidth / (_chartValues.length - 1);
+                    final double tapX = details.localPosition.dx;
+                    int index = ((tapX - labelWidth) / segmentWidth).round();
+                    index = index.clamp(0, _chartValues.length - 1);
+                    setState(() {
+                      _activeIndex = index;
+                    });
+                  },
+                  child: CustomPaint(
+                    painter: _EarningsLineChartPainter(
+                      values: _chartValues,
+                      xMonths: _xAxisMonths,
+                      activeIndex: _activeIndex,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -123,8 +153,13 @@ class _EarningsLineChartState extends State<EarningsLineChart> {
 class _EarningsLineChartPainter extends CustomPainter {
   final List<double> values;
   final List<String> xMonths;
+  final int? activeIndex;
 
-  _EarningsLineChartPainter({required this.values, required this.xMonths});
+  _EarningsLineChartPainter({
+    required this.values,
+    required this.xMonths,
+    this.activeIndex,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -155,11 +190,7 @@ class _EarningsLineChartPainter extends CustomPainter {
       textPainter.paint(canvas, Offset(0, y - textPainter.height / 2));
 
       // Draw grid line
-      canvas.drawLine(
-        Offset(labelWidth, y),
-        Offset(size.width, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(labelWidth, y), Offset(size.width, y), gridPaint);
     }
 
     if (values.isEmpty) return;
@@ -229,10 +260,10 @@ class _EarningsLineChartPainter extends CustomPainter {
 
     canvas.drawPath(path, linePaint);
 
-    // 4. Draw tool-tip callout at index 10 (representing April middle)
-    // Values[10] = 380, which corresponds to $500 tooltip in mockup
-    final int activeIndex = 10;
-    final activePoint = points[activeIndex];
+    // 4. Draw tool-tip callout if an index is active
+    if (activeIndex != null && activeIndex! >= 0 && activeIndex! < points.length) {
+      final activePoint = points[activeIndex!];
+      final double activeValue = values[activeIndex!];
 
     // Tooltip point highlight circle
     final activeDotPaint = Paint()
@@ -259,14 +290,14 @@ class _EarningsLineChartPainter extends CustomPainter {
 
     // Tooltip gradient paint
     final tooltipPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [
-          Color(0xFFE2C94F),
-          Color(0xFFB1D842),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(Rect.fromLTWH(tooltipX, tooltipY, tooltipWidth, tooltipHeight));
+      ..shader =
+          const LinearGradient(
+            colors: [Color(0xFFE2C94F), Color(0xFFB1D842)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(
+            Rect.fromLTWH(tooltipX, tooltipY, tooltipWidth, tooltipHeight),
+          );
 
     canvas.drawRRect(tooltipRRect, tooltipPaint);
 
@@ -280,9 +311,9 @@ class _EarningsLineChartPainter extends CustomPainter {
     final tipPaint = Paint()..color = const Color(0xFFB1D842);
     canvas.drawPath(tipPath, tipPaint);
 
-    // Tooltip text "$500"
+    // Tooltip text (dynamic value)
     textPainter.text = TextSpan(
-      text: "\$500",
+      text: "\$${activeValue.toInt()}",
       style: TextStyle(
         fontFamily: "SF Pro Rounded",
         fontSize: 11.sp,
@@ -293,10 +324,7 @@ class _EarningsLineChartPainter extends CustomPainter {
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(
-        activePoint.dx - textPainter.width / 2,
-        tooltipY + 4.h,
-      ),
+      Offset(activePoint.dx - textPainter.width / 2, tooltipY + 4.h),
     );
 
     // Tooltip text "Income"
@@ -312,15 +340,15 @@ class _EarningsLineChartPainter extends CustomPainter {
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(
-        activePoint.dx - textPainter.width / 2,
-        tooltipY + 18.h,
-      ),
+      Offset(activePoint.dx - textPainter.width / 2, tooltipY + 18.h),
     );
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(covariant _EarningsLineChartPainter oldDelegate) {
+    return oldDelegate.values != values ||
+        oldDelegate.xMonths != xMonths ||
+        oldDelegate.activeIndex != activeIndex;
   }
 }

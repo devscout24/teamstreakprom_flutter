@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
 
 class QrScannerScreen extends StatefulWidget {
@@ -33,74 +34,49 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
             // Header Row
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                        size: 20.w,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    "QR Scanner",
-                    style: TextStyle(
-                      fontFamily: "SF Pro Rounded",
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  SizedBox(width: 40.w), // Spacer balance
-                ],
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: CustomBackButton(),
               ),
             ),
             const Spacer(),
 
             // Scanner Frame view wrapping the live camera preview
             Center(
-              child: Container(
-                width: 280.w,
-                height: 280.w,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(24.r),
-                ),
-                clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                width: 330.w,
+                height: 480.w,
                 child: Stack(
                   children: [
-                    MobileScanner(
-                      controller: _controller,
-                      onDetect: (capture) {
-                        if (_isScanned) return;
-                        final List<Barcode> barcodes = capture.barcodes;
-                        if (barcodes.isNotEmpty) {
-                          final String? rawValue = barcodes.first.rawValue;
-                          debugPrint("Scanned QR Code Value: $rawValue");
-                          setState(() {
-                            _isScanned = true;
-                          });
-                          Navigator.pushReplacementNamed(context, Routes.scanResultScreen);
-                        }
-                      },
+                    Container(
+                      width: 330.w,
+                      height: 480.w,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: MobileScanner(
+                        controller: _controller,
+                        onDetect: (capture) {
+                          if (_isScanned) return;
+                          final List<Barcode> barcodes = capture.barcodes;
+                          if (barcodes.isNotEmpty) {
+                            final String? rawValue = barcodes.first.rawValue;
+                            debugPrint("Scanned QR Code Value: $rawValue");
+                            setState(() {
+                              _isScanned = true;
+                            });
+                            Navigator.pushReplacementNamed(
+                              context,
+                              Routes.scanResultScreen,
+                            );
+                          }
+                        },
+                      ),
                     ),
                     Positioned.fill(
-                      child: CustomPaint(
-                        painter: _ScannerFramePainter(),
-                      ),
+                      child: CustomPaint(painter: _ScannerFramePainter()),
                     ),
                   ],
                 ),
@@ -125,7 +101,10 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
                 setState(() {
                   _isScanned = true;
                 });
-                Navigator.pushReplacementNamed(context, Routes.scanResultScreen);
+                Navigator.pushReplacementNamed(
+                  context,
+                  Routes.scanResultScreen,
+                );
               },
               child: Container(
                 width: 84.w,
@@ -148,10 +127,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
                       width: 4.w,
                     ),
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFF28F31),
-                        Color(0xFF72E84F),
-                      ],
+                      colors: [Color(0xFFF28F31), Color(0xFF72E84F)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -173,19 +149,16 @@ class _ScannerFramePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double width = size.width;
     final double height = size.height;
-    final double cornerSize = 30.w;
-    final double strokeThickness = 3.5.w;
-    final double radius = 16.r;
+    final double cornerSize = 24.w;
+    final double strokeThickness = 2.w;
+    final double radius = 24.r;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeThickness
       ..strokeCap = StrokeCap.round
       ..shader = const LinearGradient(
-        colors: [
-          Color(0xFFF28F31),
-          Color(0xFF72E84F),
-        ],
+        colors: [Color(0xFFF28F31), Color(0xFF72E84F)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ).createShader(Rect.fromLTWH(0, 0, width, height));

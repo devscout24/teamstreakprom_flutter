@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 
@@ -42,10 +43,7 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: [
-        AppColors.primaryColorFirst,
-        AppColors.primaryColorSecond,
-      ],
+      colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     );
@@ -53,15 +51,10 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
     final isWeek = _selectedRevenueType == "Week";
     final activeData = isWeek ? _revenueWeekData : _revenueMonthData;
 
-    return Container(
+    return GradientContainer(
       padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E222B),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
-      ),
+      borderRadius: BorderRadius.circular(24.r),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -103,9 +96,16 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
                   ),
                 ],
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryColorSecond.withValues(alpha: 0.2),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF8FFF5), Color(0xFFB3E588)],
+                    ),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
@@ -116,13 +116,13 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
                           fontFamily: "SF Pro",
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryColorSecond,
+                          color: const Color(0xFF1A2E0F),
                         ),
                       ),
                       UIHelper.horizontalSpace(4),
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.primaryColorSecond,
+                        color: const Color(0xFF1A2E0F),
                         size: 16.w,
                       ),
                     ],
@@ -202,10 +202,7 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
     );
   }
 
-  Widget _buildBar({
-    required String month,
-    required double height,
-  }) {
+  Widget _buildBar({required String month, required double height}) {
     return Column(
       children: [
         Container(

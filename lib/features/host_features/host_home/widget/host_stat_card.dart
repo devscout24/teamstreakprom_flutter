@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 
 class HostStatCard extends StatelessWidget {
@@ -20,32 +21,21 @@ class HostStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E222B),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
-      ),
+    return GradientContainer(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 18.h),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 32.w,
-                height: 32.w,
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: circleBgColor,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 18.w,
-                ),
+                child: Icon(icon, color: iconColor, size: 18.w),
               ),
               UIHelper.horizontalSpace(10),
               Expanded(
