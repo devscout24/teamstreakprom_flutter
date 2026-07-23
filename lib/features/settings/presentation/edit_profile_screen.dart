@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../common_widgets/custom_app_bar.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/custom_textform_field.dart';
 import '../../../constants/text_font_style.dart';
@@ -16,6 +19,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  File? _imageFile;
   final TextEditingController _nameController = TextEditingController(
     text: "Kimberly Gilbert",
   );
@@ -34,29 +38,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Padding(
-          padding: EdgeInsets.all(8.r),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: const CustomBackButton(),
-            title: Text(
-              "Account Settings",
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Account Settings"),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         child: Column(
@@ -74,26 +70,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 100.w,
                       decoration: const BoxDecoration(shape: BoxShape.circle),
                       child: ClipOval(
-                        child: AppNetworkImage(
-                          imageUrl: "https://i.pravatar.cc/150?img=11",
-                          height: 100.w,
-                          width: 100.w,
-                        ),
+                        child: _imageFile != null
+                            ? Image.file(
+                                _imageFile!,
+                                height: 100.w,
+                                width: 100.w,
+                                fit: BoxFit.cover,
+                              )
+                            : AppNetworkImage(
+                                imageUrl: "https://i.pravatar.cc/150?img=11",
+                                height: 100.w,
+                                width: 100.w,
+                              ),
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(6.w),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.edit_outlined,
-                          color: Colors.black,
-                          size: 16.sp,
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          padding: EdgeInsets.all(6.w),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.edit_outlined,
+                            color: Colors.black,
+                            size: 16.sp,
+                          ),
                         ),
                       ),
                     ),

@@ -22,15 +22,18 @@ class HostStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientContainer(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 18.h),
+      padding: EdgeInsets.symmetric(vertical: 18.w),
       border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(8.r),
+                padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
                   color: circleBgColor,
                   borderRadius: BorderRadius.all(Radius.circular(10.r)),
@@ -38,16 +41,18 @@ class HostStatCard extends StatelessWidget {
                 child: Icon(icon, color: iconColor, size: 18.w),
               ),
               UIHelper.horizontalSpace(10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: "SF Pro",
-                    fontSize: 13.sp,
-                    color: Colors.white.withValues(alpha: 0.6),
+              Center(
+                child: Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 13.sp,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

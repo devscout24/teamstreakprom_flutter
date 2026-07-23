@@ -62,6 +62,8 @@ class RockEventsList extends StatelessWidget {
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.cFFFFFF,
                       ),
                 ),
               ),
@@ -85,7 +87,7 @@ class RockEventsList extends StatelessWidget {
                   date: event.date,
                   price: event.price,
                   imageUrl: event.imageUrl,
-                  isOverlayStyle: true,
+                  isOverlayStyle: false,
                   onBuyPressed: () {},
                 ),
               );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
@@ -73,12 +72,11 @@ void showProductDetailsBottomSheet({
                             });
                           },
                           itemBuilder: (context, index) {
-                            return ModelViewer(
-                              src: sheetImages[index],
-                              alt: "3D Model",
-                              ar: true,
-                              autoRotate: true,
-                              cameraControls: true,
+                            return Image.network(
+                              sheetImages[index],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
                             );
                           },
                         ),
@@ -234,7 +232,6 @@ void showProductDetailsBottomSheet({
                     onContinueToPay();
                   },
                   title: "Continue to Redeem Reward",
-                  height: 52.h,
                   borderRadius: BorderRadius.circular(100.r),
                   textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(

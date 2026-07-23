@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../common_widgets/custom_app_bar.dart';
 import 'package:teamstreakpromo/features/rewards/presentation/rewards_point_details_screen.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
@@ -20,33 +20,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Padding(
-          padding: EdgeInsets.all(8.r),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: const CustomBackButton(),
-            title: Text(
-              "Settings",
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-            actions: [
-              Image.asset(
-                Assets.icons.splashLogo.path,
-                height: 24.h,
-                color: Colors.white,
-              ),
-              UIHelper.horizontalSpace(16.w),
-            ],
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Settings"),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
@@ -127,6 +101,9 @@ class SettingsScreen extends StatelessWidget {
 
             // Profile Card
             GradientContainer(
+              onTap: () {
+                NavigationService.navigateTo(Routes.editProfileScreen);
+              },
               padding: EdgeInsets.all(16.w),
               child: Row(
                 children: [
@@ -216,7 +193,6 @@ class SettingsScreen extends StatelessWidget {
             CustomGradientButton(
               onPressed: () => _showLogOutBottomSheet(context),
               title: "Log Out",
-              height: 52.h,
               borderRadius: BorderRadius.circular(100.r),
             ),
             UIHelper.verticalSpace(32.h),
@@ -312,7 +288,9 @@ class SettingsScreen extends StatelessWidget {
                     child: CustomGradientButton(
                       onPressed: () {
                         // TODO: Implement actual logout logic
-                        Navigator.pop(context);
+                        NavigationService.navigateToReplacement(
+                          Routes.chooseAccountTypeScreen,
+                        );
                       },
                       title: "Log Out",
                       height: 52.h,

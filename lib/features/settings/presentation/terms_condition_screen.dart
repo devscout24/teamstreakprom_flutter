@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../common_widgets/custom_app_bar.dart';
+import '../../../gen/assets.gen.dart';
 import '../../../common_widgets/custom_back_button.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
@@ -12,25 +14,7 @@ class TermsConditionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Padding(
-          padding: EdgeInsets.all(8.r),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: const CustomBackButton(),
-            title: Text(
-              "Terms & Condition",
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Terms & Condition"),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(

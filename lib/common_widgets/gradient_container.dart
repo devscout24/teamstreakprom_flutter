@@ -20,6 +20,7 @@ class GradientContainer extends StatelessWidget {
     this.border,
     this.width,
     this.height,
+    this.onTap,
   });
 
   final Widget child;
@@ -29,6 +30,7 @@ class GradientContainer extends StatelessWidget {
   final BoxBorder? border;
   final double? width;
   final double? height;
+  final VoidCallback? onTap;
 
   /// Default gradient used across ticket cards and similar surfaces.
   static const LinearGradient defaultGradient = LinearGradient(
@@ -43,16 +45,19 @@ class GradientContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      padding: padding,
-      decoration: BoxDecoration(
-        gradient: gradient ?? defaultGradient,
-        borderRadius: borderRadius ?? BorderRadius.circular(16.r),
-        border: border,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        padding: padding,
+        decoration: BoxDecoration(
+          gradient: gradient ?? defaultGradient,
+          borderRadius: borderRadius ?? BorderRadius.circular(16.r),
+          border: border,
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }

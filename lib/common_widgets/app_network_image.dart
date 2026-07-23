@@ -43,7 +43,8 @@ class AppNetworkImage extends StatelessWidget {
         fadeInDuration: const Duration(milliseconds: 300),
         fadeOutDuration: const Duration(milliseconds: 300),
         placeholder: (context, url) => customPlaceholder ?? _buildPlaceholder(),
-        errorWidget: (context, url, error) => customErrorWidget ?? _buildErrorWidget(),
+        errorWidget: (context, url, error) =>
+            customErrorWidget ?? _buildErrorWidget(),
       ),
     );
   }

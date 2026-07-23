@@ -138,17 +138,9 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ).createShader(bounds),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24.w,
-                  ),
+                  child: Icon(icon, color: Colors.white, size: 24.w),
                 )
-              : Icon(
-                  icon,
-                  color: AppColors.c9B9C9A,
-                  size: 24.w,
-                ),
+              : Icon(icon, color: AppColors.c9B9C9A, size: 24.w),
           UIHelper.verticalSpace(4),
           // Label with dynamic gradient or gray color
           isSelected

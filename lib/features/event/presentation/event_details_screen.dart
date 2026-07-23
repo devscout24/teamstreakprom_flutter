@@ -900,7 +900,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         CustomGradientButton(
                           onPressed: _showBookingSuccessDialog,
                           title: "Buy a Ticket",
-                          height: 52.h,
                           borderRadius: BorderRadius.circular(100.r),
                           textStyle: TextFontStyle
                               .textStyle14cFFFFFFSFProRounded400
@@ -915,7 +914,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   : CustomGradientButton(
                       onPressed: _redeemRewardDirectly,
                       title: "Redeem Reward",
-                      height: 52.h,
                       borderRadius: BorderRadius.circular(100.r),
                       textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(

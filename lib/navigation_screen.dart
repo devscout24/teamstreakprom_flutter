@@ -1,166 +1,361 @@
-// import 'package:custom_navigation_bar/custom_navigation_bar.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:mollie/features/settings/presentation/settings_screen.dart';
-// import 'package:mollie/features/theme/presentation/theme_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/navigation_service.dart';
+import 'gen/colors.gen.dart';
+import 'gen/assets.gen.dart';
+import 'features/home/presentation/home_screen.dart';
+import 'features/event/presentation/event_screen.dart';
+import 'features/rewards/presentation/rewards_screen.dart';
+import 'features/my_ticket/presentation/my_ticket_screen.dart';
+import 'features/settings/presentation/settings_screen.dart';
+import 'common_widgets/app_network_image.dart';
+import 'constants/text_font_style.dart';
+import 'helpers/ui_helpers.dart';
 
-// import '/gen/assets.gen.dart';
-// import 'features/home/presentaion/home_screen.dart';
-// import 'gen/colors.gen.dart';
-// import 'helpers/helper_methods.dart';
+class NavigationScreen extends StatefulWidget {
+  const NavigationScreen({super.key});
 
-// class NavigationScreen extends StatefulWidget {
-//   final Widget? pageNum;
-//   const NavigationScreen({
-//     super.key,
-//     this.pageNum,
-//   });
+  @override
+  State<NavigationScreen> createState() => _NavigationScreenState();
+}
 
-//   @override
-//   State<NavigationScreen> createState() => _NavigationScreenState();
-// }
+class _NavigationScreenState extends State<NavigationScreen> {
+  int _selectedIndex = 0;
 
-// class _NavigationScreenState extends State<NavigationScreen> {
-//   int _currentIndex = 0;
+  late final List<Widget> _screens;
 
-//   final bool _isFisrtBuild = true;
-//   // bool _navigationOn = true;
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      HomeScreen(
+        onNavigateToRewards: () {
+          setState(() {
+            _selectedIndex = 2; // Switch to Rewards tab
+          });
+        },
+      ),
+      const EventScreen(),
+      const RewardsScreen(),
+      const MyTicketScreen(),
+      const SettingsScreen(),
+    ];
+  }
 
-//   final List<StatefulWidget> _screens = [
-//     const HomeScreen(),
-//     const ThemeScreen(),
-//     const SettingsScreen(),
-//   ];
+  static const Gradient _activeGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+  );
 
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
+  Widget _buildNavItem({
+    required int index,
+    required String iconPath,
+    required String label,
+  }) {
+    final isSelected = _selectedIndex == index;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     Object? args;
-//     StatefulWidget? screenPage;
-//     if (_isFisrtBuild) {
-//       args = ModalRoute.of(context)!.settings.arguments;
-//     }
-//     if (args != null) {
-//       screenPage = args as StatefulWidget;
-//       var newColorindex = -1;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        behavior: HitTestBehavior.opaque,
+        child: _buildNavItemContent(isSelected, iconPath, label),
+      ),
+    );
+  }
 
-//       for (var element in _screens) {
-//         newColorindex++;
-//         if (element.toString() == screenPage.toString()) {
-//           _currentIndex = newColorindex;
-//           break;
-//         }
-//       }
-//     }
+  Widget _buildNavItemContent(bool isSelected, String iconPath, String label) {
+    Widget iconWidget = Image.asset(
+      iconPath,
+      width: 24.w,
+      height: 24.w,
+      color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5),
+    );
 
-//     return PopScope(
-//       canPop: false,
-//      onPopInvokedWithResult: (bool didPop, _)  async {
-//         showMaterialDialog(context);
-//       },
-//       child: Scaffold(
-//         backgroundColor: Colors.white,
-//         extendBody: true,
-//         // onDrawerChanged: (isOpened) => setState(() {
-//         //   _navigationOn = !isOpened;
-//         // }),
-//         body: Center(
-//           child: (screenPage != null)
-//               ? screenPage
-//               : _screens.elementAt(_currentIndex),
-//         ),
-//         bottomNavigationBar: Padding(
-//           padding: EdgeInsets.only(
-//               bottom: 16.h,
-//               right: 16.w,
-//               left: 16.w), // Add padding from the bottom
-//           child: Container(
-//             height: 66.h,
-//             decoration: BoxDecoration(
-//               color: AppColors.c02BF65,
-//               borderRadius: BorderRadius.all(Radius.circular(50.r)),
-//             ),
-//             child: Padding(
-//               padding: EdgeInsets.all(0.sp),
-//               child: CustomNavigationBar(
-//                 borderRadius: Radius.circular(50.r),
-//                 iconSize: 38.r,
-//                 selectedColor: Colors.red,
-//                 strokeColor: AppColors.c02BF65,
-//                 unSelectedColor: Colors.black,
-//                 backgroundColor:
-//                     AppColors.c02BF65, // Make background transparent
-//                 items: [
-//                   CustomNavigationBarItem(
-//                     icon: Stack(
-//                       alignment: Alignment.center,
-//                       children: [
-//                         _currentIndex == 0
-//                             ? Image.asset(Assets.icons.iconBang.path)
-//                             : const SizedBox.shrink(),
-//                         Center(
-//                           child: Image.asset(Assets.icons.generalIcon.path,
-//                               color: AppColors.cFFFFFF),
-//                         ),
-//                       ],
-//                     ),
-//                     title: const Text(
-//                       "General",
-//                       style: TextStyle(color: AppColors.cFFFFFF),
-//                     ),
-//                   ),
-//                   CustomNavigationBarItem(
-//                     icon: Stack(
-//                       alignment: Alignment.center,
-//                       children: [
-//                         _currentIndex == 1
-//                             ? Image.asset(Assets.icons.iconBang.path)
-//                             : const SizedBox.shrink(),
-//                         Center(
-//                           child: Image.asset(Assets.icons.themeIcon.path,
-//                               width: 18.w, color: AppColors.cFFFFFF),
-//                         ),
-//                       ],
-//                     ),
-//                     title: const Text(
-//                       "Theme",
-//                       style: TextStyle(color: AppColors.cFFFFFF),
-//                     ),
-//                   ),
-//                   CustomNavigationBarItem(
-//                     icon: Stack(
-//                       alignment: Alignment.center,
-//                       children: [
-//                         _currentIndex == 2
-//                             ? Image.asset(Assets.icons.iconBang.path)
-//                             : const SizedBox.shrink(),
-//                         Center(
-//                           child: Image.asset(Assets.icons.settingsIcon.path,
-//                               width: 28.w, color: AppColors.cFFFFFF),
-//                         ),
-//                       ],
-//                     ),
-//                     title: const Text(
-//                       "Settings",
-//                       style: TextStyle(color: AppColors.cFFFFFF),
-//                     ),
-//                   ),
-//                 ],
-//                 currentIndex: _currentIndex,
-//                 onTap: (index) {
-//                   setState(() {
-//                     _currentIndex = index;
-//                   });
-//                 },
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+    if (isSelected) {
+      iconWidget = ShaderMask(
+        shaderCallback: (bounds) => _activeGradient.createShader(bounds),
+        blendMode: BlendMode.srcIn,
+        child: iconWidget,
+      );
+    }
+
+    Widget textWidget = Text(label);
+    if (isSelected) {
+      textWidget = ShaderMask(
+        shaderCallback: (bounds) => _activeGradient.createShader(bounds),
+        blendMode: BlendMode.srcIn,
+        child: textWidget,
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedScale(
+          scale: isSelected ? 1.15 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutBack,
+          child: iconWidget,
+        ),
+        UIHelper.verticalSpace(6.h),
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+            fontFamily: 'SF Pro',
+            fontSize: isSelected ? 11.5.sp : 11.sp,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.5),
+          ),
+          child: textWidget,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 12.h),
+      color: AppColors.scaffoldColor,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              NavigationService.navigateTo(Routes.editProfileScreen);
+            },
+            child: Container(
+              width: 44.w,
+              height: 44.w,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: const AppNetworkImage(
+                imageUrl:
+                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
+                borderRadius: BorderRadius.all(Radius.circular(100)),
+              ),
+            ),
+          ),
+          UIHelper.horizontalSpace(12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    NavigationService.navigateTo(Routes.editProfileScreen);
+                  },
+                  child: Text(
+                    "Wilson Culhane",
+                    style: TextFontStyle.textStyle16cFFFFFFSFPro590,
+                  ),
+                ),
+                UIHelper.verticalSpace(4.h),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 16.sp,
+                      color: AppColors.primaryColorSecond,
+                    ),
+                    UIHelper.horizontalSpace(4.w),
+                    Flexible(
+                      child: Text(
+                        "Divine Art Festival",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          UIHelper.horizontalSpace(12.w),
+          GestureDetector(
+            onTap: () {
+              NavigationService.navigateTo(Routes.rewardsPointDetailsScreen);
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E222B),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        AppColors.primaryColorFirst,
+                        AppColors.primaryColorSecond,
+                      ],
+                    ).createShader(bounds),
+                    blendMode: BlendMode.srcIn,
+                    child: Image.asset(
+                      Assets.icons.pointIcon.path,
+                      width: 18.w,
+                      height: 18.w,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(6.w),
+                  RichText(
+                    text: TextSpan(
+                      text: "95 ",
+                      style: TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryColorSecond,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: "pts",
+                          style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.primaryColorSecond.withValues(
+                                  alpha: 0.8,
+                                ),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          UIHelper.horizontalSpace(12.w),
+          GestureDetector(
+            onTap: () {
+              NavigationService.navigateTo(Routes.notificationScreen);
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Image.asset(
+                  Assets.icons.notificationIcon.path,
+                  width: 24.w,
+                  height: 24.w,
+                  color: Colors.white,
+                ),
+                Positioned(
+                  top: -2.h,
+                  right: -2.w,
+                  child: Container(
+                    padding: EdgeInsets.all(4.w),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF28F31),
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 14.w,
+                      minHeight: 14.w,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "3",
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.scaffoldColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (_selectedIndex != 4) _buildHeader(),
+            Expanded(
+              child: IndexedStack(index: _selectedIndex, children: _screens),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 78.h,
+        decoration: BoxDecoration(
+          color: const Color(0xFF13151B),
+          border: Border(
+            top: BorderSide(
+              color: Colors.white.withValues(alpha: 0.05),
+              width: 1.h,
+            ),
+          ),
+        ),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0x1AF8FFF5), Color(0x1AB3E588)],
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(
+                  index: 0,
+                  iconPath: Assets.icons.homeIcon.path,
+                  label: "Home",
+                ),
+                _buildNavItem(
+                  index: 1,
+                  iconPath: Assets.icons.eventIcon.path,
+                  label: "Event",
+                ),
+                _buildNavItem(
+                  index: 2,
+                  iconPath: Assets.icons.rewards.path,
+                  label: "Rewards",
+                ),
+                _buildNavItem(
+                  index: 3,
+                  iconPath: Assets.icons.ticketIcon.path,
+                  label: "My Ticket",
+                ),
+                _buildNavItem(
+                  index: 4,
+                  iconPath: Assets.icons.settingIcon.path,
+                  label: "Settings",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
