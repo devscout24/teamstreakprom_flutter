@@ -111,7 +111,6 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
                         _showSuccessWithdrawalDialog();
                       },
                       title: "Request Withdrawal",
-                      height: 52.h,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     UIHelper.verticalSpace(40),

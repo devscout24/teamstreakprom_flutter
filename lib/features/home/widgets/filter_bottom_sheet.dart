@@ -26,13 +26,79 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   // Constants lists
   static const List<String> _contentTypes = ['Events', 'Business Rewards'];
-  static const List<String> _categories = ['T-shirt', 'Jersey', 'Shoes', 'Sandals', 'Boots'];
-  static const List<String> _eventDates = ['Today', 'Tomorrow', 'This Weekend', 'This Week', 'Custom'];
-  static const List<String> _distances = ['5 miles', '10 miles', '15 miles', '20 miles', 'Anywhere'];
-  static const List<String> _availabilities = ['Available', 'Sold Out', 'Few Left'];
-  static const List<String> _eventStatuses = ['Upcoming', 'Ending Soon', 'Live'];
-  static const List<String> _rewardsAvailableOptions = ['Has Rewards', 'No Rewards'];
-  static const List<String> _sortByOptions = ['Recommended', 'Soonest', 'Nearest', 'Lowest Price', 'Most Popular'];
+  static const List<String> _categories = [
+    'T-shirt',
+    'Jersey',
+    'Shoes',
+    'Sandals',
+    'Boots',
+  ];
+  static const List<String> _eventDates = [
+    'Today',
+    'Tomorrow',
+    'This Weekend',
+    'This Week',
+    'Custom',
+  ];
+  static const List<String> _distances = [
+    '5 miles',
+    '10 miles',
+    '15 miles',
+    '20 miles',
+    'Anywhere',
+  ];
+  static const List<String> _availabilities = [
+    'Available',
+    'Sold Out',
+    'Few Left',
+  ];
+  static const List<String> _eventStatuses = [
+    'Upcoming',
+    'Ending Soon',
+    'Live',
+  ];
+  static const List<String> _rewardsAvailableOptions = [
+    'Has Rewards',
+    'No Rewards',
+  ];
+  static const List<String> _sortByOptions = [
+    'Recommended',
+    'Soonest',
+    'Nearest',
+    'Lowest Price',
+    'Most Popular',
+  ];
+
+  String _selectedCompany = 'Nike';
+  String _selectedRewardType = 'Drop Shoulder';
+  String _selectedPoint = '25 pts';
+  RangeValues _pointRange = const RangeValues(10, 95);
+  DateTime? _fromDate;
+  DateTime? _toDate;
+
+  static const List<String> _companies = [
+    'Adidas',
+    'Nike',
+    'Convers',
+    'Vans',
+    'Piero',
+  ];
+  static const List<String> _rewardTypes = [
+    'Running Show',
+    'Slipper',
+    'Casual Shoes',
+    'Cuban collar Shirt',
+    'T shirt',
+    'Drop Shoulder',
+  ];
+  static const List<String> _points = [
+    '10 pts',
+    '15 pts',
+    '20 pts',
+    '25 pts',
+    '30 pts',
+    '35 pts',
+  ];
 
   void _resetFilters() {
     setState(() {
@@ -45,6 +111,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       _selectedEventStatus = 'Live';
       _selectedRewardsAvailable = 'No Rewards';
       _selectedSortBy = 'Nearest';
+
+      _selectedCompany = 'Nike';
+      _selectedRewardType = 'Drop Shoulder';
+      _selectedPoint = '25 pts';
+      _pointRange = const RangeValues(10, 95);
+      _fromDate = null;
+      _toDate = null;
     });
   }
 
@@ -84,16 +157,22 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100.r),
                   gradient: const LinearGradient(
-                    colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+                    colors: [
+                      AppColors.primaryColorFirst,
+                      AppColors.primaryColorSecond,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
                 child: Text(
                   option,
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13.sp,
-                  ),
+                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                      .copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.sp,
+                      ),
                 ),
               ),
             );
@@ -105,23 +184,30 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100.r),
                   gradient: const LinearGradient(
-                    colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+                    colors: [
+                      AppColors.primaryColorFirst,
+                      AppColors.primaryColorSecond,
+                    ],
                   ),
                 ),
                 child: Container(
                   margin: EdgeInsets.all(1.w),
-                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 7.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 15.w,
+                    vertical: 7.h,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E222B),
                     borderRadius: BorderRadius.circular(100.r),
                   ),
                   child: Text(
                     option,
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                      color: AppColors.cA8FF8E,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13.sp,
-                    ),
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: AppColors.cA8FF8E,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.sp,
+                        ),
                   ),
                 ),
               ),
@@ -153,6 +239,117 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isFromDate,
+  }) async {
+    final DateTime initialDate = isFromDate
+        ? (_fromDate ?? DateTime.now())
+        : (_toDate ?? _fromDate ?? DateTime.now());
+    final DateTime firstDate = isFromDate
+        ? DateTime(2000)
+        : (_fromDate ?? DateTime(2000));
+    final DateTime lastDate = DateTime(2100);
+
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.primaryColorSecond, // Selected date background
+              onPrimary: Colors.black, // Selected date text
+              surface: Color(0xFF1E222B), // Calendar background
+              onSurface: Colors.white, // Default text color
+            ),
+            dialogBackgroundColor: const Color(0xFF1E222B),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isFromDate) {
+          _fromDate = pickedDate;
+          if (_toDate != null && _toDate!.isBefore(pickedDate)) {
+            _toDate = null;
+          }
+        } else {
+          _toDate = pickedDate;
+        }
+      });
+    }
+  }
+
+  Widget _buildDatePickerField(
+    String label,
+    DateTime? selectedDate,
+    VoidCallback onTap,
+  ) {
+    final String dateString = selectedDate != null
+        ? "${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
+        : "DD/MM/YYYY";
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                fontSize: 12.sp,
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+            UIHelper.verticalSpace(8.h),
+            Container(
+              height: 48.h,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(100.r),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1.w,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_month_outlined,
+                    color: Colors.white.withValues(alpha: 0.5),
+                    size: 20.sp,
+                  ),
+                  UIHelper.horizontalSpace(8.w),
+                  Expanded(
+                    child: Text(
+                      dateString,
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            fontSize: 14.sp,
+                            color: selectedDate != null
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.3),
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -202,7 +399,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   _buildPillWrap(
                     options: _contentTypes,
                     selectedValue: _selectedContentType,
-                    onSelected: (val) => setState(() => _selectedContentType = val),
+                    onSelected: (val) =>
+                        setState(() => _selectedContentType = val),
                     isGradientSolid: true,
                   ),
 
@@ -210,94 +408,214 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   _buildPillWrap(
                     options: _categories,
                     selectedValue: _selectedCategory,
-                    onSelected: (val) => setState(() => _selectedCategory = val),
+                    onSelected: (val) =>
+                        setState(() => _selectedCategory = val),
                   ),
 
-                  _buildSectionTitle("Event Date"),
-                  _buildPillWrap(
-                    options: _eventDates,
-                    selectedValue: _selectedEventDate,
-                    onSelected: (val) => setState(() => _selectedEventDate = val),
-                  ),
+                  if (_selectedContentType == 'Events') ...[
+                    _buildSectionTitle("Event Date"),
+                    _buildPillWrap(
+                      options: _eventDates,
+                      selectedValue: _selectedEventDate,
+                      onSelected: (val) =>
+                          setState(() => _selectedEventDate = val),
+                    ),
 
-                  _buildSectionTitle("Price Range"),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: AppColors.primaryColorSecond,
-                      inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
-                      trackHeight: 4.h,
-                      rangeTrackShape: const GradientRangeSliderTrackShape(),
-                      rangeThumbShape: const GradientRangeSliderThumbShape(enabledThumbRadius: 10),
-                      overlayColor: AppColors.primaryColorSecond.withValues(alpha: 0.12),
+                    _buildSectionTitle("Price Range"),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primaryColorSecond,
+                        inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                        trackHeight: 4.h,
+                        rangeTrackShape: const GradientRangeSliderTrackShape(),
+                        rangeThumbShape: const GradientRangeSliderThumbShape(
+                          enabledThumbRadius: 10,
+                        ),
+                        overlayColor: AppColors.primaryColorSecond.withValues(
+                          alpha: 0.12,
+                        ),
+                      ),
+                      child: RangeSlider(
+                        values: _priceRange,
+                        min: 0,
+                        max: 100,
+                        onChanged: (values) {
+                          setState(() {
+                            _priceRange = values;
+                          });
+                        },
+                      ),
                     ),
-                    child: RangeSlider(
-                      values: _priceRange,
-                      min: 0,
-                      max: 100,
-                      onChanged: (values) {
-                        setState(() {
-                          _priceRange = values;
-                        });
-                      },
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${_priceRange.start.round()} \$",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12.sp,
+                                ),
+                          ),
+                          Text(
+                            "${_priceRange.end.round()} \$",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12.sp,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    _buildSectionTitle("Distance"),
+                    _buildPillWrap(
+                      options: _distances,
+                      selectedValue: _selectedDistance,
+                      onSelected: (val) =>
+                          setState(() => _selectedDistance = val),
+                    ),
+
+                    _buildSectionTitle("Ticket Availability"),
+                    _buildPillWrap(
+                      options: _availabilities,
+                      selectedValue: _selectedAvailability,
+                      onSelected: (val) =>
+                          setState(() => _selectedAvailability = val),
+                    ),
+
+                    _buildSectionTitle("Event Status"),
+                    _buildPillWrap(
+                      options: _eventStatuses,
+                      selectedValue: _selectedEventStatus,
+                      onSelected: (val) =>
+                          setState(() => _selectedEventStatus = val),
+                    ),
+
+                    _buildSectionTitle("Rewards Available"),
+                    _buildPillWrap(
+                      options: _rewardsAvailableOptions,
+                      selectedValue: _selectedRewardsAvailable,
+                      onSelected: (val) =>
+                          setState(() => _selectedRewardsAvailable = val),
+                    ),
+
+                    _buildSectionTitle("Sort By"),
+                    _buildPillWrap(
+                      options: _sortByOptions,
+                      selectedValue: _selectedSortBy,
+                      onSelected: (val) =>
+                          setState(() => _selectedSortBy = val),
+                    ),
+                  ] else ...[
+                    _buildSectionTitle("Company"),
+                    _buildPillWrap(
+                      options: _companies,
+                      selectedValue: _selectedCompany,
+                      onSelected: (val) =>
+                          setState(() => _selectedCompany = val),
+                    ),
+
+                    _buildSectionTitle("Reward Type"),
+                    _buildPillWrap(
+                      options: _rewardTypes,
+                      selectedValue: _selectedRewardType,
+                      onSelected: (val) =>
+                          setState(() => _selectedRewardType = val),
+                    ),
+
+                    _buildSectionTitle("Expiry Date"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          "${_priceRange.start.round()} \$",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 12.sp,
+                        _buildDatePickerField(
+                          "From",
+                          _fromDate,
+                          () => _selectDate(context, isFromDate: true),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 12.h,
+                          ),
+                          child: Icon(
+                            Icons.swap_horiz,
+                            color: Colors.white,
+                            size: 24.sp,
                           ),
                         ),
-                        Text(
-                          "${_priceRange.end.round()} \$",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 12.sp,
-                          ),
+                        _buildDatePickerField(
+                          "To",
+                          _toDate,
+                          () => _selectDate(context, isFromDate: false),
                         ),
                       ],
                     ),
-                  ),
 
-                  _buildSectionTitle("Distance"),
-                  _buildPillWrap(
-                    options: _distances,
-                    selectedValue: _selectedDistance,
-                    onSelected: (val) => setState(() => _selectedDistance = val),
-                  ),
+                    _buildSectionTitle("Point Range"),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primaryColorSecond,
+                        inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                        trackHeight: 4.h,
+                        rangeTrackShape: const GradientRangeSliderTrackShape(),
+                        rangeThumbShape: const GradientRangeSliderThumbShape(
+                          enabledThumbRadius: 10,
+                        ),
+                        overlayColor: AppColors.primaryColorSecond.withValues(
+                          alpha: 0.12,
+                        ),
+                      ),
+                      child: RangeSlider(
+                        values: _pointRange,
+                        min: 0,
+                        max: 100,
+                        onChanged: (values) {
+                          setState(() {
+                            _pointRange = values;
+                          });
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${_pointRange.start.round()} pts",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12.sp,
+                                ),
+                          ),
+                          Text(
+                            "${_pointRange.end.round()} pts",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12.sp,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                  _buildSectionTitle("Ticket Availability"),
-                  _buildPillWrap(
-                    options: _availabilities,
-                    selectedValue: _selectedAvailability,
-                    onSelected: (val) => setState(() => _selectedAvailability = val),
-                  ),
-
-                  _buildSectionTitle("Event Status"),
-                  _buildPillWrap(
-                    options: _eventStatuses,
-                    selectedValue: _selectedEventStatus,
-                    onSelected: (val) => setState(() => _selectedEventStatus = val),
-                  ),
-
-                  _buildSectionTitle("Rewards Available"),
-                  _buildPillWrap(
-                    options: _rewardsAvailableOptions,
-                    selectedValue: _selectedRewardsAvailable,
-                    onSelected: (val) => setState(() => _selectedRewardsAvailable = val),
-                  ),
-
-                  _buildSectionTitle("Sort By"),
-                  _buildPillWrap(
-                    options: _sortByOptions,
-                    selectedValue: _selectedSortBy,
-                    onSelected: (val) => setState(() => _selectedSortBy = val),
-                  ),
+                    _buildSectionTitle("Points"),
+                    _buildPillWrap(
+                      options: _points,
+                      selectedValue: _selectedPoint,
+                      onSelected: (val) => setState(() => _selectedPoint = val),
+                    ),
+                  ],
                   UIHelper.verticalSpace(24.h),
                 ],
               ),
@@ -333,11 +651,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       child: Center(
                         child: Text(
                           "Reset",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: AppColors.primaryColorSecond,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15.sp,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.primaryColorSecond,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15.sp,
+                              ),
                         ),
                       ),
                     ),
@@ -352,11 +671,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     title: "Apply",
                     height: 48.h,
                     borderRadius: BorderRadius.circular(100.r),
-                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                      color: const Color(0xFF262824),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15.sp,
-                    ),
+                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: const Color(0xFF262824),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15.sp,
+                        ),
                   ),
                 ),
               ],
@@ -383,7 +703,8 @@ class GradientRangeSliderTrackShape extends RangeSliderTrackShape {
     final double trackHeight = sliderTheme.trackHeight ?? 4.0;
     const double minThumbGap = 16.0;
     final double trackLeft = offset.dx + minThumbGap;
-    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
     final double trackWidth = parentBox.size.width - minThumbGap * 2;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
@@ -415,7 +736,7 @@ class GradientRangeSliderTrackShape extends RangeSliderTrackShape {
     final Paint inactivePaint = Paint()
       ..color = sliderTheme.inactiveTrackColor ?? Colors.grey
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(
@@ -432,10 +753,7 @@ class GradientRangeSliderTrackShape extends RangeSliderTrackShape {
     // Paint active track with gradient
     final Paint activePaint = Paint()
       ..shader = const LinearGradient(
-        colors: [
-          AppColors.primaryColorFirst,
-          AppColors.primaryColorSecond,
-        ],
+        colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
       ).createShader(preferredRect)
       ..style = PaintingStyle.fill;
 
@@ -503,9 +821,12 @@ class GradientRangeSliderThumbShape extends RangeSliderThumbShape {
 
     // Draw inner gradient circle
     final Paint innerPaint = Paint()
-      ..shader = const LinearGradient(
-        colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
-      ).createShader(Rect.fromCircle(center: center, radius: enabledThumbRadius - 2.5.w))
+      ..shader =
+          const LinearGradient(
+            colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+          ).createShader(
+            Rect.fromCircle(center: center, radius: enabledThumbRadius - 2.5.w),
+          )
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, enabledThumbRadius - 2.5.w, innerPaint);
   }

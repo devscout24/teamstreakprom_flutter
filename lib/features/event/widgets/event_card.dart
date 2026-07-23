@@ -210,85 +210,22 @@ class EventCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.all(8.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Cover Image Stack with overlay dates
-              SizedBox(
-                height: 150.h,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16.r),
-                        child: AppNetworkImage(
-                          imageUrl: imageUrl,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    // Date and Price overlay pill (translucent/frosted)
-                    Positioned(
-                      bottom: 8.h,
-                      left: 8.w,
-                      right: 8.w,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100.r),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 8.h,
-                            ),
-                            color: Colors.white.withValues(alpha: 0.15),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today_rounded,
-                                  size: 14.sp,
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
-                                UIHelper.horizontalSpace(6.w),
-                                Text(
-                                  date,
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.6,
-                                        ),
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
-                                const Spacer(),
-                                Icon(
-                                  Icons.confirmation_num_rounded,
-                                  size: 14.sp,
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
-                                UIHelper.horizontalSpace(4.w),
-                                Text(
-                                  price,
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              // Cover Image
+              Container(
+                height: 180.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(134, 134, 134, 0.10),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
                 ),
               ),
               UIHelper.verticalSpace(12.h),
@@ -301,13 +238,13 @@ class EventCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              UIHelper.verticalSpace(6.h),
+              UIHelper.verticalSpace(10.h),
               Row(
                 children: [
                   Icon(
-                    Icons.location_on_rounded,
+                    Icons.location_on_outlined,
                     size: 16.sp,
-                    color: AppColors.primaryColorSecond,
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                   UIHelper.horizontalSpace(6.w),
                   Flexible(
@@ -324,21 +261,28 @@ class EventCard extends StatelessWidget {
                   ),
                 ],
               ),
-              UIHelper.verticalSpace(12.h),
-              CustomGradientButton(
-                onPressed: () {
-                  onBuyPressed();
-                  _navigateToDetails(context);
-                },
-                title: "Buy Ticket",
-                height: 40.h,
-                borderRadius: BorderRadius.circular(20.r),
-                textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                    .copyWith(
-                      color: AppColors.c262824,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14.sp,
+              UIHelper.verticalSpace(10.h),
+              Row(
+                children: [
+                  Icon(
+                    Icons.calendar_month_outlined,
+                    size: 16.sp,
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                  UIHelper.horizontalSpace(6.w),
+                  Flexible(
+                    child: Text(
+                      date,
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 13.sp,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                ],
               ),
             ],
           ),

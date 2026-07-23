@@ -7,6 +7,7 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 
 class SubscriptionScreen extends StatelessWidget {
   const SubscriptionScreen({super.key});
@@ -25,12 +26,6 @@ class SubscriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient = LinearGradient(
-      colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    );
-
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
@@ -62,158 +57,156 @@ class SubscriptionScreen extends StatelessWidget {
               // Main Subscription Card with custom gradient border
               Expanded(
                 child: SingleChildScrollView(
-                  child: CustomPaint(
-                    painter: RoundedGradientBorderPainter(
-                      gradient: gradient,
-                      strokeWidth: 1.5.w,
-                      borderRadius: 32.r,
+                  child: GradientContainer(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 24.h,
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 24.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E222B).withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(32.r),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Plan Title
-                          Text(
-                            "Host Plan",
+                    border: Border.all(
+                      color: AppColors.cFFFFFF.withValues(alpha: .1),
+                      width: 1.5.w,
+                    ),
+                    borderRadius: BorderRadius.circular(32.r),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Plan Title
+                        Text(
+                          "Host Plan",
+                          style: TextStyle(
+                            fontFamily: "SF Pro Rounded",
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        UIHelper.verticalSpace(6),
+                        // Plan Subtitle
+                        Text(
+                          "Perfect for managing your events smoothly",
+                          style: TextStyle(
+                            fontFamily: "SF Pro",
+                            fontSize: 13.sp,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(20),
+
+                        // Price
+                        RichText(
+                          text: TextSpan(
+                            text: "29.99\$",
                             style: TextStyle(
                               fontFamily: "SF Pro Rounded",
-                              fontSize: 26.sp,
+                              fontSize: 44.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
-                          ),
-                          UIHelper.verticalSpace(6),
-                          // Plan Subtitle
-                          Text(
-                            "Perfect for managing your events smoothly",
-                            style: TextStyle(
-                              fontFamily: "SF Pro",
-                              fontSize: 13.sp,
-                              color: Colors.white.withValues(alpha: 0.6),
-                            ),
-                          ),
-                          UIHelper.verticalSpace(20),
-
-                          // Price
-                          RichText(
-                            text: TextSpan(
-                              text: "29.99\$",
-                              style: TextStyle(
-                                fontFamily: "SF Pro Rounded",
-                                fontSize: 44.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                            children: [
+                              TextSpan(
+                                text: " / month",
+                                style: TextStyle(
+                                  fontFamily: "SF Pro",
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                        UIHelper.verticalSpace(16),
+                        Divider(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          thickness: 1.h,
+                        ),
+                        UIHelper.verticalSpace(24),
+
+                        // Features List
+                        ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _features.length,
+                          separatorBuilder: (context, index) =>
+                              UIHelper.verticalSpace(16),
+                          itemBuilder: (context, index) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                TextSpan(
-                                  text: " / month",
-                                  style: TextStyle(
-                                    fontFamily: "SF Pro",
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.white.withValues(alpha: 0.6),
+                                // Circular Green Checkmark Icon matching mockup
+                                Container(
+                                  width: 20.w,
+                                  height: 20.w,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.primaryColorFirst.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        AppColors.primaryColorSecond.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check,
+                                    color: Colors.black,
+                                    size: 13.w,
+                                  ),
+                                ),
+                                UIHelper.horizontalSpace(12),
+                                Expanded(
+                                  child: Text(
+                                    _features[index],
+                                    style: TextStyle(
+                                      fontFamily: "SF Pro",
+                                      fontSize: 14.sp,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                               ],
-                            ),
-                          ),
-                          UIHelper.verticalSpace(16),
-                          Divider(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            thickness: 1.h,
-                          ),
-                          UIHelper.verticalSpace(24),
+                            );
+                          },
+                        ),
+                        UIHelper.verticalSpace(32),
 
-                          // Features List
-                          ListView.separated(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: _features.length,
-                            separatorBuilder: (context, index) =>
-                                UIHelper.verticalSpace(16),
-                            itemBuilder: (context, index) {
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Circular Green Checkmark Icon matching mockup
-                                  Container(
-                                    width: 20.w,
-                                    height: 20.w,
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.primaryColorFirst,
-                                          AppColors.primaryColorSecond,
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.check,
-                                      color: Colors.black,
-                                      size: 13.w,
-                                    ),
-                                  ),
-                                  UIHelper.horizontalSpace(12),
-                                  Expanded(
-                                    child: Text(
-                                      _features[index],
-                                      style: TextStyle(
-                                        fontFamily: "SF Pro",
-                                        fontSize: 14.sp,
-                                        color: Colors.white.withValues(
-                                          alpha: 0.9,
-                                        ),
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                          UIHelper.verticalSpace(32),
-
-                          // Action Button
-                          CustomGradientButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Subscription Activated successfully!",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: "SF Pro Rounded",
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  backgroundColor: AppColors.primaryColorSecond,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
+                        // Action Button
+                        CustomGradientButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Subscription Activated successfully!",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "SF Pro Rounded",
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              );
-                              NavigationService.navigateToReplacement(
-                                Routes.hostNavigationScreen,
-                              );
-                            },
-                            title: "Activate Subscription",
-                          ),
-                        ],
-                      ),
+                                backgroundColor: AppColors.primaryColorSecond,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                              ),
+                            );
+                            NavigationService.navigateToReplacement(
+                              Routes.hostNavigationScreen,
+                            );
+                          },
+                          title: "Activate Subscription",
+                        ),
+                      ],
                     ),
                   ),
                 ),

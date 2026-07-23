@@ -10,6 +10,7 @@ import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
 import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
+import '../../host_employee_feature/bottom_nav_bar/presentation/host_employee_navigation_screen.dart';
 
 class SigninScreen extends StatefulWidget {
   final AccountType? accountType;
@@ -112,10 +113,27 @@ class _SigninScreenState extends State<SigninScreen> {
                 // Login Button
                 CustomGradientButton(
                   onPressed: () {
-                    if (widget.accountType == AccountType.host) {
-                      NavigationService.navigateTo(Routes.subscriptionScreen);
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text.trim();
+
+                    if (email == "employee@gmail.com" &&
+                        password == "12345678") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const HostEmployeeNavigationScreen(),
+                        ),
+                      );
                     } else {
-                      NavigationService.navigateTo(Routes.pickInterestScreen);
+                      if (widget.accountType == AccountType.host) {
+                        NavigationService.navigateTo(Routes.subscriptionScreen);
+                      } else if (widget.accountType ==
+                          AccountType.businessPartner) {
+                        NavigationService.navigateTo(Routes.subscriptionScreen);
+                      } else {
+                        NavigationService.navigateTo(Routes.pickInterestScreen);
+                      }
                     }
                   },
                   title: "Log In",

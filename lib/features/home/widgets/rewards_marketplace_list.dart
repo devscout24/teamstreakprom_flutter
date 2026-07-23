@@ -157,6 +157,8 @@ class RewardsMarketplaceList extends StatelessWidget {
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.cFFFFFF,
                       ),
                 ),
               ),

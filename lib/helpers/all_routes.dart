@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:teamstreakpromo/features/notification/presentation/notification_screen.dart';
+import 'package:teamstreakpromo/features/rewards/presentation/rewards_point_details_screen.dart';
 import '../features/auth/presentation/choose_account_type_screen.dart';
 import '../features/auth/presentation/signin_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
@@ -23,6 +24,7 @@ import '../features/host_features/host_earning/presentation/earning_overview_scr
 import '../features/host_features/host_events/presentation/create_event_wizard.dart';
 import '../features/host_features/host_scan/presentation/qr_scanner_screen.dart';
 import '../features/host_features/host_scan/presentation/scan_result_screen.dart';
+import '../features/host_employee_feature/profile/presentation/host_employee_profile_screen.dart';
 import '../features/settings/presentation/account_settings_screen.dart';
 import '../features/settings/presentation/edit_profile_screen.dart';
 import '../features/settings/presentation/notification_settings_screen.dart';
@@ -62,6 +64,7 @@ final class Routes {
   static const String earningOverviewScreen = '/earningOverview';
   static const String qrScannerScreen = '/qrScanner';
   static const String scanResultScreen = '/scanResult';
+  static const String hostEmployeeProfileScreen = '/hostEmployeeProfile';
 
   //products_with_pagination
   static const String productsWithPagination = '/ProductsWithPagination';
@@ -87,6 +90,7 @@ final class Routes {
   static const String supportOptionsScreen = '/supportOptionsScreen';
   static const String submitProblemScreen = '/submitProblemScreen';
   static const String supportChatScreen = '/supportChatScreen';
+  static const String rewardsPointDetailsScreen = '/rewardsPointDetailsScreen';
 }
 
 final class RouteGenerator {
@@ -143,6 +147,16 @@ final class RouteGenerator {
               )
             : _FadedTransitionRoute(
                 widget: const ForgotPasswordScreen(),
+                settings: settings,
+              );
+
+      case Routes.hostEmployeeProfileScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const HostEmployeeProfileScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const HostEmployeeProfileScreen(),
                 settings: settings,
               );
 
@@ -375,6 +389,16 @@ final class RouteGenerator {
                 settings: settings,
               );
 
+      case Routes.rewardsPointDetailsScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const RewardsPointDetailsScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const RewardsPointDetailsScreen(),
+                settings: settings,
+              );
+
       case Routes.submitProblemScreen:
         final args = settings.arguments as Map<String, dynamic>?;
         final topic = args?['topic'] as String? ?? 'Others';
@@ -393,10 +417,8 @@ final class RouteGenerator {
         final problemChat = argsChat?['problem'] as String? ?? '';
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => SupportChatScreen(
-                  topic: topicChat,
-                  problem: problemChat,
-                ),
+                builder: (context) =>
+                    SupportChatScreen(topic: topicChat, problem: problemChat),
               )
             : _FadedTransitionRoute(
                 widget: SupportChatScreen(

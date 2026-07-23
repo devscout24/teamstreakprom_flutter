@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../common_widgets/custom_back_button.dart';
+import '../../../common_widgets/custom_app_bar.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
@@ -15,25 +15,7 @@ class InviteFriendScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Padding(
-          padding: EdgeInsets.all(8.r),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: const CustomBackButton(),
-            title: Text(
-              "Invite friend",
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Invite friend"),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),

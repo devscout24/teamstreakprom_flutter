@@ -8,6 +8,9 @@
     
     <color name="secondaryColor">#FFFFFF</color>
     <color name="scaffoldColor">#FF171A20</color>
+    <color name="c555A63">#FF555A63</color>
+
+    <color name="c2b2f32">#FF2b2f32</color>
     <color name="cFFFFFF">#FFFFFFFF</color>
     <color name="cFCFCFC">#FFFCFCFC</color>
     <color name="c202020">#FF202020</color>

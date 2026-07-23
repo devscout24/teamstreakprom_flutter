@@ -3,14 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../helpers/navigation_service.dart';
 
 class CustomBackButton extends StatelessWidget {
-  const CustomBackButton({super.key});
+  final VoidCallback? onTap;
+
+  const CustomBackButton({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        NavigationService.goBack;
-      },
+      onTap:
+          onTap ??
+          () {
+            NavigationService.goBack();
+          },
       child: Container(
         width: 40.w,
         height: 40.w,

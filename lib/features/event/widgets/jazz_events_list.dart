@@ -62,6 +62,8 @@ class JazzEventsList extends StatelessWidget {
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.cFFFFFF,
                       ),
                 ),
               ),
@@ -70,7 +72,7 @@ class JazzEventsList extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: 290.h,
+          height: 300.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),

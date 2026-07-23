@@ -58,10 +58,13 @@ class PopularEventsList extends StatelessWidget {
                 },
                 child: Text(
                   "See All",
+
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.cFFFFFF,
                       ),
                 ),
               ),
@@ -85,7 +88,7 @@ class PopularEventsList extends StatelessWidget {
                   date: event.date,
                   price: event.price,
                   imageUrl: event.imageUrl,
-                  isOverlayStyle: true,
+                  isOverlayStyle: false,
                   onBuyPressed: () {},
                 ),
               );

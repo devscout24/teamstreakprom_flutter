@@ -25,6 +25,26 @@ class $AssetsGifGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/book_icon.png
+  AssetGenImage get bookIcon =>
+      const AssetGenImage('assets/icons/book_icon.png');
+
+  /// File path: assets/icons/business_icon.png
+  AssetGenImage get businessIcon =>
+      const AssetGenImage('assets/icons/business_icon.png');
+
+  /// File path: assets/icons/coffee_icon.png
+  AssetGenImage get coffeeIcon =>
+      const AssetGenImage('assets/icons/coffee_icon.png');
+
+  /// File path: assets/icons/community_icon.png
+  AssetGenImage get communityIcon =>
+      const AssetGenImage('assets/icons/community_icon.png');
+
+  /// File path: assets/icons/dashboard_icon.png
+  AssetGenImage get dashboardIcon =>
+      const AssetGenImage('assets/icons/dashboard_icon.png');
+
   /// File path: assets/icons/delete_icon.png
   AssetGenImage get deleteIcon =>
       const AssetGenImage('assets/icons/delete_icon.png');
@@ -32,6 +52,22 @@ class $AssetsIconsGen {
   /// File path: assets/icons/event_icon.png
   AssetGenImage get eventIcon =>
       const AssetGenImage('assets/icons/event_icon.png');
+
+  /// File path: assets/icons/films_icon.png
+  AssetGenImage get filmsIcon =>
+      const AssetGenImage('assets/icons/films_icon.png');
+
+  /// File path: assets/icons/fitness_icon.png
+  AssetGenImage get fitnessIcon =>
+      const AssetGenImage('assets/icons/fitness_icon.png');
+
+  /// File path: assets/icons/food_icon.png
+  AssetGenImage get foodIcon =>
+      const AssetGenImage('assets/icons/food_icon.png');
+
+  /// File path: assets/icons/gaming_icon.png
+  AssetGenImage get gamingIcon =>
+      const AssetGenImage('assets/icons/gaming_icon.png');
 
   /// File path: assets/icons/gmail_icon.png
   AssetGenImage get gmailIcon =>
@@ -41,9 +77,17 @@ class $AssetsIconsGen {
   AssetGenImage get googleLogo =>
       const AssetGenImage('assets/icons/google_logo.png');
 
+  /// File path: assets/icons/health_icon.png
+  AssetGenImage get healthIcon =>
+      const AssetGenImage('assets/icons/health_icon.png');
+
   /// File path: assets/icons/helpandsupport_icon.png
   AssetGenImage get helpandsupportIcon =>
       const AssetGenImage('assets/icons/helpandsupport_icon.png');
+
+  /// File path: assets/icons/holiday_icon.png
+  AssetGenImage get holidayIcon =>
+      const AssetGenImage('assets/icons/holiday_icon.png');
 
   /// File path: assets/icons/home_icon.png
   AssetGenImage get homeIcon =>
@@ -64,6 +108,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/messenger_icon.png
   AssetGenImage get messengerIcon =>
       const AssetGenImage('assets/icons/messenger_icon.png');
+
+  /// File path: assets/icons/music_icon.png
+  AssetGenImage get musicIcon =>
+      const AssetGenImage('assets/icons/music_icon.png');
 
   /// File path: assets/icons/notification_icon copy.png
   AssetGenImage get notificationIconCopy =>
@@ -92,6 +140,10 @@ class $AssetsIconsGen {
   AssetGenImage get splashLogo =>
       const AssetGenImage('assets/icons/splash_logo.png');
 
+  /// File path: assets/icons/sports_icon.png
+  AssetGenImage get sportsIcon =>
+      const AssetGenImage('assets/icons/sports_icon.png');
+
   /// File path: assets/icons/telegram_icon.png
   AssetGenImage get telegramIcon =>
       const AssetGenImage('assets/icons/telegram_icon.png');
@@ -108,18 +160,38 @@ class $AssetsIconsGen {
   AssetGenImage get ticketIcon =>
       const AssetGenImage('assets/icons/ticket_icon.png');
 
+  /// File path: assets/icons/travel_icon.png
+  AssetGenImage get travelIcon =>
+      const AssetGenImage('assets/icons/travel_icon.png');
+
+  /// File path: assets/icons/visual_arts_icon.png
+  AssetGenImage get visualArtsIcon =>
+      const AssetGenImage('assets/icons/visual_arts_icon.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
+    bookIcon,
+    businessIcon,
+    coffeeIcon,
+    communityIcon,
+    dashboardIcon,
     deleteIcon,
     eventIcon,
+    filmsIcon,
+    fitnessIcon,
+    foodIcon,
+    gamingIcon,
     gmailIcon,
     googleLogo,
+    healthIcon,
     helpandsupportIcon,
+    holidayIcon,
     homeIcon,
     instragramIcon,
     inviteIcon,
     lockImage,
     messengerIcon,
+    musicIcon,
     notificationIconCopy,
     notificationIcon,
     pointIcon,
@@ -127,10 +199,13 @@ class $AssetsIconsGen {
     rewards,
     settingIcon,
     splashLogo,
+    sportsIcon,
     telegramIcon,
     termsConditionIcon,
     threatIcon,
     ticketIcon,
+    travelIcon,
+    visualArtsIcon,
   ];
 }
 

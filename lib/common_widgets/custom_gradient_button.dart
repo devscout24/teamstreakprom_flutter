@@ -33,7 +33,7 @@ class CustomGradientButton extends StatelessWidget {
 
     return SizedBox(
       width: width ?? double.infinity,
-      height: height ?? 52.h,
+      height: height ?? 50.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: border != null
