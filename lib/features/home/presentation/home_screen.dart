@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // ── Rock and Roll Events List ───────────
               const RockEventsList(),
               UIHelper.verticalSpace(24.h),
-              RewardsMarketplaceList(onSeeAllTapped: widget.onNavigateToRewards),
+              const RewardsMarketplaceList(),
             ],
           ),
         ),

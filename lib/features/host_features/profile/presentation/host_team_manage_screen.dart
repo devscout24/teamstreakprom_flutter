@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BusinessPartnerNavbarScreen extends StatelessWidget {
-  const BusinessPartnerNavbarScreen({super.key});
+class HostTeamManageScreen extends StatelessWidget {
+  const HostTeamManageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -7,10 +7,13 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
 import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 
 class SubscriptionScreen extends StatelessWidget {
-  const SubscriptionScreen({super.key});
+  final AccountType? accountType;
+
+  const SubscriptionScreen({super.key, this.accountType});
 
   final List<String> _features = const [
     "Create Up to 20 Events Every Month",
@@ -181,6 +184,7 @@ class SubscriptionScreen extends StatelessWidget {
 
                         // Action Button
                         CustomGradientButton(
+                          height: 50.h,
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -200,9 +204,22 @@ class SubscriptionScreen extends StatelessWidget {
                                 ),
                               ),
                             );
-                            NavigationService.navigateToReplacement(
-                              Routes.hostNavigationScreen,
-                            );
+
+                            if (accountType == AccountType.host) {
+                              NavigationService.navigateToReplacement(
+                                Routes.hostNavigationScreen,
+                              );
+                            } else if (accountType ==
+                                AccountType.businessPartner) {
+                              NavigationService.navigateToReplacement(
+                                Routes.businessPartnerNavbarScreen,
+                              );
+                            } else {
+                              // Fallback
+                              NavigationService.navigateToReplacement(
+                                Routes.hostNavigationScreen,
+                              );
+                            }
                           },
                           title: "Activate Subscription",
                         ),

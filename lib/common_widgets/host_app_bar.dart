@@ -36,7 +36,7 @@ class HostAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 12.h),
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 12.h),
       color: AppColors.scaffoldColor,
       child: Row(
         children: [
@@ -58,10 +58,7 @@ class HostAppBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  name,
-                  style: TextFontStyle.textStyle16cFFFFFFSFPro590,
-                ),
+                Text(name, style: TextFontStyle.textStyle16cFFFFFFSFPro590),
                 UIHelper.verticalSpace(4.h),
                 Row(
                   children: [
@@ -75,12 +72,12 @@ class HostAppBar extends StatelessWidget {
                       child: Text(
                         location,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
                       ),
                     ),
                   ],
@@ -90,59 +87,10 @@ class HostAppBar extends StatelessWidget {
           ),
           UIHelper.horizontalSpace(12.w),
 
-          // ── Points Pill ─────────────────────────────────────────────────
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E222B),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => _gradient.createShader(bounds),
-                  blendMode: BlendMode.srcIn,
-                  child: Image.asset(
-                    Assets.icons.pointIcon.path,
-                    width: 18.w,
-                    height: 18.w,
-                    color: Colors.white,
-                  ),
-                ),
-                UIHelper.horizontalSpace(6.w),
-                RichText(
-                  text: TextSpan(
-                    text: "$points ",
-                    style:
-                        TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryColorSecond,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "pts",
-                        style:
-                            TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.primaryColorSecond.withValues(
-                            alpha: 0.8,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          UIHelper.horizontalSpace(12.w),
-
           // ── Notification Bell ───────────────────────────────────────────
           GestureDetector(
-            onTap: onNotificationTap ??
+            onTap:
+                onNotificationTap ??
                 () => NavigationService.navigateTo(Routes.notificationScreen),
             child: Stack(
               clipBehavior: Clip.none,
@@ -172,9 +120,9 @@ class HostAppBar extends StatelessWidget {
                           "$notificationCount",
                           style: TextFontStyle.textStyle14cFFFFFFSFPro590
                               .copyWith(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                                fontSize: 8.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                     ),
@@ -187,4 +135,3 @@ class HostAppBar extends StatelessWidget {
     );
   }
 }
-

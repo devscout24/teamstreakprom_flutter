@@ -380,11 +380,11 @@ class _LineChartPainter extends CustomPainter {
     final double graphHeight = size.height - 30.h - topPadding;
 
     final gridPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
+      ..color = Colors.white.withValues(alpha: 0.25)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
-    // Draw horizontal dashed grid lines
+    // Draw horizontal solid grid lines
     final List<double> yGridValues = [
       maxValue,
       maxValue * 0.75,
@@ -396,18 +396,7 @@ class _LineChartPainter extends CustomPainter {
     for (int i = 0; i < yGridValues.length; i++) {
       final double y =
           topPadding + graphHeight - (yGridValues[i] / maxValue) * graphHeight;
-
-      double currentX = startX;
-      const double dashWidth = 5.0;
-      const double dashSpace = 4.0;
-      while (currentX < endX) {
-        canvas.drawLine(
-          Offset(currentX, y),
-          Offset(currentX + dashWidth, y),
-          gridPaint,
-        );
-        currentX += dashWidth + dashSpace;
-      }
+      canvas.drawLine(Offset(startX, y), Offset(endX, y), gridPaint);
     }
 
     // 2. Data Points mapping using the precise xFractions, topPadding, and dynamic maxValue scaling

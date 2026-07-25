@@ -189,6 +189,9 @@ abstract final class AppColors {
   /// Color: #FF1E1E1E
   static const Color c1E1E1E = Color(0xFF1E1E1E);
 
+  /// Color: #FF1E222B
+  static const Color c1E222B = Color(0xFF1E222B);
+
   /// Color: #FF1ED760
   static const Color c1ED760 = Color(0xFF1ED760);
 
@@ -212,6 +215,9 @@ abstract final class AppColors {
 
   /// Color: #FF212121
   static const Color c212121 = Color(0xFF212121);
+
+  /// Color: #FF212521
+  static const Color c212521 = Color(0xFF212521);
 
   /// Color: #FF21262F
   static const Color c21262F = Color(0xFF21262F);

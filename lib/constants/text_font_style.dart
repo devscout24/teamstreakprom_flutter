@@ -5138,6 +5138,21 @@ class TextFontStyle {
     fontSize: 100.sp,
     fontWeight: FontWeight.w600,
   );
+  static final textStyle16cFFFFFFSFProRounded700 = TextStyle(
+    fontFamily: "SF Pro Rounded",
+    fontFamilyFallback: const ['DMSans', 'Open Sans', 'Roboto', 'Noto Sans'],
+    color: AppColors.cFFFFFF,
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w700,
+  );
+
+  static final textStyle12cFFFFFFSFPro600 = TextStyle(
+    fontFamily: "SF Pro",
+    fontFamilyFallback: const ['DMSans', 'Open Sans', 'Roboto', 'Noto Sans'],
+    color: AppColors.cFFFFFF,
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w600,
+  );
 }
 
 

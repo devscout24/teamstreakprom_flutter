@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
-import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
 import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 import '../../../../common_widgets/custom_gradient_button.dart';
 import '../widget/available_balance_card.dart';
@@ -24,28 +23,6 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
         child: Column(
           children: [
             UIHelper.verticalSpace(20),
-            // Header Row
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Row(
-                children: [
-                  const CustomBackButton(),
-                  const Spacer(),
-                  Text(
-                    "Earning overview",
-                    style: TextStyle(
-                      fontFamily: "SF Pro Rounded",
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  SizedBox(width: 40.w), // Spacer balance
-                ],
-              ),
-            ),
-            UIHelper.verticalSpace(24),
 
             Expanded(
               child: SingleChildScrollView(

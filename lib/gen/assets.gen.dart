@@ -33,6 +33,10 @@ class $AssetsIconsGen {
   AssetGenImage get businessIcon =>
       const AssetGenImage('assets/icons/business_icon.png');
 
+  /// File path: assets/icons/claim_icon.png
+  AssetGenImage get claimIcon =>
+      const AssetGenImage('assets/icons/claim_icon.png');
+
   /// File path: assets/icons/coffee_icon.png
   AssetGenImage get coffeeIcon =>
       const AssetGenImage('assets/icons/coffee_icon.png');
@@ -132,6 +136,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/rewards.png
   AssetGenImage get rewards => const AssetGenImage('assets/icons/rewards.png');
 
+  /// File path: assets/icons/rewards_icon.png
+  AssetGenImage get rewardsIcon =>
+      const AssetGenImage('assets/icons/rewards_icon.png');
+
   /// File path: assets/icons/setting_icon.png
   AssetGenImage get settingIcon =>
       const AssetGenImage('assets/icons/setting_icon.png');
@@ -172,6 +180,7 @@ class $AssetsIconsGen {
   List<AssetGenImage> get values => [
     bookIcon,
     businessIcon,
+    claimIcon,
     coffeeIcon,
     communityIcon,
     dashboardIcon,
@@ -197,6 +206,7 @@ class $AssetsIconsGen {
     pointIcon,
     profileIcon,
     rewards,
+    rewardsIcon,
     settingIcon,
     splashLogo,
     sportsIcon,

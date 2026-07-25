@@ -9,6 +9,8 @@ import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/custom_textform_field.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
+import '../../../constants/app_constants.dart';
+import '../../../helpers/di.dart';
 import '../../../helpers/ui_helpers.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -29,12 +31,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _phoneController = TextEditingController(
     text: "+88014788582852895",
   );
+  final TextEditingController _businessNameController = TextEditingController();
+  final TextEditingController _businessDescriptionController =
+      TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _businessNameController.dispose();
+    _businessDescriptionController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -50,9 +59,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isHost = appData.read(kAccountType) == "AccountType.host";
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(title: "Account Settings"),
+      appBar: const CustomAppBar(title: "Personal Info"),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         child: Column(
@@ -110,50 +121,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             UIHelper.verticalSpace(32.h),
 
             // Full Name
-            Text(
-              "Full Name",
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.sp,
-              ),
-            ),
-            UIHelper.verticalSpace(8.h),
             CustomTextFormField(
               controller: _nameController,
-              hintText: "Enter your full name",
+              hintText: "Full Name",
             ),
-            UIHelper.verticalSpace(24.h),
+            UIHelper.verticalSpace(16.h),
 
-            // Email
-            Text(
-              "Email",
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.sp,
+            // Email (hide for host if we want to match mockup, but let's keep it conditionally)
+            if (!isHost) ...[
+              CustomTextFormField(
+                controller: _emailController,
+                hintText: "Email",
               ),
-            ),
-            UIHelper.verticalSpace(8.h),
-            CustomTextFormField(
-              controller: _emailController,
-              hintText: "Enter your email",
-            ),
-            UIHelper.verticalSpace(24.h),
+              UIHelper.verticalSpace(16.h),
+            ],
 
             // Phone
-            Text(
-              "Phone",
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.sp,
-              ),
-            ),
-            UIHelper.verticalSpace(8.h),
             CustomTextFormField(
               controller: _phoneController,
-              hintText: "Enter your phone",
+              hintText: "Phone Number",
               keyboardType: TextInputType.phone,
             ),
-            UIHelper.verticalSpace(48.h),
+            UIHelper.verticalSpace(16.h),
+
+            // Host Specific Fields
+            if (isHost) ...[
+              CustomTextFormField(
+                controller: _businessNameController,
+                hintText: "Business Name",
+              ),
+              UIHelper.verticalSpace(16.h),
+
+              CustomTextFormField(
+                controller: _businessDescriptionController,
+                hintText: "Business Description",
+                maxLines: 4,
+                borderRadius: BorderRadius.circular(24.r),
+              ),
+              UIHelper.verticalSpace(16.h),
+
+              CustomTextFormField(
+                controller: _locationController,
+                hintText: "Location",
+              ),
+              UIHelper.verticalSpace(16.h),
+            ],
+
+            UIHelper.verticalSpace(32.h),
           ],
         ),
       ),

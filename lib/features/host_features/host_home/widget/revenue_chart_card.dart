@@ -134,39 +134,28 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
           UIHelper.verticalSpace(36),
 
           // Scrollable/Fixed Chart content with tap detection
-          isWeek
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: List.generate(activeData.length, (index) {
-                    final item = activeData[index];
-                    final isItemActive = _activeRevenueIndex == index;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _activeRevenueIndex = index;
-                        });
-                      },
-                      behavior: HitTestBehavior.opaque,
-                      child: isItemActive
-                          ? _buildActiveBarWithTooltip(
-                              month: item["label"],
-                              height: (item["value"] as double).h,
-                              tooltip: item["tooltip"],
-                              gradient: gradient,
-                            )
-                          : _buildBar(
-                              month: item["label"],
-                              height: (item["value"] as double).h,
-                            ),
-                    );
-                  }),
-                )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 20.h), // spacing for tooltips
-                    child: Row(
+          Stack(
+            children: [
+              // Horizontal grid lines
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 24.h, // Aligns with the bottom of the bars
+                child: Column(
+                  children: [
+                    Divider(color: Colors.white.withValues(alpha: 0.25), height: 1, thickness: 1),
+                    SizedBox(height: 33.h),
+                    Divider(color: Colors.white.withValues(alpha: 0.25), height: 1, thickness: 1),
+                    SizedBox(height: 33.h),
+                    Divider(color: Colors.white.withValues(alpha: 0.25), height: 1, thickness: 1),
+                    SizedBox(height: 33.h),
+                    Divider(color: Colors.white.withValues(alpha: 0.25), height: 1, thickness: 1),
+                  ],
+                ),
+              ),
+              isWeek
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: List.generate(activeData.length, (index) {
                         final item = activeData[index];
@@ -178,25 +167,57 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
                             });
                           },
                           behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w),
-                            child: isItemActive
-                                ? _buildActiveBarWithTooltip(
-                                    month: item["label"],
-                                    height: (item["value"] as double).h,
-                                    tooltip: item["tooltip"],
-                                    gradient: gradient,
-                                  )
-                                : _buildBar(
-                                    month: item["label"],
-                                    height: (item["value"] as double).h,
-                                  ),
-                          ),
+                          child: isItemActive
+                              ? _buildActiveBarWithTooltip(
+                                  month: item["label"],
+                                  height: (item["value"] as double).h,
+                                  tooltip: item["tooltip"],
+                                  gradient: gradient,
+                                )
+                              : _buildBar(
+                                  month: item["label"],
+                                  height: (item["value"] as double).h,
+                                ),
                         );
                       }),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 20.h), // spacing for tooltips
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: List.generate(activeData.length, (index) {
+                            final item = activeData[index];
+                            final isItemActive = _activeRevenueIndex == index;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _activeRevenueIndex = index;
+                                });
+                              },
+                              behavior: HitTestBehavior.opaque,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                child: isItemActive
+                                    ? _buildActiveBarWithTooltip(
+                                        month: item["label"],
+                                        height: (item["value"] as double).h,
+                                        tooltip: item["tooltip"],
+                                        gradient: gradient,
+                                      )
+                                    : _buildBar(
+                                        month: item["label"],
+                                        height: (item["value"] as double).h,
+                                      ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+            ],
+          ),
         ],
       ),
     );

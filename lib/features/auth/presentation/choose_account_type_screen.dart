@@ -6,6 +6,8 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
+import '../../../helpers/di.dart';
+import '../../../constants/app_constants.dart';
 
 enum AccountType { user, host, businessPartner }
 
@@ -357,10 +359,12 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
 
               CustomGradientButton(
                 onPressed: () {
-                  NavigationService.navigateToWithArgs(
-                    Routes.signInScreen,
-                    {'accountType': _selectedType},
-                  );
+                  if (_selectedType != null) {
+                    appData.write(kAccountType, _selectedType.toString());
+                  }
+                  NavigationService.navigateToWithArgs(Routes.signInScreen, {
+                    'accountType': _selectedType,
+                  });
                 },
                 title: "Continue",
               ),

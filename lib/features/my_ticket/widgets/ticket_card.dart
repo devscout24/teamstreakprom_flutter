@@ -158,7 +158,7 @@ class TicketCard extends StatelessWidget {
                   child: CustomGradientButton(
                     onPressed: onViewPressed,
                     title: viewLabel,
-                    height: 42.h,
+                    height: 40.h,
                     borderRadius: BorderRadius.circular(100.r),
                     gradient: const LinearGradient(
                       colors: [Color(0xFF7DFF57), Color(0xFF7DFF57)],
@@ -178,7 +178,7 @@ class TicketCard extends StatelessWidget {
                   child: CustomGradientButton(
                     onPressed: onCancelPressed,
                     title: cancelLabel,
-                    height: 42.h,
+                    height: 40.h,
                     borderRadius: BorderRadius.circular(100.r),
                     gradient: const LinearGradient(
                       colors: [Color(0xFFF28F31), Color(0xFFF28F31)],

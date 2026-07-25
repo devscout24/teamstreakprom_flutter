@@ -5,8 +5,10 @@ import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../home/widgets/reward_card.dart';
 import '../../home/model/reward_model.dart';
+import '../../../common_widgets/app_network_image.dart';
+import '../../../common_widgets/custom_gradient_button.dart';
+import '../../event/presentation/event_details_screen.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/reward_filter_chips.dart';
 import '../widgets/my_reward_card.dart';
@@ -265,30 +267,223 @@ class _RewardsScreenState extends State<RewardsScreen> {
                     : _rewards;
 
                 if (_selectedTabIndex == 0) {
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                  return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16.h,
-                      crossAxisSpacing: 16.w,
-                      childAspectRatio: 0.41,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final itemWidth = (constraints.maxWidth - 16.w) / 2;
+                        return Wrap(
+                          spacing: 16.w,
+                          runSpacing: 16.h,
+                          children: filteredRewards.map((reward) {
+                            return SizedBox(
+                              width: itemWidth,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetailsScreen(
+                                        title: reward.title,
+                                        location: "Divine Art Festival",
+                                        date: reward.expiryDate,
+                                        price: "${reward.points} pts",
+                                        imageUrl: reward.imageUrl,
+                                        description: reward.description,
+                                        points: reward.points,
+                                        isReward: true,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1E222B),
+                                    borderRadius: BorderRadius.circular(24.r),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      width: 1.w,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.w),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Product Image Container
+                                        Container(
+                                          height: 140.h,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            color: const Color.fromRGBO(
+                                              134,
+                                              134,
+                                              134,
+                                              0.10,
+                                            ),
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(16.r),
+                                              topRight: Radius.circular(16.r),
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(16.r),
+                                              topRight: Radius.circular(16.r),
+                                            ),
+                                            child: AppNetworkImage(
+                                              imageUrl: reward.imageUrl,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                        UIHelper.verticalSpace(12.h),
+                                        // Product Title
+                                        Text(
+                                          reward.title,
+                                          style: TextFontStyle
+                                              .textStyle24cFFFFFFSFPro590
+                                              .copyWith(
+                                                fontSize: 16.sp,
+                                                color: AppColors.cFFF9F3,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        UIHelper.verticalSpace(8.h),
+                                        // Description
+                                        Text(
+                                          reward.description,
+                                          style: TextFontStyle
+                                              .textStyle14cFFFFFFSFProRounded400
+                                              .copyWith(
+                                                color: AppColors.cC6C6C6,
+                                                fontSize: 11.sp,
+                                                height: 1.4,
+                                              ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        UIHelper.verticalSpace(8.h),
+                                        // Expiry date info line
+                                        RichText(
+                                          text: TextSpan(
+                                            text: "Exp: ",
+                                            style: TextFontStyle
+                                                .textStyle14cFFFFFFSFProRounded400
+                                                .copyWith(
+                                                  color: const Color(
+                                                    0xFFF28F31,
+                                                  ),
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: 'SF Pro',
+                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: reward.expiryDate,
+                                                style: TextStyle(
+                                                  color: AppColors.cE9EAE9,
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 12.sp,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        UIHelper.verticalSpace(10.h),
+                                        // Brand logo and points row
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            // Brand logo
+                                            Container(
+                                              width: 28.h,
+                                              height: 28.h,
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Center(
+                                                child: ClipOval(
+                                                  child: AppNetworkImage(
+                                                    imageUrl:
+                                                        reward.brandLogoUrl,
+                                                    width: 18.h,
+                                                    height: 18.h,
+                                                    fit: BoxFit.contain,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            // Points badge
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8.w,
+                                                vertical: 4.h,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF2C3138),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      100.r,
+                                                    ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.emoji_events_outlined,
+                                                    color: Colors.white,
+                                                    size: 14.sp,
+                                                  ),
+                                                  UIHelper.horizontalSpace(4.w),
+                                                  Text(
+                                                    "${reward.points} pts",
+                                                    style: TextFontStyle
+                                                        .textStyle14cFFFFFFSFProRounded400
+                                                        .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 12.sp,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        UIHelper.verticalSpace(12.h),
+                                        // Redeem Reward button
+                                        CustomGradientButton(
+                                          title: "Redeem Reward",
+                                          height: 32.h,
+                                          textStyle: TextFontStyle
+                                              .textStyle14cFFFFFFSFProRounded400
+                                              .copyWith(
+                                                color: const Color(0xFF1E222B),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.sp,
+                                              ),
+                                          onPressed: _redeemRewardDirectly,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
                     ),
-                    itemCount: filteredRewards.length,
-                    itemBuilder: (context, index) {
-                      final reward = filteredRewards[index];
-                      return RewardCard(
-                        title: reward.title,
-                        description: reward.description,
-                        expiryDate: reward.expiryDate,
-                        points: reward.points,
-                        imageUrl: reward.imageUrl,
-                        brandLogoUrl: reward.brandLogoUrl,
-                        onRedeemPressed: _redeemRewardDirectly,
-                        width: double.infinity,
-                      );
-                    },
                   );
                 } else {
                   return ListView.builder(

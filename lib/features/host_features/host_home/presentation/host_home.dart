@@ -1,9 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
-import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
 import '../widget/host_stat_card.dart';
 import '../widget/revenue_chart_card.dart';
 import '../widget/ticket_sales_chart_card.dart';
@@ -47,7 +46,6 @@ class HostHomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HostAppBar(),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),

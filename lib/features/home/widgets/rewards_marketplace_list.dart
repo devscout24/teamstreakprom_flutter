@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:teamstreakpromo/features/rewards/presentation/rewards_screen.dart';
+import 'package:teamstreakpromo/features/rewards/presentation/rewards_marketplace_screen.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -147,7 +147,7 @@ class RewardsMarketplaceList extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RewardsScreen(),
+                          builder: (context) => const RewardsMarketplaceScreen(),
                         ),
                       );
                     },
@@ -167,7 +167,7 @@ class RewardsMarketplaceList extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: 350.h,
+          height: 280.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),

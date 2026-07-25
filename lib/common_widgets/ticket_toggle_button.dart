@@ -86,10 +86,16 @@ class _TabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final br = BorderRadius.circular(tabRadius);
+    final textStyle = TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+      fontFamily: 'SF Pro',
+      fontSize: 14.sp,
+      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+      color: isSelected ? AppColors.c262824 : Colors.white,
+    );
+
     return Expanded(
       child: CustomGradientButton(
         onPressed: onTap,
-        title: label,
         height: tabHeight,
         borderRadius: br,
         gradient: isSelected
@@ -104,14 +110,20 @@ class _TabItem extends StatelessWidget {
             : const LinearGradient(
                 colors: [Colors.transparent, Colors.transparent],
               ),
-        textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-          fontFamily: 'SF Pro',
-          fontSize: 14.sp,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-          color: isSelected
-              ? AppColors.c262824
-              : Colors.white.withValues(alpha: 0.55),
-        ),
+        child: isSelected
+            ? Text(label, style: textStyle)
+            : ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFF28F31),
+                    Color(0xFF72E84F),
+                  ],
+                ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                child: Text(label, style: textStyle),
+              ),
       ),
     );
   }
