@@ -4,7 +4,6 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'common_widgets/custom_gradient_button.dart';
 import 'constants/app_constants.dart';
 import 'constants/text_font_style.dart';
-import 'gen/assets.gen.dart';
 import 'gen/colors.gen.dart';
 import 'helpers/di.dart';
 import 'helpers/ui_helpers.dart';
@@ -38,24 +37,30 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   final List<OnboardingPageData> _pages = [
     OnboardingPageData(
-      imagePath: Assets.images.onboardingOne.path,
+      imagePath: 'assets/images/discover_event_image.jpg',
       title: "Discover Events Around You",
       description:
           "Explore exciting events happening near you and never miss your next experience.",
       buttonText: "Next",
     ),
     OnboardingPageData(
-      imagePath: Assets.images.onboardingTwo.path,
+      imagePath: 'assets/images/earn_point_image.jpg',
       title: "Earn Points Effortlessly",
       description:
           "Buy tickets, attend events, and invite friends to earn valuable reward points.",
       buttonText: "Next",
     ),
     OnboardingPageData(
-      imagePath: Assets.images.onboardingThree.path,
+      imagePath: 'assets/images/exclusive_rewards_image.jpg',
       title: "Unlock Exclusive Rewards",
       description:
           "Redeem points for rewards from event hosts and local businesses.",
+      buttonText: "Next",
+    ),
+    OnboardingPageData(
+      imagePath: 'assets/images/eco_system_image.jpg',
+      title: "Welcome to the STREAK Community",
+      description: "Now it is time to connect to the eco system.",
       buttonText: "Connect To Community",
     ),
   ];

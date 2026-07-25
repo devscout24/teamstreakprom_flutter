@@ -16,6 +16,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   late final Timer _timer;
+  double _opacity = 1.0;
 
   final List<String> _sliderTexts = [
     "Rooted in community",
@@ -44,7 +45,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       }
     });
 
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(milliseconds: 4000), () {
+      if (mounted) {
+        setState(() {
+          _opacity = 0.0;
+        });
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 5000), () {
       if (!mounted) return;
 
       // Navigate to your next screen here
@@ -66,48 +75,63 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              Assets.gif.a2xSplashScreen.path,
-              fit: BoxFit.cover,
-            ),
-          ),
-          SafeArea(
-            child: SizedBox.expand(
-              child: Column(
-                children: [
-                  const Spacer(),
-                  SizedBox(
-                    height: 35.h,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: _sliderTexts.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        return Center(
-                          child: TypewriterText(
-                            text: _sliderTexts[index],
-                            animate: index == _currentPage,
-                            style: TextFontStyle.textStyle20c232421SFPro590
-                                .copyWith(fontSize: 20),
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 25),
-                ],
+      backgroundColor: Colors.black, // To ensure it fades to black
+      body: AnimatedOpacity(
+        opacity: _opacity,
+        duration: const Duration(milliseconds: 1000),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                Assets.gif.a2xSplashScreen.path,
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        ],
+            SafeArea(
+              child: SizedBox.expand(
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    SizedBox(
+                      height: 35.h,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: _sliderTexts.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return Center(
+                              child: AnimatedSlideLeftToRight(
+                                text: _sliderTexts[index],
+                                animate: index == _currentPage,
+                                style: TextFontStyle.textStyle20c232421SFPro590
+                                    .copyWith(fontSize: 20),
+                              ),
+                            );
+                          }
+                          return Center(
+                            child: TypewriterText(
+                              text: _sliderTexts[index],
+                              animate: index == _currentPage,
+                              style: TextFontStyle.textStyle20c232421SFPro590
+                                  .copyWith(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 25),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -252,6 +276,83 @@ class _AnimatedCharacterState extends State<AnimatedCharacter>
       child: SlideTransition(
         position: _slideAnimation,
         child: Text(widget.char, style: widget.style),
+      ),
+    );
+  }
+}
+
+class AnimatedSlideLeftToRight extends StatefulWidget {
+  final String text;
+  final bool animate;
+  final TextStyle? style;
+
+  const AnimatedSlideLeftToRight({
+    super.key,
+    required this.text,
+    required this.animate,
+    this.style,
+  });
+
+  @override
+  State<AnimatedSlideLeftToRight> createState() =>
+      _AnimatedSlideLeftToRightState();
+}
+
+class _AnimatedSlideLeftToRightState extends State<AnimatedSlideLeftToRight>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0), // Starts from the left
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    if (widget.animate) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedSlideLeftToRight oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !oldWidget.animate) {
+      _controller.forward(from: 0.0);
+    } else if (!widget.animate && oldWidget.animate) {
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacityAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Text(
+          widget.text,
+          style: widget.style,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

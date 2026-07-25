@@ -24,7 +24,7 @@ class _JazzEventsScreenState extends State<JazzEventsScreen> {
     'Music',
     'Nightlife',
     'Festival',
-    'Sports'
+    'Sports',
   ];
 
   static const List<EventModel> _jazzEvents = [
@@ -66,11 +66,8 @@ class _JazzEventsScreenState extends State<JazzEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(
-        title: "Jazz Events",
-        showRightIcon: false,
-      ),
+      backgroundColor: AppColors.c121212,
+      appBar: const CustomAppBar(title: "Jazz Events", showRightIcon: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -100,14 +97,15 @@ class _JazzEventsScreenState extends State<JazzEventsScreen> {
                   UIHelper.horizontalSpace(12.w),
                   Expanded(
                     child: TextField(
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: Colors.white,
-                      ),
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: "Search...",
-                        hintStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: Colors.white.withValues(alpha: 0.4),
-                        ),
+                        hintStyle: TextFontStyle
+                            .textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white.withValues(alpha: 0.4),
+                            ),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -170,12 +168,15 @@ class _JazzEventsScreenState extends State<JazzEventsScreen> {
                       child: Center(
                         child: Text(
                           _categories[index],
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: isSelected
-                                ? Colors.black
-                                : Colors.white.withValues(alpha: 0.7),
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: isSelected
+                                    ? Colors.black
+                                    : Colors.white.withValues(alpha: 0.7),
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
                         ),
                       ),
                     ),

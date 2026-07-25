@@ -22,15 +22,9 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   File? _imageFile;
-  final TextEditingController _nameController = TextEditingController(
-    text: "Kimberly Gilbert",
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: "kimberlygil052@gmail.com",
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: "+88014788582852895",
-  );
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _businessDescriptionController =
       TextEditingController();
@@ -59,7 +53,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isHost = appData.read(kAccountType) == "AccountType.host";
+    final accountType = appData.read(kAccountType);
+    final isHostOrBP =
+        accountType == "AccountType.host" ||
+        accountType == "AccountType.businessPartner";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -128,7 +125,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             UIHelper.verticalSpace(16.h),
 
             // Email (hide for host if we want to match mockup, but let's keep it conditionally)
-            if (!isHost) ...[
+            if (!isHostOrBP) ...[
               CustomTextFormField(
                 controller: _emailController,
                 hintText: "Email",
@@ -145,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             UIHelper.verticalSpace(16.h),
 
             // Host Specific Fields
-            if (isHost) ...[
+            if (isHostOrBP) ...[
               CustomTextFormField(
                 controller: _businessNameController,
                 hintText: "Business Name",

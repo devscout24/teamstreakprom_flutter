@@ -72,7 +72,7 @@ class JazzEventsList extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: 295.h,
+          height: 425.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),

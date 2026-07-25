@@ -11,6 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final Widget? customAction;
   final VoidCallback? onBack;
+  final Color? backgroundColor;
 
   const CustomAppBar({
     super.key,
@@ -19,6 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showBackButton = true,
     this.customAction,
     this.onBack,
+    this.backgroundColor,
   });
 
   @override
@@ -26,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Padding(
       padding: EdgeInsets.all(8.r),
       child: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor ?? Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
         leading: showBackButton ? CustomBackButton(onTap: onBack) : null,
@@ -41,15 +43,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         actions: customAction != null
             ? [customAction!, UIHelper.horizontalSpace(16.w)]
             : showRightIcon
-                ? [
-                    Image.asset(
-                      Assets.icons.splashLogo.path,
-                      height: 14.h,
-                      color: Colors.white,
-                    ),
-                    UIHelper.horizontalSpace(16.w),
-                  ]
-                : null,
+            ? [
+                Image.asset(
+                  Assets.icons.splashLogo.path,
+                  height: 14.h,
+                  color: Colors.white,
+                ),
+                UIHelper.horizontalSpace(16.w),
+              ]
+            : null,
       ),
     );
   }

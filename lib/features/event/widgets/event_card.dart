@@ -64,7 +64,7 @@ class EventCard extends StatelessWidget {
     if (isOverlayStyle) {
       return Container(
         width: width ?? 290.w,
-        height: height ?? 300.h,
+        height: height,
         decoration: BoxDecoration(
           color: const Color(0xFF1E222B),
           borderRadius: BorderRadius.circular(24.r),
@@ -200,15 +200,8 @@ class EventCard extends StatelessWidget {
     } else {
       return Container(
         width: width ?? 270.w,
-        height: height ?? 300.h,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E222B),
-          borderRadius: BorderRadius.circular(24.r),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.05),
-            width: 1.w,
-          ),
-        ),
+        height: height,
+        decoration: BoxDecoration(color: AppColors.c121212),
         child: Padding(
           padding: EdgeInsets.all(8.w),
           child: Column(
@@ -217,7 +210,7 @@ class EventCard extends StatelessWidget {
             children: [
               // Cover Image
               Container(
-                height: 180.h,
+                height: 310.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 134, 134, 0.10),

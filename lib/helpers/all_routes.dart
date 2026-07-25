@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:teamstreakpromo/features/host_features/profile/presentation/host_edit_profile_screen.dart';
 import 'package:teamstreakpromo/features/notification/presentation/notification_screen.dart';
 import 'package:teamstreakpromo/features/rewards/presentation/rewards_point_details_screen.dart';
 import 'package:teamstreakpromo/navigation_screen.dart';
@@ -36,6 +37,7 @@ import '../features/settings/presentation/help_support_screen.dart';
 import '../features/settings/presentation/support_options_screen.dart';
 import '../features/settings/presentation/submit_problem_screen.dart';
 import '../features/settings/presentation/support_chat_screen.dart';
+import '../features/settings/presentation/manage_team_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -93,6 +95,9 @@ final class Routes {
   static const String submitProblemScreen = '/submitProblemScreen';
   static const String supportChatScreen = '/supportChatScreen';
   static const String rewardsPointDetailsScreen = '/rewardsPointDetailsScreen';
+  static const String manageTeamScreen = '/manageTeamScreen';
+
+  static const String hostEditProfileScreen = '/hostEditProfileScreen';
 }
 
 final class RouteGenerator {
@@ -102,6 +107,15 @@ final class RouteGenerator {
 
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case Routes.hostEditProfileScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const HostEditProfileScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const HostEditProfileScreen(),
+                settings: settings,
+              );
       case Routes.chooseAccountTypeScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
@@ -131,6 +145,14 @@ final class RouteGenerator {
               )
             : _FadedTransitionRoute(
                 widget: const NotificationScreen(),
+                settings: settings,
+              );
+
+      case Routes.manageTeamScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(builder: (context) => const ManageTeamScreen())
+            : _FadedTransitionRoute(
+                widget: const ManageTeamScreen(),
                 settings: settings,
               );
 

@@ -44,11 +44,12 @@ class AccountSettingsScreen extends StatelessWidget {
         child: Column(
           children: [
             SettingsItem(
-              iconPath: Assets.icons.profileIcon.path, // placeholder
-              title: "View Profile",
+              iconPath: Assets.icons.profileIcon.path,
+              title: "Personal Info",
               onTap: () {
                 final accountTypeStr = appData.read(kAccountType);
-                if (accountTypeStr == "AccountType.host") {
+                if (accountTypeStr == "AccountType.host" ||
+                    accountTypeStr == "AccountType.businessPartner") {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -67,27 +68,12 @@ class AccountSettingsScreen extends StatelessWidget {
                 NavigationService.navigateTo(Routes.securityScreen);
               },
             ),
-            // Delete Account Button
-            CustomButton(
-              onPressed: () {
+            SettingsItem(
+              iconPath: Assets.icons.deleteIcon.path,
+              title: "Delete Account",
+              onTap: () {
                 _showDeleteBottomSheet(context);
               },
-              height: 55.h,
-              title: "Delete Account",
-              backgroundColor: Colors.white,
-              borderRadius: BorderRadius.circular(100.r),
-              icon: Image.asset(
-                Assets.icons.deleteIcon.path,
-                color: const Color(0xFFC72C2C),
-                width: 20.sp,
-                height: 20.sp,
-              ),
-              textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                  .copyWith(
-                    color: const Color(0xFFC72C2C),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16.sp,
-                  ),
             ),
             UIHelper.verticalSpace(32.h),
           ],

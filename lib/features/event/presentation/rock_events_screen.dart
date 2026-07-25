@@ -65,7 +65,7 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldColor,
+      backgroundColor: AppColors.c121212,
       appBar: const CustomAppBar(
         title: "Rock and Roll Events",
         showRightIcon: false,

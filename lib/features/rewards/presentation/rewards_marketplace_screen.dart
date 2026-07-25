@@ -62,7 +62,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldColor,
+      backgroundColor: AppColors.c121212,
       appBar: const CustomAppBar(
         title: "Rewards Marketplace",
         showRightIcon: false,
