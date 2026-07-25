@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/custom_selector_field.dart';
 import '../../auth/widget/document_upload_widget.dart';
 
@@ -154,7 +155,9 @@ class WizardStepTwo extends StatelessWidget {
         // Event Photos Upload
         DocumentUploadWidget(
           label: "Event Photos",
-          fileName: eventPhotoPaths.isNotEmpty ? "${eventPhotoPaths.length} photos selected" : null,
+          fileName: eventPhotoPaths.isNotEmpty
+              ? "${eventPhotoPaths.length} photos selected"
+              : null,
           onTap: onAddPhotos,
           onRemove: () => onRemovePhoto(-1), // special flag to remove all
         ),
@@ -167,7 +170,8 @@ class WizardStepTwo extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: eventPhotoPaths.length,
-              separatorBuilder: (context, index) => UIHelper.horizontalSpace(10),
+              separatorBuilder: (context, index) =>
+                  UIHelper.horizontalSpace(10),
               itemBuilder: (context, index) {
                 final path = eventPhotoPaths[index];
                 return Stack(
@@ -188,15 +192,16 @@ class WizardStepTwo extends StatelessWidget {
                         child: Image.file(
                           File(path),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppColors.c242A34,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.white.withValues(alpha: 0.5),
-                              size: 20.w,
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: AppColors.c242A34,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  size: 20.w,
+                                ),
+                              ),
                         ),
                       ),
                     ),
@@ -290,7 +295,10 @@ class WizardStepTwo extends StatelessWidget {
         prefixIcon: prefixIcon,
         filled: true,
         fillColor: const Color(0xFF1E222B),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: maxLines > 1 ? 14.h : 16.h),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: maxLines > 1 ? 14.h : 16.h,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(
@@ -307,17 +315,11 @@ class WizardStepTwo extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
       ),
     );
@@ -363,7 +365,10 @@ class WizardStepTwo extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.transparent,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 16.h,
+          ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -408,10 +413,17 @@ class WizardStepTwo extends StatelessWidget {
             fontSize: 14.sp,
             color: Colors.white.withValues(alpha: 0.3),
           ),
-          prefixIcon: Icon(Icons.access_time_rounded, color: Colors.white.withValues(alpha: 0.4), size: 16.w),
+          prefixIcon: Icon(
+            Icons.access_time_rounded,
+            color: Colors.white.withValues(alpha: 0.4),
+            size: 16.w,
+          ),
           filled: true,
           fillColor: Colors.transparent,
-          contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12.w,
+            vertical: 16.h,
+          ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -425,10 +437,7 @@ class WizardStepTwo extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         gradient: const LinearGradient(
-          colors: [
-            Color(0x77F28F31),
-            Color(0x7772E84F),
-          ],
+          colors: [Color(0x77F28F31), Color(0x7772E84F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -445,33 +454,10 @@ class WizardStepTwo extends StatelessWidget {
   }
 
   Widget _buildContinueButton(VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFF28F31),
-              Color(0xFF72E84F),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          "Continue",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
-        ),
-      ),
+    return CustomGradientButton(
+      onPressed: onPressed,
+      title: "Continue",
+      borderRadius: BorderRadius.circular(16.r),
     );
   }
 }

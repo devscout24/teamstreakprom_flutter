@@ -24,11 +24,11 @@ class HostEventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientContainer(
       padding: EdgeInsets.all(12.w),
-      gradient: const LinearGradient(
-        colors: [Color(0x24F28F31), Color(0x3772E84F)],
-        begin: Alignment(0.50, -0.37),
-        end: Alignment(0.50, 1.24),
-      ),
+      // gradient: const LinearGradient(
+      //   colors: [Color(0x24F28F31), Color(0x3772E84F)],
+      //   begin: Alignment(0.50, -0.37),
+      //   end: Alignment(0.50, 1.24),
+      // ),
       border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       child: Row(
         children: [

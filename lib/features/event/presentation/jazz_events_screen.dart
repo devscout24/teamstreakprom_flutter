@@ -4,6 +4,7 @@ import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_back_button.dart';
+import '../../../common_widgets/custom_app_bar.dart';
 import '../../home/widgets/filter_bottom_sheet.dart';
 import '../widgets/event_card.dart';
 import '../model/event_model.dart';
@@ -66,21 +67,9 @@ class _JazzEventsScreenState extends State<JazzEventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.scaffoldColor,
-        elevation: 0,
-        centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CustomBackButton(),
-        ),
-        title: Text(
-          "Jazz Events",
-          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      appBar: const CustomAppBar(
+        title: "Jazz Events",
+        showRightIcon: false,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -10,7 +10,9 @@ import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
 import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
-import '../../host_employee_feature/bottom_nav_bar/presentation/host_employee_navigation_screen.dart';
+import 'package:teamstreakpromo/features/host_employee_feature/bottom_nav_bar/presentation/host_employee_navigation_screen.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/constants/app_constants.dart';
 
 class SigninScreen extends StatefulWidget {
   final AccountType? accountType;
@@ -126,11 +128,24 @@ class _SigninScreenState extends State<SigninScreen> {
                         ),
                       );
                     } else {
+                      if (widget.accountType != null) {
+                        appData.write(
+                          kAccountType,
+                          widget.accountType.toString(),
+                        );
+                      }
+
                       if (widget.accountType == AccountType.host) {
-                        NavigationService.navigateTo(Routes.subscriptionScreen);
+                        NavigationService.navigateToWithArgs(
+                          Routes.subscriptionScreen,
+                          {'accountType': widget.accountType},
+                        );
                       } else if (widget.accountType ==
                           AccountType.businessPartner) {
-                        NavigationService.navigateTo(Routes.subscriptionScreen);
+                        NavigationService.navigateToWithArgs(
+                          Routes.subscriptionScreen,
+                          {'accountType': widget.accountType},
+                        );
                       } else {
                         NavigationService.navigateTo(Routes.pickInterestScreen);
                       }

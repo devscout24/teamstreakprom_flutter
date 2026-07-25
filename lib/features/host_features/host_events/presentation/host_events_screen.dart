@@ -171,14 +171,7 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                               );
                             },
                             onEdit: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Edit event: ${event['title']}",
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
+                              Navigator.pushNamed(context, Routes.createEventScreen);
                             },
                           ),
                         );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/document_upload_widget.dart';
 
 class WizardStepFive extends StatelessWidget {
@@ -31,7 +32,11 @@ class WizardStepFive extends StatelessWidget {
     required this.onContinue,
   });
 
-  Widget _buildRewardImage(dynamic rewardImage, {required double width, required double height}) {
+  Widget _buildRewardImage(
+    dynamic rewardImage, {
+    required double width,
+    required double height,
+  }) {
     if (rewardImage is List && rewardImage.isNotEmpty) {
       return Image.file(
         File(rewardImage[0]),
@@ -42,7 +47,10 @@ class WizardStepFive extends StatelessWidget {
           width: width,
           height: height,
           color: AppColors.c242A34,
-          child: Icon(Icons.broken_image, color: Colors.white.withValues(alpha: 0.5)),
+          child: Icon(
+            Icons.broken_image,
+            color: Colors.white.withValues(alpha: 0.5),
+          ),
         ),
       );
     } else if (rewardImage is String && rewardImage.startsWith("http")) {
@@ -57,7 +65,10 @@ class WizardStepFive extends StatelessWidget {
         width: width,
         height: height,
         color: AppColors.c242A34,
-        child: Icon(Icons.card_giftcard, color: Colors.white.withValues(alpha: 0.5)),
+        child: Icon(
+          Icons.card_giftcard,
+          color: Colors.white.withValues(alpha: 0.5),
+        ),
       );
     }
   }
@@ -100,15 +111,17 @@ class WizardStepFive extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF1E222B),
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
               child: Row(
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.r),
-                    child: _buildRewardImage(reward["image"], width: 80.w, height: 60.h),
+                    child: _buildRewardImage(
+                      reward["image"],
+                      width: 80.w,
+                      height: 60.h,
+                    ),
                   ),
                   UIHelper.horizontalSpace(12),
                   Expanded(
@@ -190,7 +203,9 @@ class WizardStepFive extends StatelessWidget {
         // Reward Photo Upload
         DocumentUploadWidget(
           label: "Reward Photo",
-          fileName: rewardPhotoPaths.isNotEmpty ? "${rewardPhotoPaths.length} photos selected" : null,
+          fileName: rewardPhotoPaths.isNotEmpty
+              ? "${rewardPhotoPaths.length} photos selected"
+              : null,
           onTap: onAddPhotos,
           onRemove: () => onRemovePhoto(-1),
         ),
@@ -203,7 +218,8 @@ class WizardStepFive extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: rewardPhotoPaths.length,
-              separatorBuilder: (context, index) => UIHelper.horizontalSpace(10),
+              separatorBuilder: (context, index) =>
+                  UIHelper.horizontalSpace(10),
               itemBuilder: (context, index) {
                 final path = rewardPhotoPaths[index];
                 return Stack(
@@ -224,15 +240,16 @@ class WizardStepFive extends StatelessWidget {
                         child: Image.file(
                           File(path),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppColors.c242A34,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.white.withValues(alpha: 0.5),
-                              size: 20.w,
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: AppColors.c242A34,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  size: 20.w,
+                                ),
+                              ),
                         ),
                       ),
                     ),
@@ -359,7 +376,10 @@ class WizardStepFive extends StatelessWidget {
         prefixIcon: prefixIcon,
         filled: true,
         fillColor: const Color(0xFF1E222B),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: maxLines > 1 ? 14.h : 16.h),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: maxLines > 1 ? 14.h : 16.h,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(
@@ -376,50 +396,21 @@ class WizardStepFive extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
       ),
     );
   }
 
   Widget _buildContinueButton(VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFF28F31),
-              Color(0xFF72E84F),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          "Continue",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
-        ),
-      ),
+    return CustomGradientButton(
+      onPressed: onPressed,
+      title: "Continue",
+      borderRadius: BorderRadius.circular(16.r),
     );
   }
 }

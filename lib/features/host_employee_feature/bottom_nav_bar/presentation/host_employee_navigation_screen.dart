@@ -42,25 +42,22 @@ class _HostEmployeeNavigationScreenState
       backgroundColor: AppColors.scaffoldColor,
       body: _pages[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        margin: EdgeInsets.only(top: 8.h),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushNamed(context, Routes.qrScannerScreen);
-          },
-          shape: CircleBorder(
-            side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.05),
-              width: 1.5.w,
-            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, Routes.qrScannerScreen);
+        },
+        shape: CircleBorder(
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1.5.w,
           ),
-          backgroundColor: const Color(0xFF2A313C),
-          elevation: 6,
-          child: Icon(
-            Icons.qr_code_scanner_rounded,
-            color: Colors.white,
-            size: 26.w,
-          ),
+        ),
+        backgroundColor: const Color(0xFF2A313C),
+        elevation: 6,
+        child: Icon(
+          Icons.qr_code_scanner_rounded,
+          color: Colors.white,
+          size: 26.w,
         ),
       ),
       bottomNavigationBar: BottomAppBar(

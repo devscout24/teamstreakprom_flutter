@@ -7,10 +7,18 @@ import 'custom_back_button.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final bool showRightIcon;
+  final bool showBackButton;
+  final Widget? customAction;
+  final VoidCallback? onBack;
 
   const CustomAppBar({
     super.key,
     required this.title,
+    this.showRightIcon = true,
+    this.showBackButton = true,
+    this.customAction,
+    this.onBack,
   });
 
   @override
@@ -20,7 +28,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const CustomBackButton(),
+        automaticallyImplyLeading: false,
+        leading: showBackButton ? CustomBackButton(onTap: onBack) : null,
         title: Text(
           title,
           style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
@@ -29,14 +38,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
-          Image.asset(
-            Assets.icons.splashLogo.path,
-            height: 14.h,
-            color: Colors.white,
-          ),
-          UIHelper.horizontalSpace(16.w),
-        ],
+        actions: customAction != null
+            ? [customAction!, UIHelper.horizontalSpace(16.w)]
+            : showRightIcon
+                ? [
+                    Image.asset(
+                      Assets.icons.splashLogo.path,
+                      height: 14.h,
+                      color: Colors.white,
+                    ),
+                    UIHelper.horizontalSpace(16.w),
+                  ]
+                : null,
       ),
     );
   }

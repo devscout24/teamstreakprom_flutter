@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../../common_widgets/custom_back_button.dart';
+import '../../../common_widgets/custom_app_bar.dart';
 import '../../home/widgets/filter_bottom_sheet.dart';
 import '../widgets/event_card.dart';
 import '../model/event_model.dart';
@@ -23,7 +23,7 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
     'Music',
     'Nightlife',
     'Festival',
-    'Sports'
+    'Sports',
   ];
 
   static const List<EventModel> _rockEvents = [
@@ -66,21 +66,9 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.scaffoldColor,
-        elevation: 0,
-        centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CustomBackButton(),
-        ),
-        title: Text(
-          "Rock and Roll Events",
-          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      appBar: const CustomAppBar(
+        title: "Rock and Roll Events",
+        showRightIcon: false,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,14 +99,15 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
                   UIHelper.horizontalSpace(12.w),
                   Expanded(
                     child: TextField(
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: Colors.white,
-                      ),
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: "Search...",
-                        hintStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: Colors.white.withValues(alpha: 0.4),
-                        ),
+                        hintStyle: TextFontStyle
+                            .textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white.withValues(alpha: 0.4),
+                            ),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -181,12 +170,15 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
                       child: Center(
                         child: Text(
                           _categories[index],
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: isSelected
-                                ? Colors.black
-                                : Colors.white.withValues(alpha: 0.7),
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: isSelected
+                                    ? Colors.black
+                                    : Colors.white.withValues(alpha: 0.7),
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
                         ),
                       ),
                     ),
@@ -212,7 +204,7 @@ class _RockEventsScreenState extends State<RockEventsScreen> {
                     date: event.date,
                     price: event.price,
                     imageUrl: event.imageUrl,
-                    isOverlayStyle: true,
+                    isOverlayStyle: false,
                     width: double.infinity,
                     onBuyPressed: () {},
                   ),

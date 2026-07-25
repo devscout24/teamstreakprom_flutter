@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:teamstreakpromo/features/notification/presentation/notification_screen.dart';
 import 'package:teamstreakpromo/features/rewards/presentation/rewards_point_details_screen.dart';
+import 'package:teamstreakpromo/navigation_screen.dart';
 import '../features/auth/presentation/choose_account_type_screen.dart';
 import '../features/auth/presentation/signin_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
@@ -12,7 +13,6 @@ import '../features/auth/presentation/otp_verification_screen.dart';
 import '../features/auth/presentation/create_new_password_screen.dart';
 import '../features/onboarding/presentation/pick_interest_screen.dart';
 import '../features/home/presentation/home_screen.dart';
-import '../features/home/presentation/navigation_screen.dart';
 import '../features/host_features/auth/presentation/personal_account_information.dart';
 import '../features/host_features/auth/presentation/business_details.dart';
 import '../features/host_features/auth/presentation/verify_identity.dart';
@@ -24,7 +24,8 @@ import '../features/host_features/host_earning/presentation/earning_overview_scr
 import '../features/host_features/host_events/presentation/create_event_wizard.dart';
 import '../features/host_features/host_scan/presentation/qr_scanner_screen.dart';
 import '../features/host_features/host_scan/presentation/scan_result_screen.dart';
-import '../features/host_employee_feature/profile/presentation/host_employee_profile_screen.dart';
+import 'package:teamstreakpromo/features/host_employee_feature/profile/presentation/host_employee_profile_screen.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_navbar_screen.dart';
 import '../features/settings/presentation/account_settings_screen.dart';
 import '../features/settings/presentation/edit_profile_screen.dart';
 import '../features/settings/presentation/notification_settings_screen.dart';
@@ -65,6 +66,7 @@ final class Routes {
   static const String qrScannerScreen = '/qrScanner';
   static const String scanResultScreen = '/scanResult';
   static const String hostEmployeeProfileScreen = '/hostEmployeeProfile';
+  static const String businessPartnerNavbarScreen = '/businessPartnerNavbar';
 
   //products_with_pagination
   static const String productsWithPagination = '/ProductsWithPagination';
@@ -221,12 +223,25 @@ final class RouteGenerator {
               );
 
       case Routes.subscriptionScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final accountType = args?['accountType'] as AccountType?;
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => const SubscriptionScreen(),
+                builder: (context) =>
+                    SubscriptionScreen(accountType: accountType),
               )
             : _FadedTransitionRoute(
-                widget: const SubscriptionScreen(),
+                widget: SubscriptionScreen(accountType: accountType),
+                settings: settings,
+              );
+
+      case Routes.businessPartnerNavbarScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const BusinessPartnerNavbarScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const BusinessPartnerNavbarScreen(),
                 settings: settings,
               );
 

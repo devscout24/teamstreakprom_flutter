@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_app_bar.dart';
 import '../widget/host_event_card.dart';
 
 class AllEventsScreen extends StatelessWidget {
@@ -56,23 +57,9 @@ class AllEventsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-        ),
-        title: Text(
-          "Upcoming Events",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
+      appBar: const CustomAppBar(
+        title: "Upcoming Events",
+        showRightIcon: false,
       ),
       body: SafeArea(
         child: ListView.separated(

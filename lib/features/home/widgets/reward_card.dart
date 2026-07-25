@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/colors.gen.dart';
-import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../../common_widgets/custom_gradient_button.dart';
 import '../../event/presentation/event_details_screen.dart';
 
 class RewardCard extends StatelessWidget {
@@ -67,181 +65,75 @@ class RewardCard extends StatelessWidget {
             width: 1.w,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Product Image Container
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1B1D2A),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24.r),
-                  topRight: Radius.circular(24.r),
+        child: Padding(
+          padding: EdgeInsets.all(8.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Product Image Container
+              Container(
+                height: 180.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(134, 134, 134, 0.10),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24.r),
-                  topRight: Radius.circular(24.r),
+              UIHelper.verticalSpace(12.h),
+              // Product Title
+              Text(
+                title,
+                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                  fontSize: 16.sp,
+                  color: AppColors.cFFF9F3,
+                  fontWeight: FontWeight.w600,
                 ),
-                child: AppNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  height: 140,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              UIHelper.verticalSpace(8.h),
+              // Description
+              Text(
+                description,
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  color: AppColors.cC6C6C6,
+                  fontSize: 11.sp,
+                  height: 1.4,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: 8.w,
-                right: 8.w,
-                top: 14.h,
-                bottom: 8.h,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Product Title
-                  Text(
-                    title,
-                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                      fontSize: 14.sp,
-
-                      fontWeight: FontWeight.w700,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  UIHelper.verticalSpace(8.h),
-                  // Description
-                  Text(
-                    description,
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          color: AppColors.cC6C6C6,
-                          fontSize: 11.sp,
-                          height: 1.4,
-                        ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  UIHelper.verticalSpace(8.h),
-                  // Expiry date info line
-                  RichText(
-                    text: TextSpan(
-                      text: "Exp: ",
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: const Color(0xFFF28F31),
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'SF Pro',
-                          ),
-                      children: [
-                        TextSpan(
-                          text: expiryDate,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  UIHelper.verticalSpace(12.h),
-                  // Brand Logo and Points badge Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Brand Logo circle
-                      Container(
-                        width: 32.w,
-                        height: 32.w,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        padding: EdgeInsets.all(4.w),
-                        child: ClipOval(
-                          child: AppNetworkImage(
-                            imageUrl: brandLogoUrl,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
+              UIHelper.verticalSpace(8.h),
+              // Expiry date info line
+              RichText(
+                text: TextSpan(
+                  text: "Exp: ",
+                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                      .copyWith(
+                        color: const Color(0xFFF28F31),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'SF Pro',
                       ),
-                      // Points badge pill
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF23262F),
-                          borderRadius: BorderRadius.circular(100.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Assets.icons.pointIcon.image(
-                              width: 16.w,
-                              height: 16.w,
-                            ),
-                            UIHelper.horizontalSpace(6.w),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: points,
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                  ),
-                                  TextSpan(
-                                    text: " pts",
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.white.withValues(
-                                            alpha: 0.8,
-                                          ),
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                  children: [
+                    TextSpan(
+                      text: expiryDate,
+                      style: TextStyle(
+                        color: AppColors.cE9EAE9,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12.sp,
                       ),
-                    ],
-                  ),
-                  UIHelper.verticalSpace(20.h),
-                  // Redeem Reward Button
-                  CustomGradientButton(
-                    onPressed: () {
-                      onRedeemPressed();
-                      _navigateToDetails(context);
-                    },
-                    title: "Redeem Reward",
-                    height: 50.h,
-                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          color: const Color(0xFF181A20),
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

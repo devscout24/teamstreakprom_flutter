@@ -36,6 +36,7 @@ const String kKeyLanguageCode = 'language_code';
 const String kKeyCountryCode = 'language_code';
 const String kKeyDeviceToken = 'device_token';
 const String kKeyUser = 'user';
+const String kAccountType = 'account_type';
 
 const String kKeyProvider = 'provider';
 const String kFacebook = 'facebook';

@@ -19,7 +19,7 @@ class HostEventsHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Circular Back Button
-        GestureDetector(onTap: onBack, child: const CustomBackButton()),
+        SizedBox(),
 
         // "+ Create New Event" Button
         GestureDetector(

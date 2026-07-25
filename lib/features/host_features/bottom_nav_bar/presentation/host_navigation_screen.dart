@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/settings/presentation/settings_screen.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
 
 import 'package:teamstreakpromo/features/host_features/host_home/presentation/host_home.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/presentation/host_events_screen.dart';
@@ -42,6 +43,18 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: _currentIndex == 3
+          ? null
+          : PreferredSize(
+              preferredSize: Size.fromHeight(80.h),
+              child: Container(
+                color: AppColors.scaffoldColor,
+                child: const SafeArea(
+                  bottom: false,
+                  child: HostAppBar(),
+                ),
+              ),
+            ),
       body: _pages[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(

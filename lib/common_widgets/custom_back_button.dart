@@ -13,7 +13,7 @@ class CustomBackButton extends StatelessWidget {
       onTap:
           onTap ??
           () {
-            NavigationService.goBack();
+            NavigationService.goBackCall();
           },
       child: Container(
         width: 40.w,

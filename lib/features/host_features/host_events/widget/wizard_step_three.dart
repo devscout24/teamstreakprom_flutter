@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/event_model.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/custom_selector_field.dart';
 import '../../auth/widget/document_upload_widget.dart';
 
@@ -323,33 +324,10 @@ class WizardStepThree extends StatelessWidget {
   }
 
   Widget _buildContinueButton(VoidCallback onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFF28F31),
-              Color(0xFF72E84F),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          "Continue",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
-        ),
-      ),
+    return CustomGradientButton(
+      onPressed: onPressed,
+      title: "Continue",
+      borderRadius: BorderRadius.circular(16.r),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
+import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 
 class HostStatCard extends StatelessWidget {
@@ -47,8 +48,9 @@ class HostStatCard extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontFamily: "SF Pro",
-                      fontSize: 13.sp,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 12.sp,
+                      color: AppColors.cFFFFFF.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w400,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -57,7 +59,7 @@ class HostStatCard extends StatelessWidget {
               ),
             ],
           ),
-          UIHelper.verticalSpace(14),
+          UIHelper.verticalSpace(6),
           Text(
             value,
             style: TextStyle(

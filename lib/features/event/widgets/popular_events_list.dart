@@ -73,7 +73,7 @@ class PopularEventsList extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: 300.h,
+          height: 295.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),

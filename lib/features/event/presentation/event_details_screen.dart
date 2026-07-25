@@ -173,7 +173,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           children: [
             // ── Image Slider Header ────────────────────────────────────
             SizedBox(
-              height: 350.h,
+              height: 300.h,
               child: Stack(
                 children: [
                   // PageView

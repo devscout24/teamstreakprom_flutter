@@ -21,6 +21,7 @@ class GradientContainer extends StatelessWidget {
     this.width,
     this.height,
     this.onTap,
+    this.color,
   });
 
   final Widget child;
@@ -31,6 +32,7 @@ class GradientContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final VoidCallback? onTap;
+  final Color? color;
 
   /// Default gradient used across ticket cards and similar surfaces.
   static const LinearGradient defaultGradient = LinearGradient(
@@ -52,6 +54,7 @@ class GradientContainer extends StatelessWidget {
         height: height,
         padding: padding,
         decoration: BoxDecoration(
+          color: color,
           gradient: gradient ?? defaultGradient,
           borderRadius: borderRadius ?? BorderRadius.circular(16.r),
           border: border,

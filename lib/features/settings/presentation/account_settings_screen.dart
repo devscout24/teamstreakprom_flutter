@@ -9,6 +9,9 @@ import '../../../helpers/all_routes.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../widgets/settings_item.dart';
+import '../../../constants/app_constants.dart';
+import '../../../helpers/di.dart';
+import '../../host_features/profile/presentation/host_edit_profile_screen.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
@@ -44,7 +47,17 @@ class AccountSettingsScreen extends StatelessWidget {
               iconPath: Assets.icons.profileIcon.path, // placeholder
               title: "View Profile",
               onTap: () {
-                NavigationService.navigateTo(Routes.editProfileScreen);
+                final accountTypeStr = appData.read(kAccountType);
+                if (accountTypeStr == "AccountType.host") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HostEditProfileScreen(),
+                    ),
+                  );
+                } else {
+                  NavigationService.navigateTo(Routes.editProfileScreen);
+                }
               },
             ),
             SettingsItem(
