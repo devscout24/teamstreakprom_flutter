@@ -71,66 +71,70 @@ class HostEmployeeHomeScreen extends StatelessWidget {
               ),
               UIHelper.verticalSpace(32.h),
 
-              // Table
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF262829),
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    width: 1.w,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF262829),
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      width: 1.w,
+                    ),
                   ),
-                ),
-                child: Column(
-                  children: [
-                    // Table Header
-                    GradientContainer(
-                      height: 56.h,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.r),
-                        topRight: Radius.circular(16.r),
+                  child: Column(
+                    children: [
+                      // Table Header
+                      GradientContainer(
+                        height: 56.h,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16.r),
+                          topRight: Radius.circular(16.r),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildHeaderText("Ticket ID"),
+                            ),
+                            Expanded(
+                              flex: 4,
+                              child: _buildHeaderText("Event Name"),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: _buildHeaderText("Date & Time"),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Center(child: _buildHeaderText("Action")),
+                            ),
+                          ],
+                        ),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: _buildHeaderText("Ticket ID"),
-                          ),
-                          Expanded(
-                            flex: 4,
-                            child: _buildHeaderText("Event Name"),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: _buildHeaderText("Date & Time"),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Center(child: _buildHeaderText("Action")),
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    // List of items
-                    // List of items
-                    ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: 2,
-                      itemBuilder: (context, index) {
-                        return _buildTableRow(
-                          "#${2530 + index}",
-                          "Ella's Creative Showcase",
-                          "Aug 15, 2026\n10 am",
-                          index.isEven, // Alternating valid/invalid for preview
-                          index != 9, // Hide divider on last item
-                        );
-                      },
-                    ),
-                  ],
+                      // List of items
+                      // List of items
+                      ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 2,
+                        itemBuilder: (context, index) {
+                          return _buildTableRow(
+                            "#${2530 + index}",
+                            "Ella's Creative Showcase",
+                            "Aug 15, 2026\n10 am",
+                            index
+                                .isEven, // Alternating valid/invalid for preview
+                            index != 1, // Hide divider on last item
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -162,7 +166,15 @@ class HostEmployeeHomeScreen extends StatelessWidget {
     return Column(
       children: [
         Container(
-          color: AppColors.c2b2f32,
+          decoration: BoxDecoration(
+            color: AppColors.c2b2f32,
+            borderRadius: showDivider
+                ? null
+                : BorderRadius.only(
+                    bottomLeft: Radius.circular(16.r),
+                    bottomRight: Radius.circular(16.r),
+                  ),
+          ),
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,

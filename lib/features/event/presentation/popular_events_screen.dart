@@ -66,11 +66,8 @@ class _PopularEventsScreenState extends State<PopularEventsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(
-        title: "Popular Events",
-        showRightIcon: false,
-      ),
+      backgroundColor: AppColors.c121212,
+      appBar: const CustomAppBar(title: "Popular Events", showRightIcon: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

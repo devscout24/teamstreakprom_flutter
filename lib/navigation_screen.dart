@@ -125,7 +125,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 12.h),
-      color: AppColors.scaffoldColor,
+      color: (_selectedIndex == 0 || _selectedIndex == 1)
+          ? AppColors.c121212
+          : AppColors.scaffoldColor,
       child: Row(
         children: [
           GestureDetector(
@@ -291,7 +293,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldColor,
+      backgroundColor: (_selectedIndex == 0 || _selectedIndex == 1)
+          ? AppColors.c121212
+          : AppColors.scaffoldColor,
       body: SafeArea(
         child: Column(
           children: [

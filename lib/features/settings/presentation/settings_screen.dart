@@ -20,7 +20,10 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isHost = appData.read(kAccountType) == "AccountType.host";
+    final accountType = appData.read(kAccountType);
+    final isHostOrBP =
+        accountType == "AccountType.host" ||
+        accountType == "AccountType.businessPartner";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -108,7 +111,8 @@ class SettingsScreen extends StatelessWidget {
               GradientContainer(
                 onTap: () {
                   final accountTypeStr = appData.read(kAccountType);
-                  if (accountTypeStr == "AccountType.host") {
+                  if (accountTypeStr == "AccountType.host" ||
+                      accountTypeStr == "AccountType.businessPartner") {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -172,29 +176,31 @@ class SettingsScreen extends StatelessWidget {
               ),
 
               _buildSectionHeader("App Preferences"),
-              if (isHost) ...[
+              if (isHostOrBP) ...[
                 SettingsItem(
                   iconPath: 'assets/icons/team_icon.png',
                   title: "Manage Team",
                   onTap: () {
-                    // TODO: Navigate to Manage Team
+                    NavigationService.navigateTo(Routes.manageTeamScreen);
                   },
                 ),
                 SettingsItem(
                   iconPath: 'assets/icons/subscription_icon.png',
                   title: "Subscription Plan",
                   onTap: () {
-                    // TODO: Navigate to Subscription Plan
+                    NavigationService.navigateTo(Routes.subscriptionScreen);
                   },
                 ),
               ],
-              SettingsItem(
-                iconPath: Assets.icons.inviteIcon.path,
-                title: "Invite friend",
-                onTap: () {
-                  NavigationService.navigateTo(Routes.inviteFriendScreen);
-                },
-              ),
+              if (!isHostOrBP) ...[
+                SettingsItem(
+                  iconPath: Assets.icons.inviteIcon.path,
+                  title: "Invite friend",
+                  onTap: () {
+                    NavigationService.navigateTo(Routes.inviteFriendScreen);
+                  },
+                ),
+              ],
               SettingsItem(
                 iconPath: Assets.icons.notificationIcon.path,
                 title: "Notification Preferences",

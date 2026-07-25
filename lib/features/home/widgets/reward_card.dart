@@ -58,12 +58,8 @@ class RewardCard extends StatelessWidget {
         width: width ?? 270.w,
         height: height,
         decoration: BoxDecoration(
-          color: const Color(0xFF1E222B),
+          color: AppColors.c121212,
           borderRadius: BorderRadius.circular(24.r),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.05),
-            width: 1.w,
-          ),
         ),
         child: Padding(
           padding: EdgeInsets.all(8.w),

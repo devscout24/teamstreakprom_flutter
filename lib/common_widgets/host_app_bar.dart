@@ -41,13 +41,18 @@ class HostAppBar extends StatelessWidget {
       child: Row(
         children: [
           // ── Avatar ──────────────────────────────────────────────────────
-          Container(
-            width: 44.w,
-            height: 44.w,
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            child: AppNetworkImage(
-              imageUrl: avatarUrl,
-              borderRadius: const BorderRadius.all(Radius.circular(100)),
+          GestureDetector(
+            onTap: () {
+              NavigationService.navigateTo(Routes.hostEditProfileScreen);
+            },
+            child: Container(
+              width: 44.w,
+              height: 44.w,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: AppNetworkImage(
+                imageUrl: avatarUrl,
+                borderRadius: const BorderRadius.all(Radius.circular(100)),
+              ),
             ),
           ),
           UIHelper.horizontalSpace(12.w),
@@ -58,7 +63,15 @@ class HostAppBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(name, style: TextFontStyle.textStyle16cFFFFFFSFPro590),
+                GestureDetector(
+                  onTap: () {
+                    NavigationService.navigateTo(Routes.hostEditProfileScreen);
+                  },
+                  child: Text(
+                    name,
+                    style: TextFontStyle.textStyle16cFFFFFFSFPro590,
+                  ),
+                ),
                 UIHelper.verticalSpace(4.h),
                 Row(
                   children: [

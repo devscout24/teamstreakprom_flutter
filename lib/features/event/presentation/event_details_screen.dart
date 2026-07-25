@@ -11,6 +11,8 @@ import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/product_details_bottom_sheet.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
+import '../../../constants/app_constants.dart';
+import '../../../helpers/di.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final String title;
@@ -777,7 +779,53 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                 ),
               ),
-              child: _selectedTabIndex == 0
+              child: (appData.read(kAccountType) == "AccountType.host")
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: CustomGradientButton(
+                            onPressed: () {},
+                            title: "Edit Info",
+                            borderRadius: BorderRadius.circular(100.r),
+                            textStyle: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: const Color(0xFF262824),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16.sp,
+                                ),
+                          ),
+                        ),
+                        UIHelper.horizontalSpace(16.w),
+                        Expanded(
+                          child: SizedBox(
+                            height: 50.h,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFB42426),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100.r),
+                                ),
+                                padding: EdgeInsets.zero,
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                "Delete",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16.sp,
+                                    ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : _selectedTabIndex == 0
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

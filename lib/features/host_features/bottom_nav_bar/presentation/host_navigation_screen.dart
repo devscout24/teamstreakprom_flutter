@@ -49,10 +49,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
               preferredSize: Size.fromHeight(80.h),
               child: Container(
                 color: AppColors.scaffoldColor,
-                child: const SafeArea(
-                  bottom: false,
-                  child: HostAppBar(),
-                ),
+                child: const SafeArea(bottom: false, child: HostAppBar()),
               ),
             ),
       body: _pages[_currentIndex],
