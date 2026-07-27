@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/business_partner_employee/business_partner_employee_nav.dart';
 import '../../../common_widgets/custom_textform_field.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/google_login_button.dart';
@@ -27,6 +28,28 @@ class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AccountType? _currentAccountType;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAccountType();
+  }
+
+  void _checkAccountType() {
+    if (widget.accountType != null) {
+      _currentAccountType = widget.accountType;
+    } else {
+      String? storedType = appData.read(kAccountType);
+      if (storedType == AccountType.host.name || storedType == AccountType.host.toString()) {
+        _currentAccountType = AccountType.host;
+      } else if (storedType == AccountType.businessPartner.name || storedType == AccountType.businessPartner.toString()) {
+        _currentAccountType = AccountType.businessPartner;
+      } else if (storedType == AccountType.user.name || storedType == AccountType.user.toString()) {
+        _currentAccountType = AccountType.user;
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -127,24 +150,33 @@ class _SigninScreenState extends State<SigninScreen> {
                               const HostEmployeeNavigationScreen(),
                         ),
                       );
+                    } else if (email == "businesspartner@gmail.com" &&
+                        password == "12345678") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const BusinessPartnerEmployeeNav(),
+                        ),
+                      );
                     } else {
-                      if (widget.accountType != null) {
+                      if (_currentAccountType != null) {
                         appData.write(
                           kAccountType,
-                          widget.accountType.toString(),
+                          _currentAccountType.toString(),
                         );
                       }
 
-                      if (widget.accountType == AccountType.host) {
+                      if (_currentAccountType == AccountType.host) {
                         NavigationService.navigateToWithArgs(
                           Routes.subscriptionScreen,
-                          {'accountType': widget.accountType},
+                          {'accountType': _currentAccountType},
                         );
-                      } else if (widget.accountType ==
+                      } else if (_currentAccountType ==
                           AccountType.businessPartner) {
                         NavigationService.navigateToWithArgs(
                           Routes.subscriptionScreen,
-                          {'accountType': widget.accountType},
+                          {'accountType': _currentAccountType},
                         );
                       } else {
                         NavigationService.navigateTo(Routes.pickInterestScreen);
@@ -208,7 +240,8 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              if (widget.accountType == AccountType.host) {
+                              if (_currentAccountType == AccountType.host || 
+                                  _currentAccountType == AccountType.businessPartner) {
                                 NavigationService.navigateTo(
                                   Routes.personalAccountInformationScreen,
                                 );

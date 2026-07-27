@@ -18,7 +18,10 @@ class _Interest {
 
 const List<_Interest> _interests = [
   _Interest(label: 'Musics', iconPath: 'assets/icons/music_icon.png'),
-  _Interest(label: 'Visual Arts', iconPath: 'assets/icons/visual_arts_icon.png'),
+  _Interest(
+    label: 'Visual Arts',
+    iconPath: 'assets/icons/visual_arts_icon.png',
+  ),
   _Interest(label: 'Books', iconPath: 'assets/icons/book_icon.png'),
   _Interest(label: 'Business', iconPath: 'assets/icons/business_icon.png'),
   _Interest(label: 'Holiday', iconPath: 'assets/icons/holiday_icon.png'),
@@ -126,7 +129,7 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 1,
                       child: Container(
                         height: 50.h,
                         decoration: BoxDecoration(
@@ -180,7 +183,7 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
                     UIHelper.horizontalSpace(12.w),
                     // Save button
                     Expanded(
-                      flex: 3,
+                      flex: 2,
                       child: CustomGradientButton(
                         height: 50.h,
                         onPressed: () {
@@ -278,7 +281,12 @@ class _InterestChip extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Image.asset(interest.iconPath, width: 20.sp, height: 20.sp, color: Colors.white),
+                        Image.asset(
+                          interest.iconPath,
+                          width: 20.sp,
+                          height: 20.sp,
+                          color: Colors.white,
+                        ),
                         UIHelper.horizontalSpace(8.w),
                         Flexible(
                           child: Text(

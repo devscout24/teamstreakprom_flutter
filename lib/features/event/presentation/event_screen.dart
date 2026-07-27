@@ -42,7 +42,7 @@ class _EventScreenState extends State<EventScreen> {
       backgroundColor: AppColors.c121212,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h),
+          padding: EdgeInsets.symmetric(vertical: 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -26,7 +26,7 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                 child: Column(
                   children: [
                     // 1. Available Balance Card

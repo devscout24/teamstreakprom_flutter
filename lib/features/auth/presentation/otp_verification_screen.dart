@@ -10,9 +10,14 @@ import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
-  const OtpVerificationScreen({super.key, this.email = "jessicawilson@examle.com"});
+  const OtpVerificationScreen({
+    super.key,
+    this.email = "jessicawilson@examle.com",
+    this.type,
+  });
 
   final String email;
+  final String? type;
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -103,19 +108,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     Text(
                       "We have sent a verification code to email address",
                       textAlign: TextAlign.center,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: AppColors.c9B9C9A,
-                        fontFamily: "SF Pro",
-                      ),
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c9B9C9A,
+                            fontFamily: "SF Pro",
+                          ),
                     ),
                     UIHelper.verticalSpace(4),
                     Text(
                       widget.email,
                       textAlign: TextAlign.center,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                        color: AppColors.c9B9C9A,
-                        fontFamily: "SF Pro",
-                      ),
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c9B9C9A,
+                            fontFamily: "SF Pro",
+                          ),
                     ),
                   ],
                 ),
@@ -137,7 +144,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               CustomGradientButton(
                 onPressed: () {
                   if (_otp.length == _otpLength) {
-                    NavigationService.navigateTo(Routes.createNewPasswordScreen);
+                    if (widget.type != null) {
+                      NavigationService.navigateToUntilReplacement(
+                        Routes.signInScreen,
+                      );
+                    } else {
+                      NavigationService.navigateTo(
+                        Routes.createNewPasswordScreen,
+                      );
+                    }
                   }
                 },
                 title: "Verify OTP",
@@ -149,10 +164,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ? RichText(
                         text: TextSpan(
                           text: "Resend code in ",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: AppColors.c9B9C9A,
-                            fontFamily: "SF Pro",
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.c9B9C9A,
+                                fontFamily: "SF Pro",
+                              ),
                           children: [
                             TextSpan(
                               text: _formattedTime,
@@ -170,11 +186,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         onTap: _startTimer,
                         child: Text(
                           "Resend Code",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: AppColors.cF28F31,
-                            fontFamily: "SF Pro",
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.cF28F31,
+                                fontFamily: "SF Pro",
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ),
               ),
@@ -226,8 +243,8 @@ class _OtpBoxState extends State<_OtpBox> {
           color: isFocused
               ? AppColors.primaryColorSecond
               : hasFilled
-                  ? AppColors.primaryColorSecond.withValues(alpha: 0.5)
-                  : Colors.white.withValues(alpha: 0.08),
+              ? AppColors.primaryColorSecond.withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.08),
           width: 1.5.w,
         ),
       ),

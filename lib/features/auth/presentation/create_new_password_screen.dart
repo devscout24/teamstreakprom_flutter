@@ -60,7 +60,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       ),
                       UIHelper.verticalSpace(8),
                       Text(
-                        "Please enter a new password. Your new passwordmust be different from previous password.",
+                        "Please enter a new password. Your new password must be different from previous password.",
                         textAlign: TextAlign.center,
                         style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                             .copyWith(

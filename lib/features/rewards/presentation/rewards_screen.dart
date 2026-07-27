@@ -84,7 +84,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            UIHelper.verticalSpace(12.h),
+            UIHelper.verticalSpace(24.h),
 
             // Points Banner
             Padding(

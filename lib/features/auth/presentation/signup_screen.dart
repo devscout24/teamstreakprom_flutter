@@ -226,6 +226,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 CustomGradientButton(
                   onPressed: () {
                     // Perform sign up action
+                    NavigationService.navigateToWithArgs(Routes.otpScreen, "signup");
                   },
                   title: "Sign Up",
                 ),
@@ -285,7 +286,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               NavigationService.navigateToReplacement(
-                                Routes.loginScreen,
+                                Routes.signInScreen,
                               );
                             },
                         ),

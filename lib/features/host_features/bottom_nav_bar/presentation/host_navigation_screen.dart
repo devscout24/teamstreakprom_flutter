@@ -4,6 +4,7 @@ import 'package:teamstreakpromo/features/settings/presentation/settings_screen.d
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
+import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 import 'package:teamstreakpromo/features/host_features/host_home/presentation/host_home.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/presentation/host_events_screen.dart';
@@ -43,15 +44,6 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: _currentIndex == 3
-          ? null
-          : PreferredSize(
-              preferredSize: Size.fromHeight(80.h),
-              child: Container(
-                color: AppColors.scaffoldColor,
-                child: const SafeArea(bottom: false, child: HostAppBar()),
-              ),
-            ),
       body: _pages[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
@@ -89,12 +81,12 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
               // Left Tabs
               _buildTabItem(
                 index: 0,
-                icon: Icons.grid_view_rounded,
+                iconPath: Assets.icons.dashboardIcon.path,
                 label: "Dashboard",
               ),
               _buildTabItem(
                 index: 1,
-                icon: Icons.calendar_today_rounded,
+                iconPath: Assets.icons.eventIcon.path,
                 label: "Events",
               ),
 
@@ -104,12 +96,12 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
               // Right Tabs
               _buildTabItem(
                 index: 2,
-                icon: Icons.confirmation_number_outlined,
+                iconPath: Assets.icons.rewards.path,
                 label: "Earning",
               ),
               _buildTabItem(
                 index: 3,
-                icon: Icons.settings_outlined,
+                iconPath: Assets.icons.settingIcon.path,
                 label: "Settings",
               ),
             ],
@@ -121,7 +113,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
 
   Widget _buildTabItem({
     required int index,
-    required IconData icon,
+    required String iconPath,
     required String label,
   }) {
     final isSelected = _currentIndex == index;
@@ -140,7 +132,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
           // Icon with dynamic gradient or gray color
           isSelected
               ? ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
+                  shaderCallback: (bounds) => const LinearGradient(
                     colors: [
                       AppColors.primaryColorFirst,
                       AppColors.primaryColorSecond,
@@ -148,9 +140,10 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ).createShader(bounds),
-                  child: Icon(icon, color: Colors.white, size: 24.w),
+                  blendMode: BlendMode.srcIn,
+                  child: Image.asset(iconPath, color: Colors.white, width: 24.w, height: 24.w),
                 )
-              : Icon(icon, color: AppColors.c9B9C9A, size: 24.w),
+              : Image.asset(iconPath, color: Colors.white.withValues(alpha: 0.5), width: 24.w, height: 24.w),
           UIHelper.verticalSpace(4),
           // Label with dynamic gradient or gray color
           isSelected

@@ -11,6 +11,9 @@ import 'package:teamstreakpromo/features/host_features/auth/widget/auth_progress
 import 'package:teamstreakpromo/features/host_features/auth/widget/document_upload_widget.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/constants/app_constants.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
 
 class UploadBusinessDocumentsScreen extends StatefulWidget {
   const UploadBusinessDocumentsScreen({super.key});
@@ -63,7 +66,10 @@ class _UploadBusinessDocumentsScreenState
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Take Photo",
@@ -72,8 +78,9 @@ class _UploadBusinessDocumentsScreenState
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final XFile? photo =
-                        await _picker.pickImage(source: ImageSource.camera);
+                    final XFile? photo = await _picker.pickImage(
+                      source: ImageSource.camera,
+                    );
                     if (photo != null) {
                       setState(() {
                         if (isFront) {
@@ -97,7 +104,10 @@ class _UploadBusinessDocumentsScreenState
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.photo_library_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.photo_library_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Choose from Gallery",
@@ -106,8 +116,9 @@ class _UploadBusinessDocumentsScreenState
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final XFile? image =
-                        await _picker.pickImage(source: ImageSource.gallery);
+                    final XFile? image = await _picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
                     if (image != null) {
                       setState(() {
                         if (isFront) {
@@ -131,7 +142,10 @@ class _UploadBusinessDocumentsScreenState
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.folder_open_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.folder_open_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Browse Files",
@@ -140,13 +154,12 @@ class _UploadBusinessDocumentsScreenState
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
-                    );
-                    if (result != null &&
-                        result.files.single.name.isNotEmpty) {
+                    final FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+                        );
+                    if (result != null && result.files.single.name.isNotEmpty) {
                       setState(() {
                         if (isFront) {
                           _frontLicenceName = result.files.single.name;
@@ -181,10 +194,7 @@ class _UploadBusinessDocumentsScreenState
         context: context,
         builder: (context) {
           final gradient = LinearGradient(
-            colors: [
-              AppColors.primaryColorFirst,
-              AppColors.primaryColorSecond,
-            ],
+            colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           );
@@ -203,11 +213,7 @@ class _UploadBusinessDocumentsScreenState
                     gradient: gradient,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.black,
-                    size: 18,
-                  ),
+                  child: const Icon(Icons.check, color: Colors.black, size: 18),
                 ),
                 UIHelper.horizontalSpace(12),
                 Text(
@@ -232,10 +238,12 @@ class _UploadBusinessDocumentsScreenState
             actions: [
               TextButton(
                 onPressed: () {
+                  appData.write(kAccountType, AccountType.host.name);
                   Navigator.pop(context); // Close dialog
-                  // Navigate to Login
-                  NavigationService.navigateToUntilReplacement(
-                    Routes.signInScreen,
+                  // Navigate to OTP
+                  NavigationService.navigateToWithArgs(
+                    Routes.otpScreen,
+                    "host",
                   );
                 },
                 child: Text(
@@ -277,21 +285,23 @@ class _UploadBusinessDocumentsScreenState
                       // Title
                       Text(
                         "Upload Business Documents",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "SF Pro Rounded",
-                        ),
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "SF Pro Rounded",
+                            ),
                       ),
                       UIHelper.verticalSpace(8),
 
                       // Subtitle
                       Text(
                         "Ensure Compliance by Submitting Necessary Business Documentation",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: AppColors.cFFFFFF.withValues(alpha: 0.6),
-                          fontFamily: "SF Pro",
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cFFFFFF.withValues(alpha: 0.6),
+                              fontFamily: "SF Pro",
+                            ),
                       ),
                       UIHelper.verticalSpace(24),
 
@@ -363,8 +373,10 @@ class _UploadBusinessDocumentsScreenState
                                   color: _agreedToTerms
                                       ? AppColors.primaryColorFirst
                                       : (_showCheckboxError
-                                          ? Colors.redAccent
-                                          : Colors.white.withValues(alpha: 0.4)),
+                                            ? Colors.redAccent
+                                            : Colors.white.withValues(
+                                                alpha: 0.4,
+                                              )),
                                   width: 2.w,
                                 ),
                               ),
@@ -385,7 +397,9 @@ class _UploadBusinessDocumentsScreenState
                                     .copyWith(
                                       fontSize: 12.sp,
                                       fontFamily: "SF Pro",
-                                      color: Colors.white.withValues(alpha: 0.8),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.8,
+                                      ),
                                     ),
                                 children: [
                                   TextSpan(

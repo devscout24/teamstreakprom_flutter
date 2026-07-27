@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
@@ -11,6 +13,7 @@ import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/product_details_bottom_sheet.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
+import '../widgets/reward_success_dialog.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
 
@@ -88,7 +91,39 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   void _redeemRewardDirectly() {
-    // Direct redemption logic (no toast/dialog notifications)
+    if (_selectedRewardProductIndex == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Please select a reward item first.",
+            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFFDD1F1F),
+        ),
+      );
+      return;
+    }
+    
+    // If called from the bottom sheet, we might want to pop it first, but Flutter 
+    // allows showing dialogs over bottom sheets. For a better UX, popping the bottom sheet 
+    // before showing the dialog would be ideal, but requires context. 
+    // We'll leave the dialog logic as is for now.
+    _showRewardSuccessDialog();
+  }
+
+  void _showRewardSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String rewardTitle = "the reward";
+        if (_selectedRewardProductIndex != null &&
+            _selectedRewardProductIndex! >= 0 &&
+            _selectedRewardProductIndex! < _rewardProducts.length) {
+          rewardTitle = _rewardProducts[_selectedRewardProductIndex!].title;
+        }
+        return RewardSuccessDialog(rewardTitle: rewardTitle);
+      },
+    );
   }
 
   void _showBookingSuccessDialog() {
@@ -167,6 +202,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isHost =
+        appData.read(kAccountType) == "host" ||
+        appData.read(kAccountType) == "AccountType.host";
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SingleChildScrollView(
@@ -695,59 +734,62 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     UIHelper.verticalSpace(24.h),
 
                     // Refer section
-                    Container(
-                      height: 52.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100.r),
-                        gradient: const LinearGradient(
-                          colors: [
-                            AppColors.primaryColorFirst,
-                            AppColors.primaryColorSecond,
-                          ],
-                        ),
-                      ),
-                      padding: EdgeInsets.all(1.w),
-                      child: Container(
+                    if (!isHost) ...[
+                      Container(
+                        height: 52.h,
+                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF171A20),
                           borderRadius: BorderRadius.circular(100.r),
+                          gradient: const LinearGradient(
+                            colors: [
+                              AppColors.primaryColorFirst,
+                              AppColors.primaryColorSecond,
+                            ],
+                          ),
                         ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          "Refer your friend",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15.sp,
-                                fontFamily: "SF Pro",
-                              ),
-                        ),
-                      ),
-                    ),
-                    UIHelper.verticalSpace(12.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: AppColors.primaryColorFirst,
-                          size: 16.sp,
-                        ),
-                        UIHelper.horizontalSpace(8.w),
-                        Expanded(
+                        padding: EdgeInsets.all(1.w),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF171A20),
+                            borderRadius: BorderRadius.circular(100.r),
+                          ),
+                          alignment: Alignment.center,
                           child: Text(
-                            "You'll receive 1 point only after your friend purchases a ticket.",
+                            "Refer your friend",
                             style: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
-                                  color: AppColors.primaryColorFirst,
-                                  fontSize: 11.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15.sp,
+                                  fontFamily: "SF Pro",
                                 ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      UIHelper.verticalSpace(12.h),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColors.primaryColorFirst,
+                            size: 16.sp,
+                          ),
+                          UIHelper.horizontalSpace(8.w),
+                          Expanded(
+                            child: Text(
+                              "You'll receive 1 point only after your friend purchases a ticket.",
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: AppColors.primaryColorFirst,
+                                    fontSize: 11.sp,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ] else ...[
                     // ── Reward Info Tab Content (Product List) ──
                     ListView.builder(
@@ -784,7 +826,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       children: [
                         Expanded(
                           child: CustomGradientButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              NavigationService.navigateTo(
+                                Routes.createEventScreen,
+                              );
+                            },
                             title: "Edit Info",
                             borderRadius: BorderRadius.circular(100.r),
                             textStyle: TextFontStyle

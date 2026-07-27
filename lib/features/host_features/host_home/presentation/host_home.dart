@@ -7,6 +7,7 @@ import '../widget/host_stat_card.dart';
 import '../widget/revenue_chart_card.dart';
 import '../widget/ticket_sales_chart_card.dart';
 import '../widget/host_event_card.dart';
+import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
 
 class HostHomeScreen extends StatelessWidget {
   const HostHomeScreen({super.key});
@@ -46,6 +47,7 @@ class HostHomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const HostAppBar(),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),

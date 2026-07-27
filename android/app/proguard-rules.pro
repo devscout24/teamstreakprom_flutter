@@ -1,0 +1,2 @@
+-keep class com.google.mlkit.vision.barcode.** { *; }
+-keep class com.google.mlkit.common.** { *; }

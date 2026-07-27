@@ -42,8 +42,8 @@ class HostStatCard extends StatelessWidget {
                 child: Icon(icon, color: iconColor, size: 18.w),
               ),
               UIHelper.horizontalSpace(10),
-              Center(
-                child: Expanded(
+              Expanded(
+                child: Center(
                   child: Text(
                     title,
                     style: TextStyle(
