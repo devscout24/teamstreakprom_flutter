@@ -87,7 +87,7 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
 
       body: Column(
         children: [
-          UIHelper.verticalSpace(8.h),
+          UIHelper.verticalSpace(24.h),
 
           // ── Tab toggle ────────────────────────────────────────
           Padding(

@@ -24,13 +24,13 @@ final class NavigationService {
 
   static Future<dynamic> navigateToWithArgs(
     String routeName,
-    Map<String, dynamic>? map,
+    Object? args,
   ) =>
-      navigatorKey.currentState!.pushNamed(routeName, arguments: map);
+      navigatorKey.currentState!.pushNamed(routeName, arguments: args);
 
   static Future<dynamic> popAndReplaceWihArgs(
-          String routeName, Map<String, dynamic>? map) =>
-      navigatorKey.currentState!.popAndPushNamed(routeName, arguments: map);
+          String routeName, Object? args) =>
+      navigatorKey.currentState!.popAndPushNamed(routeName, arguments: args);
 
   static Future<dynamic> navigateToWithObject(
     String routeName,

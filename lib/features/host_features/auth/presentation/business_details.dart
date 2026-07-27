@@ -10,6 +10,9 @@ import 'package:teamstreakpromo/features/host_features/auth/widget/auth_progress
 import 'package:teamstreakpromo/features/host_features/auth/widget/custom_selector_field.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/constants/app_constants.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
 
 class BusinessDetailsScreen extends StatefulWidget {
   const BusinessDetailsScreen({super.key});
@@ -24,9 +27,23 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _businessDescController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _einNumberController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedSubcategory;
+  bool _showEinField = false;
+
+  @override
+  void initState() {
+    super.initState();
+    String? storedType = appData.read(kAccountType);
+    if (storedType == AccountType.host.name ||
+        storedType == AccountType.host.toString() ||
+        storedType == AccountType.businessPartner.name ||
+        storedType == AccountType.businessPartner.toString()) {
+      _showEinField = true;
+    }
+  }
 
   final List<String> _categories = [
     "Music",
@@ -34,7 +51,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     "Sports",
     "Arts & Theatre",
     "Festivals",
-    "Others"
+    "Others",
   ];
 
   final List<String> _subcategories = [
@@ -43,7 +60,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     "Tournament",
     "Exhibition",
     "Food Festival",
-    "Others"
+    "Others",
   ];
 
   @override
@@ -51,6 +68,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     _businessNameController.dispose();
     _businessDescController.dispose();
     _locationController.dispose();
+    _einNumberController.dispose();
     super.dispose();
   }
 
@@ -99,8 +117,9 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                           color: isSelected
                               ? AppColors.primaryColorSecond
                               : Colors.white,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                       ),
                       trailing: isSelected
@@ -172,8 +191,9 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                           color: isSelected
                               ? AppColors.primaryColorSecond
                               : Colors.white,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                       ),
                       trailing: isSelected
@@ -204,6 +224,9 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     if (_formKey.currentState!.validate()) {
       // Form is valid, route to Step 3
       debugPrint("Business Name: ${_businessNameController.text}");
+      if (_showEinField) {
+        debugPrint("EIN Number: ${_einNumberController.text}");
+      }
       debugPrint("Business Description: ${_businessDescController.text}");
       debugPrint("Location: ${_locationController.text}");
       debugPrint("Category: $_selectedCategory");
@@ -236,21 +259,23 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       // Title
                       Text(
                         "Business Details",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "SF Pro Rounded",
-                        ),
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "SF Pro Rounded",
+                            ),
                       ),
                       UIHelper.verticalSpace(8),
 
                       // Subtitle
                       Text(
                         "Setup your public profile page shown to customers on the app.",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: AppColors.cFFFFFF.withValues(alpha: 0.6),
-                          fontFamily: "SF Pro",
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cFFFFFF.withValues(alpha: 0.6),
+                              fontFamily: "SF Pro",
+                            ),
                       ),
                       UIHelper.verticalSpace(24),
 
@@ -276,11 +301,28 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       ),
                       UIHelper.verticalSpace(16),
 
+                      if (_showEinField) ...[
+                        CustomTextFormField(
+                          controller: _einNumberController,
+                          hintText: "EIN Number",
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "EIN Number is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        UIHelper.verticalSpace(16),
+                      ],
+
                       CustomTextFormField(
                         maxLines: 5,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(20),
                         controller: _businessDescController,
                         hintText: "Business Description",
+
                         keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.next,
                         validator: (value) {
@@ -308,11 +350,11 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
 
                       CustomSelectorField(
                         value: _selectedCategory,
-                        hintText: "Event Category",
+                        hintText: "Category",
                         onTap: _showCategoryBottomSheet,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Please select an event category";
+                            return "Please select category";
                           }
                           return null;
                         },
@@ -321,11 +363,11 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
 
                       CustomSelectorField(
                         value: _selectedSubcategory,
-                        hintText: "Event Subcategory",
+                        hintText: "Subcategory",
                         onTap: _showSubcategoryBottomSheet,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Please select an event subcategory";
+                            return "Please select subcategory";
                           }
                           return null;
                         },

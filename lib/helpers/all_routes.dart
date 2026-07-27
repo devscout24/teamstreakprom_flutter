@@ -185,12 +185,13 @@ final class RouteGenerator {
               );
 
       case Routes.otpScreen:
+        final type = settings.arguments as String?;
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => const OtpVerificationScreen(),
+                builder: (context) => OtpVerificationScreen(type: type),
               )
             : _FadedTransitionRoute(
-                widget: const OtpVerificationScreen(),
+                widget: OtpVerificationScreen(type: type),
                 settings: settings,
               );
 

@@ -85,7 +85,7 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            UIHelper.verticalSpace(20),
+            UIHelper.verticalSpace(24),
             // Header Row (back button goes back to Dashboard index 0)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -171,7 +171,10 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                               );
                             },
                             onEdit: () {
-                              Navigator.pushNamed(context, Routes.createEventScreen);
+                              Navigator.pushNamed(
+                                context,
+                                Routes.createEventScreen,
+                              );
                             },
                           ),
                         );
