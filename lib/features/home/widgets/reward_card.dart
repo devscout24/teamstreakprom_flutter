@@ -73,10 +73,10 @@ class RewardCard extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 134, 134, 0.10),
-                  borderRadius: BorderRadius.circular(16.r),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16.r),
+                  borderRadius: BorderRadius.circular(8.r),
                   child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
                 ),
               ),

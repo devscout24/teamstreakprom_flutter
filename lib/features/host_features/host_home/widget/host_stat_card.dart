@@ -42,19 +42,17 @@ class HostStatCard extends StatelessWidget {
                 child: Icon(icon, color: iconColor, size: 18.w),
               ),
               UIHelper.horizontalSpace(10),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: "SF Pro",
-                      fontSize: 12.sp,
-                      color: AppColors.cFFFFFF.withValues(alpha: 0.7),
-                      fontWeight: FontWeight.w400,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontFamily: "SF Pro",
+                    fontSize: 12.sp,
+                    color: AppColors.cFFFFFF.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w400,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

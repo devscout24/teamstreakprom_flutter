@@ -136,7 +136,7 @@ class RewardsMarketplaceList extends StatelessWidget {
               Text(
                 "Rewards Marketplace",
                 style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 20.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -147,7 +147,8 @@ class RewardsMarketplaceList extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RewardsMarketplaceScreen(),
+                          builder: (context) =>
+                              const RewardsMarketplaceScreen(),
                         ),
                       );
                     },
@@ -157,6 +158,7 @@ class RewardsMarketplaceList extends StatelessWidget {
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        fontSize: 12.sp,
                         decoration: TextDecoration.underline,
                         decorationColor: AppColors.cFFFFFF,
                       ),

@@ -15,8 +15,9 @@ class WizardStepThree extends StatelessWidget {
   final void Function(int artistIndex, int linkIndex) onRemoveSocialLink;
   final ValueChanged<int> onArtistPhotoTap;
   final ValueChanged<int> onArtistPhotoRemove;
-  final void Function(int artistIndex, int linkIndex) onSocialPlatformTap;
+  final void Function(int artistIndex, int linkIndex) onSocialLinkEdit;
   final VoidCallback onContinue;
+  final VoidCallback onSkip;
 
   const WizardStepThree({
     super.key,
@@ -27,8 +28,9 @@ class WizardStepThree extends StatelessWidget {
     required this.onRemoveSocialLink,
     required this.onArtistPhotoTap,
     required this.onArtistPhotoRemove,
-    required this.onSocialPlatformTap,
+    required this.onSocialLinkEdit,
     required this.onContinue,
+    required this.onSkip,
   });
 
   @override
@@ -36,23 +38,56 @@ class WizardStepThree extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Artist Details",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        UIHelper.verticalSpace(8),
-        Text(
-          "Add artist details to help attendees learn more about the event.",
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Artist Details",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(8),
+                  Text(
+                    "Add artist details to help attendees learn more about the event.",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            UIHelper.horizontalSpace(16),
+            GestureDetector(
+              onTap: onSkip,
+              child: Container(
+                height: 32.h,
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColorFirst,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Text(
+                  "Skip",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         UIHelper.verticalSpace(24),
 
@@ -76,15 +111,6 @@ class WizardStepThree extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Artist #${artistIndex + 1}",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryColorFirst,
-                      ),
-                    ),
                     if (artistIndex > 0)
                       GestureDetector(
                         onTap: () => onRemoveArtist(artistIndex),
@@ -121,7 +147,9 @@ class WizardStepThree extends StatelessWidget {
                 // Artist Photo
                 DocumentUploadWidget(
                   label: "Artist Photo",
-                  fileName: artist.photoPath != null ? artist.photoPath!.split('/').last : null,
+                  fileName: artist.photoPath != null
+                      ? artist.photoPath!.split('/').last
+                      : null,
                   onTap: () => onArtistPhotoTap(artistIndex),
                   onRemove: () => onArtistPhotoRemove(artistIndex),
                 ),
@@ -133,43 +161,82 @@ class WizardStepThree extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: artist.socialLinks.length,
-                  separatorBuilder: (context, index) => UIHelper.verticalSpace(12),
+                  separatorBuilder: (context, index) =>
+                      UIHelper.verticalSpace(12),
                   itemBuilder: (context, linkIndex) {
                     final social = artist.socialLinks[linkIndex];
-                    return Row(
+                    final hasUrl = social.urlController.text.isNotEmpty;
+
+                    IconData platformIcon = Icons.link;
+                    if (social.platform.toLowerCase() == "facebook") {
+                      platformIcon = Icons.facebook;
+                    } else if (social.platform.toLowerCase() == "instagram") {
+                      platformIcon = Icons.camera_alt_outlined;
+                    } else if (social.platform.toLowerCase() == "twitter") {
+                      platformIcon = Icons.alternate_email;
+                    } else if (social.platform.toLowerCase() == "youtube") {
+                      platformIcon = Icons.play_circle_outline;
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: CustomSelectorField(
-                            value: social.platform,
-                            hintText: "Platform",
-                            onTap: () => onSocialPlatformTap(artistIndex, linkIndex),
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(12),
-                        Expanded(
-                          flex: 3,
-                          child: _buildTextField(
-                            controller: social.urlController,
-                            hint: "Social URL",
-                          ),
-                        ),
-                        if (linkIndex > 0) ...[
-                          UIHelper.horizontalSpace(8),
-                          GestureDetector(
-                            onTap: () => onRemoveSocialLink(artistIndex, linkIndex),
-                            child: Container(
-                              padding: EdgeInsets.all(8.w),
-                              decoration: const BoxDecoration(
-                                color: Colors.white10,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.delete_outline_rounded,
-                                color: Colors.redAccent,
-                                size: 18.w,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomSelectorField(
+                                value: social.platform,
+                                hintText: "Platform",
+                                onTap: () =>
+                                    onSocialLinkEdit(artistIndex, linkIndex),
                               ),
                             ),
+                            if (linkIndex > 0) ...[
+                              UIHelper.horizontalSpace(8),
+                              GestureDetector(
+                                onTap: () =>
+                                    onRemoveSocialLink(artistIndex, linkIndex),
+                                child: Container(
+                                  padding: EdgeInsets.all(8.w),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white10,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Colors.redAccent,
+                                    size: 18.w,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (hasUrl) ...[
+                          UIHelper.verticalSpace(8),
+                          Row(
+                            children: [
+                              Icon(
+                                platformIcon,
+                                color: Colors.white,
+                                size: 16.w,
+                              ),
+                              UIHelper.horizontalSpace(8),
+                              Expanded(
+                                child: Text(
+                                  social.urlController.text,
+                                  style: TextStyle(
+                                    fontFamily: "SF Pro",
+                                    fontSize: 12.sp,
+                                    color: Colors.blueAccent,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.blueAccent,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ],
@@ -183,7 +250,11 @@ class WizardStepThree extends StatelessWidget {
                   onTap: () => onAddSocialLink(artistIndex),
                   child: Row(
                     children: [
-                      Icon(Icons.add, color: AppColors.primaryColorSecond, size: 16.w),
+                      Icon(
+                        Icons.add,
+                        color: AppColors.primaryColorSecond,
+                        size: 16.w,
+                      ),
                       UIHelper.horizontalSpace(4),
                       Text(
                         "Add Social Link",
@@ -290,7 +361,10 @@ class WizardStepThree extends StatelessWidget {
         prefixIcon: prefixIcon,
         filled: true,
         fillColor: const Color(0xFF1E222B),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: maxLines > 1 ? 14.h : 16.h),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: maxLines > 1 ? 14.h : 16.h,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(
@@ -307,17 +381,11 @@ class WizardStepThree extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
       ),
     );

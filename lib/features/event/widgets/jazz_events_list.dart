@@ -43,7 +43,7 @@ class JazzEventsList extends StatelessWidget {
               Text(
                 "Jazz Events",
                 style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 20.sp,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -62,6 +62,7 @@ class JazzEventsList extends StatelessWidget {
                       .copyWith(
                         color: AppColors.cFFFFFF,
                         fontWeight: FontWeight.w500,
+                        fontSize: 12.sp,
                         decoration: TextDecoration.underline,
                         decorationColor: AppColors.cFFFFFF,
                       ),

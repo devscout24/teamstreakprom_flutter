@@ -214,10 +214,8 @@ class EventCard extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 134, 134, 0.10),
-                  borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16.r),
                   child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
                 ),
               ),
@@ -225,7 +223,7 @@ class EventCard extends StatelessWidget {
               Text(
                 title,
                 style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 18.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
                 maxLines: 1,
@@ -246,7 +244,7 @@ class EventCard extends StatelessWidget {
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 13.sp,
+                            fontSize: 12.sp,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -269,7 +267,7 @@ class EventCard extends StatelessWidget {
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 13.sp,
+                            fontSize: 14.sp,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

@@ -41,11 +41,14 @@ class _SigninScreenState extends State<SigninScreen> {
       _currentAccountType = widget.accountType;
     } else {
       String? storedType = appData.read(kAccountType);
-      if (storedType == AccountType.host.name || storedType == AccountType.host.toString()) {
+      if (storedType == AccountType.host.name ||
+          storedType == AccountType.host.toString()) {
         _currentAccountType = AccountType.host;
-      } else if (storedType == AccountType.businessPartner.name || storedType == AccountType.businessPartner.toString()) {
+      } else if (storedType == AccountType.businessPartner.name ||
+          storedType == AccountType.businessPartner.toString()) {
         _currentAccountType = AccountType.businessPartner;
-      } else if (storedType == AccountType.user.name || storedType == AccountType.user.toString()) {
+      } else if (storedType == AccountType.user.name ||
+          storedType == AccountType.user.toString()) {
         _currentAccountType = AccountType.user;
       }
     }
@@ -169,13 +172,13 @@ class _SigninScreenState extends State<SigninScreen> {
 
                       if (_currentAccountType == AccountType.host) {
                         NavigationService.navigateToWithArgs(
-                          Routes.subscriptionScreen,
+                          Routes.hostNavigationScreen,
                           {'accountType': _currentAccountType},
                         );
                       } else if (_currentAccountType ==
                           AccountType.businessPartner) {
                         NavigationService.navigateToWithArgs(
-                          Routes.subscriptionScreen,
+                          Routes.businessPartnerNavigationScreen,
                           {'accountType': _currentAccountType},
                         );
                       } else {
@@ -240,8 +243,9 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              if (_currentAccountType == AccountType.host || 
-                                  _currentAccountType == AccountType.businessPartner) {
+                              if (_currentAccountType == AccountType.host ||
+                                  _currentAccountType ==
+                                      AccountType.businessPartner) {
                                 NavigationService.navigateTo(
                                   Routes.personalAccountInformationScreen,
                                 );

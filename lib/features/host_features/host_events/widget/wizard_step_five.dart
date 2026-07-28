@@ -5,6 +5,7 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/document_upload_widget.dart';
+import 'custom_reward_card.dart';
 
 class WizardStepFive extends StatelessWidget {
   final List<Map<String, dynamic>> rewards;
@@ -16,6 +17,7 @@ class WizardStepFive extends StatelessWidget {
   final ValueChanged<int> onRemovePhoto;
   final TextEditingController rewardQuantityController;
   final VoidCallback onAddReward;
+  final VoidCallback onSkip;
   final VoidCallback onContinue;
 
   const WizardStepFive({
@@ -29,72 +31,64 @@ class WizardStepFive extends StatelessWidget {
     required this.onRemovePhoto,
     required this.rewardQuantityController,
     required this.onAddReward,
+    required this.onSkip,
     required this.onContinue,
   });
-
-  Widget _buildRewardImage(
-    dynamic rewardImage, {
-    required double width,
-    required double height,
-  }) {
-    if (rewardImage is List && rewardImage.isNotEmpty) {
-      return Image.file(
-        File(rewardImage[0]),
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: width,
-          height: height,
-          color: AppColors.c242A34,
-          child: Icon(
-            Icons.broken_image,
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
-        ),
-      );
-    } else if (rewardImage is String && rewardImage.startsWith("http")) {
-      return Image.network(
-        rewardImage,
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-      );
-    } else {
-      return Container(
-        width: width,
-        height: height,
-        color: AppColors.c242A34,
-        child: Icon(
-          Icons.card_giftcard,
-          color: Colors.white.withValues(alpha: 0.5),
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Add Reward",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        UIHelper.verticalSpace(8),
-        Text(
-          "Create an exclusive reward to encourage more ticket purchases.",
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Add Reward",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(8),
+                  Text(
+                    "Create an exclusive reward to encourage more ticket purchases.",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            UIHelper.horizontalSpace(16),
+            GestureDetector(
+              onTap: onSkip,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColorFirst,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Text(
+                  "Skip",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         UIHelper.verticalSpace(24),
 
@@ -106,78 +100,9 @@ class WizardStepFive extends StatelessWidget {
           separatorBuilder: (context, index) => UIHelper.verticalSpace(16),
           itemBuilder: (context, index) {
             final reward = rewards[index];
-            return Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E222B),
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: _buildRewardImage(
-                      reward["image"],
-                      width: 80.w,
-                      height: 60.h,
-                    ),
-                  ),
-                  UIHelper.horizontalSpace(12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          reward["title"],
-                          style: TextStyle(
-                            fontFamily: "SF Pro Rounded",
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        UIHelper.verticalSpace(4),
-                        Text(
-                          reward["desc"],
-                          style: TextStyle(
-                            fontFamily: "SF Pro",
-                            fontSize: 11.sp,
-                            color: Colors.white.withValues(alpha: 0.5),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        UIHelper.verticalSpace(6),
-                        Text(
-                          "Available in ${reward['qty']}pcs",
-                          style: TextStyle(
-                            fontFamily: "SF Pro",
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryColorSecond,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => onRemoveReward(index),
-                    child: Container(
-                      padding: EdgeInsets.all(6.w),
-                      decoration: const BoxDecoration(
-                        color: Colors.white24,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close_rounded,
-                        color: Colors.redAccent,
-                        size: 16.w,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            return CustomRewardCard(
+              reward: reward,
+              onRemove: () => onRemoveReward(index),
             );
           },
         ),

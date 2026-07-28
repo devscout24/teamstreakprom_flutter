@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 
 class DocumentUploadWidget extends StatelessWidget {
   final String label;
@@ -9,6 +10,7 @@ class DocumentUploadWidget extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onRemove;
   final String? Function(String?)? validator;
+  final String subTitle;
 
   const DocumentUploadWidget({
     super.key,
@@ -17,6 +19,7 @@ class DocumentUploadWidget extends StatelessWidget {
     required this.onTap,
     this.onRemove,
     this.validator,
+    this.subTitle = "PDF, PNG, JPG (max 10MB)",
   });
 
   @override
@@ -63,24 +66,30 @@ class DocumentUploadWidget extends StatelessWidget {
                   gap: 6.w,
                   borderRadius: 20.r,
                 ),
-                child: Container(
+                child: GradientContainer(
                   width: double.infinity,
                   height: 150.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.c242A34.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
+                  borderRadius: BorderRadius.circular(20.r),
                   child: fileName != null
                       ? Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
                           child: Row(
                             children: [
                               Container(
-                                width: 56.w,
-                                height: 56.w,
-                                decoration: BoxDecoration(
-                                  gradient: gradient,
-                                  shape: BoxShape.circle,
+                                width: 48.w,
+                                height: 48.w,
+                                decoration: ShapeDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment(0.50, -0.37),
+                                    end: Alignment(0.50, 1.24),
+                                    colors: [
+                                      Color(0xFFF28F31),
+                                      Color(0xFF72E84F),
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  ),
                                 ),
                                 child: const Icon(
                                   Icons.insert_drive_file,

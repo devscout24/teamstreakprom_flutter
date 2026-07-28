@@ -4,7 +4,7 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 
 class WizardProgressIndicator extends StatelessWidget {
   final int currentStep; // 1 to 5
-  final int totalSteps;  // 5
+  final int totalSteps; // 5
 
   const WizardProgressIndicator({
     super.key,
@@ -21,13 +21,21 @@ class WizardProgressIndicator extends StatelessWidget {
 
         return Expanded(
           child: Container(
-            height: 6.h,
+            height: 12.h,
             margin: EdgeInsets.symmetric(horizontal: 3.w),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(3.r),
-              color: isActive
-                  ? AppColors.primaryColorSecond // Lime-Green active color
-                  : const Color(0xFF242A34),    // Inactive dark gray
+              borderRadius: BorderRadius.circular(100.r),
+              color: isActive ? AppColors.primaryColorSecond : null,
+              gradient: isActive
+                  ? null
+                  : LinearGradient(
+                      colors: [
+                        Color(0xFFF8FFF5).withOpacity(.8),
+                        Color(0xFFB3E588).withOpacity(.8),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
             ),
           ),
         );
