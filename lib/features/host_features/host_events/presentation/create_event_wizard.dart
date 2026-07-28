@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:teamstreakpromo/features/host_features/auth/widget/custom_selector_field.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/event_model.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
@@ -12,7 +13,6 @@ import '../widget/wizard_step_four.dart';
 import '../widget/wizard_step_five.dart';
 import '../widget/wizard_step_six.dart';
 
-
 class CreateEventWizard extends StatefulWidget {
   const CreateEventWizard({super.key});
 
@@ -21,7 +21,8 @@ class CreateEventWizard extends StatefulWidget {
 }
 
 class _CreateEventWizardState extends State<CreateEventWizard> {
-  int _currentStep = 1; // 1 to 5 represent wizard steps, 6 represents Overview page
+  int _currentStep =
+      1; // 1 to 5 represent wizard steps, 6 represents Overview page
   final _formKey = GlobalKey<FormState>();
 
   // Image Picker
@@ -51,7 +52,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final TextEditingController _rewardTitleController = TextEditingController();
   final TextEditingController _rewardDescController = TextEditingController();
   final List<String> _rewardPhotoPaths = [];
-  final TextEditingController _rewardQuantityController = TextEditingController();
+  final TextEditingController _rewardQuantityController =
+      TextEditingController();
   final List<Map<String, dynamic>> _rewards = [];
 
   @override
@@ -72,7 +74,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
         defaultName: "",
         defaultRole: "",
         defaultSocialLinks: [
-          SocialLinkModel(platform: "Facebook", defaultUrl: "https://m.me/v/3aWzhSWinH"),
+          SocialLinkModel(
+            platform: "Facebook",
+            defaultUrl: "https://m.me/v/3aWzhSWinH",
+          ),
         ],
       ),
     );
@@ -80,8 +85,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     // Set default mockup reward inside list for Step 5 & Overview
     _rewards.add({
       "title": "Adidas Courtblock Shoes",
-      "desc": "adidas is a leading athletic shoe brand known for innovation and quality.",
-      "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+      "desc":
+          "adidas is a leading athletic shoe brand known for innovation and quality.",
+      "image":
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
       "qty": 30,
     });
   }
@@ -133,7 +140,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
               hintText: "e.g. 21+ or Under 10",
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
               ),
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primaryColorFirst),
@@ -145,9 +154,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 "Cancel",
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                ),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
               ),
             ),
             GestureDetector(
@@ -237,8 +244,173 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     );
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    int maxLines = 1,
+    Widget? prefixIcon,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: TextStyle(
+        fontFamily: "SF Pro",
+        fontSize: 14.sp,
+        color: Colors.white,
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return "This field is required";
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          fontFamily: "SF Pro",
+          fontSize: 14.sp,
+          color: Colors.white.withValues(alpha: 0.3),
+        ),
+        prefixIcon: prefixIcon,
+        filled: true,
+        fillColor: const Color(0xFF1E222B),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: maxLines > 1 ? 14.h : 16.h,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1.w,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(
+            color: AppColors.primaryColorFirst,
+            width: 1.w,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
+        ),
+      ),
+    );
+  }
+
+  void _showSocialLinkDialog({
+    required String initialPlatform,
+    required String initialUrl,
+    required void Function(String platform, String url) onSave,
+  }) {
+    final platformNotifier = ValueNotifier<String>(
+      initialPlatform.isNotEmpty ? initialPlatform : "Facebook",
+    );
+    final urlController = TextEditingController(text: "");
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: const Color(0xFF1E222B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Add Social Media Link",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                UIHelper.verticalSpace(16),
+                ValueListenableBuilder<String>(
+                  valueListenable: platformNotifier,
+                  builder: (context, platform, child) {
+                    return CustomSelectorField(
+                      value: platform,
+                      hintText: "Platform",
+                      onTap: () {
+                        _showSelectorBottomSheet(
+                          title: "Platform",
+                          options: const [
+                            "Facebook",
+                            "Instagram",
+                            "Twitter",
+                            "Youtube",
+                          ],
+                          onSelected: (val) => platformNotifier.value = val,
+                        );
+                      },
+                    );
+                  },
+                ),
+                UIHelper.verticalSpace(16),
+                _buildTextField(controller: urlController, hint: "Link"),
+                UIHelper.verticalSpace(24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                    UIHelper.horizontalSpace(8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColorFirst,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      onPressed: () {
+                        onSave(platformNotifier.value, urlController.text);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Save",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Handle file picker actions for multiple image support (Browse Files removed)
-  void _showFileSourceOptions(BuildContext context, ValueChanged<List<String>> onPicked) {
+  void _showFileSourceOptions(
+    BuildContext context,
+    ValueChanged<List<String>> onPicked,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E222B),
@@ -250,17 +422,31 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined, color: Colors.white),
-                title: Text("Take Photo", style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  "Take Photo",
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.camera,
+                  );
                   if (image != null) onPicked([image.path]);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: Colors.white),
-                title: Text("Choose from Gallery (Multiple)", style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  "Choose from Gallery (Multiple)",
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   final List<XFile> images = await _picker.pickMultiImage();
@@ -277,7 +463,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   // Single file picker source for Artist (Browse Files removed)
-  void _showSingleFileSourceOptions(BuildContext context, ValueChanged<String?> onPicked) {
+  void _showSingleFileSourceOptions(
+    BuildContext context,
+    ValueChanged<String?> onPicked,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E222B),
@@ -289,20 +478,36 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined, color: Colors.white),
-                title: Text("Take Photo", style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  "Take Photo",
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.camera,
+                  );
                   if (image != null) onPicked(image.path);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: Colors.white),
-                title: Text("Choose from Gallery", style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  "Choose from Gallery",
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                  final XFile? image = await _picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
                   if (image != null) onPicked(image.path);
                 },
               ),
@@ -375,10 +580,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.r),
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFF28F31),
-                          Color(0xFF72E84F),
-                        ],
+                        colors: [Color(0xFFF28F31), Color(0xFF72E84F)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -436,7 +638,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: Form(
                   key: _formKey,
-                  child: isOverview ? _buildOverviewContent() : _buildStepContent(),
+                  child: isOverview
+                      ? _buildOverviewContent()
+                      : _buildStepContent(),
                 ),
               ),
             ),
@@ -448,7 +652,6 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
   Widget _buildHeader() {
     final isOverview = _currentStep == 6;
-    final canSkip = _currentStep == 3 || _currentStep == 4 || _currentStep == 5;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -469,9 +672,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             decoration: BoxDecoration(
               color: const Color(0xFF1E222B),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             child: Icon(
               Icons.arrow_back_rounded,
@@ -517,30 +718,6 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
               ),
             ),
           )
-        else if (canSkip)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _currentStep++;
-              });
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColorFirst,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Text(
-                "Skip",
-                style: TextStyle(
-                  fontFamily: "SF Pro Rounded",
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          )
         else
           SizedBox(width: 40.w), // Spacer to balance layout
       ],
@@ -559,14 +736,24 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           onCategoryTap: () {
             _showSelectorBottomSheet(
               title: "Choose Categories",
-              options: const ["Music Concert", "Art Festival", "Food Expo", "Techno Rave"],
+              options: const [
+                "Music Concert",
+                "Art Festival",
+                "Food Expo",
+                "Techno Rave",
+              ],
               onSelected: (val) => setState(() => _selectedCategory = val),
             );
           },
           onSubcategoryTap: () {
             _showSelectorBottomSheet(
               title: "Choose Subcategories",
-              options: const ["Rock & Pop", "Rave & Electronic", "Fine Art Gallery", "Gourmet Tasting"],
+              options: const [
+                "Rock & Pop",
+                "Rave & Electronic",
+                "Fine Art Gallery",
+                "Gourmet Tasting",
+              ],
               onSelected: (val) => setState(() => _selectedSubcategory = val),
             );
           },
@@ -585,7 +772,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           priceController: _priceController,
           capacityController: _capacityController,
           eventPhotoPaths: _eventPhotoPaths,
-          onAddPhotos: () => _showFileSourceOptions(context, (paths) => setState(() => _eventPhotoPaths.addAll(paths))),
+          onAddPhotos: () => _showFileSourceOptions(
+            context,
+            (paths) => setState(() => _eventPhotoPaths.addAll(paths)),
+          ),
           onRemovePhoto: (index) {
             setState(() {
               if (index == -1) {
@@ -618,33 +808,52 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       case 3:
         return WizardStepThree(
           artistForms: _artistForms,
-          onAddArtist: () => setState(() => _artistForms.add(ArtistFormModel())),
+          onAddArtist: () =>
+              setState(() => _artistForms.add(ArtistFormModel())),
           onRemoveArtist: (index) => setState(() {
             _artistForms[index].dispose();
             _artistForms.removeAt(index);
           }),
-          onAddSocialLink: (index) => setState(() => _artistForms[index].socialLinks.add(SocialLinkModel())),
+          onAddSocialLink: (index) => setState(
+            () => _artistForms[index].socialLinks.add(SocialLinkModel()),
+          ),
           onRemoveSocialLink: (artistIdx, linkIdx) => setState(() {
             _artistForms[artistIdx].socialLinks[linkIdx].dispose();
             _artistForms[artistIdx].socialLinks.removeAt(linkIdx);
           }),
-          onArtistPhotoTap: (index) => _showSingleFileSourceOptions(context, (path) => setState(() => _artistForms[index].photoPath = path)),
-          onArtistPhotoRemove: (index) => setState(() => _artistForms[index].photoPath = null),
-          onSocialPlatformTap: (artistIdx, linkIdx) {
-            _showSelectorBottomSheet(
-              title: "Platform",
-              options: const ["Facebook", "Instagram", "Twitter", "Youtube"],
-              onSelected: (val) => setState(() => _artistForms[artistIdx].socialLinks[linkIdx].platform = val),
+          onArtistPhotoTap: (index) => _showSingleFileSourceOptions(
+            context,
+            (path) => setState(() => _artistForms[index].photoPath = path),
+          ),
+          onArtistPhotoRemove: (index) =>
+              setState(() => _artistForms[index].photoPath = null),
+          onSocialLinkEdit: (artistIdx, linkIdx) {
+            final social = _artistForms[artistIdx].socialLinks[linkIdx];
+            _showSocialLinkDialog(
+              initialPlatform: social.platform,
+              initialUrl: social.urlController.text,
+              onSave: (platform, url) {
+                setState(() {
+                  social.platform = platform;
+                  social.urlController.text = url;
+                });
+              },
             );
           },
           onContinue: () => setState(() => _currentStep = 4),
+          onSkip: () => setState(() => _currentStep++),
         );
       case 4:
         return WizardStepFour(
+          rewards: _rewards,
+          onRemoveReward: (index) => setState(() => _rewards.removeAt(index)),
           rewardTitleController: _rewardTitleController,
           rewardDescController: _rewardDescController,
           rewardPhotoPaths: _rewardPhotoPaths,
-          onAddPhotos: () => _showFileSourceOptions(context, (paths) => setState(() => _rewardPhotoPaths.addAll(paths))),
+          onAddPhotos: () => _showFileSourceOptions(
+            context,
+            (paths) => setState(() => _rewardPhotoPaths.addAll(paths)),
+          ),
           onRemovePhoto: (index) {
             setState(() {
               if (index == -1) {
@@ -661,7 +870,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 _rewards.add({
                   "title": _rewardTitleController.text,
                   "desc": _rewardDescController.text,
-                  "image": _rewardPhotoPaths.isNotEmpty ? List<String>.from(_rewardPhotoPaths) : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                  "image": _rewardPhotoPaths.isNotEmpty
+                      ? List<String>.from(_rewardPhotoPaths)
+                      : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                   "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
                 });
                 _rewardTitleController.clear();
@@ -669,7 +880,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 _rewardPhotoPaths.clear();
                 _rewardQuantityController.clear();
               });
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reward added successfully!")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Reward added successfully!")),
+              );
             }
           },
           onContinue: () {
@@ -677,7 +890,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
               _rewards.add({
                 "title": _rewardTitleController.text,
                 "desc": _rewardDescController.text,
-                "image": _rewardPhotoPaths.isNotEmpty ? List<String>.from(_rewardPhotoPaths) : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                "image": _rewardPhotoPaths.isNotEmpty
+                    ? List<String>.from(_rewardPhotoPaths)
+                    : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                 "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
               });
               _rewardTitleController.clear();
@@ -687,6 +902,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             }
             setState(() => _currentStep = 5);
           },
+          onSkip: () => setState(() => _currentStep++),
         );
       case 5:
         return WizardStepFive(
@@ -695,7 +911,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           rewardTitleController: _rewardTitleController,
           rewardDescController: _rewardDescController,
           rewardPhotoPaths: _rewardPhotoPaths,
-          onAddPhotos: () => _showFileSourceOptions(context, (paths) => setState(() => _rewardPhotoPaths.addAll(paths))),
+          onAddPhotos: () => _showFileSourceOptions(
+            context,
+            (paths) => setState(() => _rewardPhotoPaths.addAll(paths)),
+          ),
           onRemovePhoto: (index) {
             setState(() {
               if (index == -1) {
@@ -712,7 +931,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 _rewards.add({
                   "title": _rewardTitleController.text,
                   "desc": _rewardDescController.text,
-                  "image": _rewardPhotoPaths.isNotEmpty ? List<String>.from(_rewardPhotoPaths) : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                  "image": _rewardPhotoPaths.isNotEmpty
+                      ? List<String>.from(_rewardPhotoPaths)
+                      : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                   "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
                 });
                 _rewardTitleController.clear();
@@ -727,7 +948,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
               _rewards.add({
                 "title": _rewardTitleController.text,
                 "desc": _rewardDescController.text,
-                "image": _rewardPhotoPaths.isNotEmpty ? List<String>.from(_rewardPhotoPaths) : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                "image": _rewardPhotoPaths.isNotEmpty
+                    ? List<String>.from(_rewardPhotoPaths)
+                    : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                 "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
               });
               _rewardTitleController.clear();
@@ -737,6 +960,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             }
             setState(() => _currentStep = 6);
           },
+          onSkip: () => setState(() => _currentStep++),
         );
       default:
         return const SizedBox();

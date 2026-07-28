@@ -5,8 +5,11 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/document_upload_widget.dart';
+import 'custom_reward_card.dart';
 
 class WizardStepFour extends StatelessWidget {
+  final List<Map<String, dynamic>> rewards;
+  final ValueChanged<int> onRemoveReward;
   final TextEditingController rewardTitleController;
   final TextEditingController rewardDescController;
   final List<String> rewardPhotoPaths;
@@ -15,9 +18,12 @@ class WizardStepFour extends StatelessWidget {
   final TextEditingController rewardQuantityController;
   final VoidCallback onAddReward;
   final VoidCallback onContinue;
+  final VoidCallback onSkip;
 
   const WizardStepFour({
     super.key,
+    required this.rewards,
+    required this.onRemoveReward,
     required this.rewardTitleController,
     required this.rewardDescController,
     required this.rewardPhotoPaths,
@@ -26,6 +32,7 @@ class WizardStepFour extends StatelessWidget {
     required this.rewardQuantityController,
     required this.onAddReward,
     required this.onContinue,
+    required this.onSkip,
   });
 
   @override
@@ -33,25 +40,75 @@ class WizardStepFour extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Add Reward",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        UIHelper.verticalSpace(8),
-        Text(
-          "Create an exclusive reward to encourage more ticket purchases.",
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Add Reward",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(8),
+                  Text(
+                    "Create an exclusive reward to encourage more ticket purchases.",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            UIHelper.horizontalSpace(16),
+            GestureDetector(
+              onTap: onSkip,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColorFirst,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Text(
+                  "Skip",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         UIHelper.verticalSpace(24),
+
+        // Uploaded Reward Cards List (added for Step 4)
+        if (rewards.isNotEmpty) ...[
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rewards.length,
+            separatorBuilder: (context, index) => UIHelper.verticalSpace(16),
+            itemBuilder: (context, index) {
+              final reward = rewards[index];
+              return CustomRewardCard(
+                reward: reward,
+                onRemove: () => onRemoveReward(index),
+              );
+            },
+          ),
+          UIHelper.verticalSpace(24),
+        ],
 
         // Reward Title
         _buildLabel("Reward Title"),

@@ -164,16 +164,28 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
                                 ),
                                 padding: EdgeInsets.zero,
                               ),
-                              child: Text(
-                                'Skip',
-                                style: TextFontStyle.textStyle16c000000SFPro590
-                                    .copyWith(
-                                      color: Colors.white,
-                                      fontFamily: 'SF Pro',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16.sp,
-                                    ),
-                                textAlign: TextAlign.center,
+                              child: ShaderMask(
+                                shaderCallback: (bounds) =>
+                                    const LinearGradient(
+                                      colors: [
+                                        AppColors.primaryColorFirst,
+                                        AppColors.primaryColorSecond,
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ).createShader(bounds),
+                                child: Text(
+                                  'Skip',
+                                  style: TextFontStyle
+                                      .textStyle16c000000SFPro590
+                                      .copyWith(
+                                        color: Colors.white,
+                                        fontFamily: 'SF Pro',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16.sp,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
                           ),

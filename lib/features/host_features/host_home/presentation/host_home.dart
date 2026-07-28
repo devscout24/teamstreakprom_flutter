@@ -56,6 +56,7 @@ class HostHomeScreen extends StatelessWidget {
                   children: [
                     UIHelper.verticalSpace(16),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
                           child: GestureDetector(
@@ -83,8 +84,9 @@ class HostHomeScreen extends StatelessWidget {
                             value: "12,450",
                             icon: Icons.north_east_rounded,
                             iconColor: Colors.blueAccent,
-                            circleBgColor:
-                                Colors.blueAccent.withValues(alpha: 0.15),
+                            circleBgColor: Colors.blueAccent.withValues(
+                              alpha: 0.15,
+                            ),
                           ),
                         ),
                       ],
@@ -108,7 +110,10 @@ class HostHomeScreen extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, Routes.allEventsScreen);
+                            Navigator.pushNamed(
+                              context,
+                              Routes.allEventsScreen,
+                            );
                           },
                           behavior: HitTestBehavior.opaque,
                           child: Padding(
@@ -158,4 +163,3 @@ class HostHomeScreen extends StatelessWidget {
     );
   }
 }
-

@@ -98,6 +98,8 @@ final class Routes {
   static const String manageTeamScreen = '/manageTeamScreen';
 
   static const String hostEditProfileScreen = '/hostEditProfileScreen';
+  static const String businessPartnerNavigationScreen =
+      '/businessPartnerNavigationScreen';
 }
 
 final class RouteGenerator {
@@ -148,6 +150,15 @@ final class RouteGenerator {
                 settings: settings,
               );
 
+      case Routes.businessPartnerNavigationScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const BusinessPartnerNavbarScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const BusinessPartnerNavbarScreen(),
+                settings: settings,
+              );
       case Routes.manageTeamScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(builder: (context) => const ManageTeamScreen())

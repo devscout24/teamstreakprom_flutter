@@ -7,7 +7,6 @@ import '../../../gen/assets.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../home/model/reward_model.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../../common_widgets/custom_gradient_button.dart';
 import '../../event/presentation/event_details_screen.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/reward_filter_chips.dart';
@@ -349,7 +348,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                           style: TextFontStyle
                                               .textStyle24cFFFFFFSFPro590
                                               .copyWith(
-                                                fontSize: 16.sp,
+                                                fontSize: 12.sp,
                                                 color: AppColors.cFFF9F3,
                                                 fontWeight: FontWeight.w600,
                                               ),
@@ -364,7 +363,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                               .textStyle14cFFFFFFSFProRounded400
                                               .copyWith(
                                                 color: AppColors.cC6C6C6,
-                                                fontSize: 11.sp,
+                                                fontSize: 10.sp,
                                                 height: 1.4,
                                               ),
                                           maxLines: 2,
@@ -381,7 +380,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                                   color: const Color(
                                                     0xFFF28F31,
                                                   ),
-                                                  fontSize: 12.sp,
+                                                  fontSize: 10.sp,
                                                   fontWeight: FontWeight.w600,
                                                   fontFamily: 'SF Pro',
                                                 ),
@@ -399,81 +398,81 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                         ),
                                         UIHelper.verticalSpace(10.h),
                                         // Brand logo and points row
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            // Brand logo
-                                            Container(
-                                              width: 28.h,
-                                              height: 28.h,
-                                              decoration: const BoxDecoration(
-                                                color: Colors.white,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Center(
-                                                child: ClipOval(
-                                                  child: AppNetworkImage(
-                                                    imageUrl:
-                                                        reward.brandLogoUrl,
-                                                    width: 18.h,
-                                                    height: 18.h,
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            // Points badge
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8.w,
-                                                vertical: 4.h,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF2C3138),
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      100.r,
-                                                    ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.emoji_events_outlined,
-                                                    color: Colors.white,
-                                                    size: 14.sp,
-                                                  ),
-                                                  UIHelper.horizontalSpace(4.w),
-                                                  Text(
-                                                    "${reward.points} pts",
-                                                    style: TextFontStyle
-                                                        .textStyle14cFFFFFFSFProRounded400
-                                                        .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontSize: 12.sp,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        UIHelper.verticalSpace(12.h),
-                                        // Redeem Reward button
-                                        CustomGradientButton(
-                                          title: "Redeem Reward",
-                                          height: 32.h,
-                                          textStyle: TextFontStyle
-                                              .textStyle14cFFFFFFSFProRounded400
-                                              .copyWith(
-                                                color: const Color(0xFF1E222B),
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14.sp,
-                                              ),
-                                          onPressed: _redeemRewardDirectly,
-                                        ),
+                                        // Row(
+                                        //   mainAxisAlignment:
+                                        //       MainAxisAlignment.spaceBetween,
+                                        //   children: [
+                                        //     // Brand logo
+                                        //     Container(
+                                        //       width: 28.h,
+                                        //       height: 28.h,
+                                        //       decoration: const BoxDecoration(
+                                        //         color: Colors.white,
+                                        //         shape: BoxShape.circle,
+                                        //       ),
+                                        //       child: Center(
+                                        //         child: ClipOval(
+                                        //           child: AppNetworkImage(
+                                        //             imageUrl:
+                                        //                 reward.brandLogoUrl,
+                                        //             width: 18.h,
+                                        //             height: 18.h,
+                                        //             fit: BoxFit.contain,
+                                        //           ),
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //     // Points badge
+                                        //     Container(
+                                        //       padding: EdgeInsets.symmetric(
+                                        //         horizontal: 8.w,
+                                        //         vertical: 4.h,
+                                        //       ),
+                                        //       decoration: BoxDecoration(
+                                        //         color: const Color(0xFF2C3138),
+                                        //         borderRadius:
+                                        //             BorderRadius.circular(
+                                        //               100.r,
+                                        //             ),
+                                        //       ),
+                                        //       child: Row(
+                                        //         mainAxisSize: MainAxisSize.min,
+                                        //         children: [
+                                        //           Icon(
+                                        //             Icons.emoji_events_outlined,
+                                        //             color: Colors.white,
+                                        //             size: 14.sp,
+                                        //           ),
+                                        //           UIHelper.horizontalSpace(4.w),
+                                        //           Text(
+                                        //             "${reward.points} pts",
+                                        //             style: TextFontStyle
+                                        //                 .textStyle14cFFFFFFSFProRounded400
+                                        //                 .copyWith(
+                                        //                   fontWeight:
+                                        //                       FontWeight.w500,
+                                        //                   fontSize: 12.sp,
+                                        //                 ),
+                                        //           ),
+                                        //         ],
+                                        //       ),
+                                        //     ),
+                                        //   ],
+                                        // ),
+                                        // UIHelper.verticalSpace(12.h),
+                                        // // Redeem Reward button
+                                        // CustomGradientButton(
+                                        //   title: "Redeem Reward",
+                                        //   height: 32.h,
+                                        //   textStyle: TextFontStyle
+                                        //       .textStyle14cFFFFFFSFProRounded400
+                                        //       .copyWith(
+                                        //         color: const Color(0xFF1E222B),
+                                        //         fontWeight: FontWeight.w600,
+                                        //         fontSize: 14.sp,
+                                        //       ),
+                                        //   onPressed: _redeemRewardDirectly,
+                                        // ),
                                       ],
                                     ),
                                   ),
