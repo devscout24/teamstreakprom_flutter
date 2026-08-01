@@ -96,17 +96,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         SnackBar(
           content: Text(
             "Please select a reward item first.",
-            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(color: Colors.white),
+            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+              color: Colors.white,
+            ),
           ),
           backgroundColor: const Color(0xFFDD1F1F),
         ),
       );
       return;
     }
-    
-    // If called from the bottom sheet, we might want to pop it first, but Flutter 
-    // allows showing dialogs over bottom sheets. For a better UX, popping the bottom sheet 
-    // before showing the dialog would be ideal, but requires context. 
+
+    // If called from the bottom sheet, we might want to pop it first, but Flutter
+    // allows showing dialogs over bottom sheets. For a better UX, popping the bottom sheet
+    // before showing the dialog would be ideal, but requires context.
     // We'll leave the dialog logic as is for now.
     _showRewardSuccessDialog();
   }
@@ -208,392 +210,540 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Image Slider Header ────────────────────────────────────
-            SizedBox(
-              height: 300.h,
-              child: Stack(
-                children: [
-                  // PageView
-                  PageView.builder(
-                    controller: _pageController,
-                    itemCount: _carouselImages.length,
-                    onPageChanged: (index) {
-                      if (mounted) {
-                        setState(() {
-                          _currentCarouselIndex = index;
-                        });
-                      }
-                    },
-                    itemBuilder: (context, index) {
-                      return CachedNetworkImage(
-                        imageUrl: _carouselImages[index],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        placeholder: (context, url) => Container(
-                          color: const Color(0xFF1E222B),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
-                  // Dark overlay gradient
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.4),
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.8),
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Top back & share bar
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 8.h,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                width: 40.w,
-                                height: 40.w,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.arrow_back_rounded,
-                                  color: Colors.white,
-                                  size: 20.sp,
-                                ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Image Slider Header ────────────────────────────────────
+                SizedBox(
+                  height: 300.h,
+                  child: Stack(
+                    children: [
+                      // PageView
+                      PageView.builder(
+                        controller: _pageController,
+                        itemCount: _carouselImages.length,
+                        onPageChanged: (index) {
+                          if (mounted) {
+                            setState(() {
+                              _currentCarouselIndex = index;
+                            });
+                          }
+                        },
+                        itemBuilder: (context, index) {
+                          return CachedNetworkImage(
+                            imageUrl: _carouselImages[index],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            placeholder: (context, url) => Container(
+                              color: const Color(0xFF1E222B),
+                              child: const Center(
+                                child: CircularProgressIndicator(),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () => showInviteFriendBottomSheet(context),
-                              child: Container(
-                                width: 40.w,
-                                height: 40.w,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.share_outlined,
-                                  color: Colors.white,
-                                  size: 18.sp,
-                                ),
-                              ),
+                            errorWidget: (context, url, error) => const Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey,
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                  // Carousel Dot Indicators
-                  Positioned(
-                    bottom: 24.h,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _carouselImages.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          width: _currentCarouselIndex == index ? 20.w : 8.w,
-                          height: 8.h,
-                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                      // Dark overlay gradient
+                      Positioned.fill(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: _currentCarouselIndex == index
-                                ? AppColors.primaryColorSecond
-                                : Colors.white.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(100.r),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: 0.4),
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.8),
+                              ],
+                              stops: const [0.0, 0.5, 1.0],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            // ── Details Body ─────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title and Category Badge row
-                  Row(
+                      // Carousel Dot Indicators
+                      Positioned(
+                        bottom: 24.h,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            _carouselImages.length,
+                            (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              width: _currentCarouselIndex == index
+                                  ? 20.w
+                                  : 8.w,
+                              height: 8.h,
+                              margin: EdgeInsets.symmetric(horizontal: 4.w),
+                              decoration: BoxDecoration(
+                                color: _currentCarouselIndex == index
+                                    ? AppColors.primaryColorSecond
+                                    : Colors.white.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(100.r),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ── Details Body ─────────────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 10.h,
+                  ),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                              .copyWith(
-                                fontSize: 22.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                      UIHelper.horizontalSpace(12.w),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColorSecond.withValues(
-                            alpha: 0.1,
-                          ),
-                          borderRadius: BorderRadius.circular(100.r),
-                          border: Border.all(
-                            color: AppColors.primaryColorSecond.withValues(
-                              alpha: 0.3,
+                      // Title and Category Badge row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 22.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
-                            width: 1.w,
                           ),
-                        ),
-                        child: Text(
-                          "Music",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: AppColors.primaryColorSecond,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  UIHelper.verticalSpace(8.h),
-
-                  // Location
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        size: 16.sp,
-                      ),
-                      UIHelper.horizontalSpace(6.w),
-                      Text(
-                        widget.location,
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13.sp,
+                          UIHelper.horizontalSpace(12.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
                             ),
-                      ),
-                    ],
-                  ),
-                  UIHelper.verticalSpace(24.h),
-
-                  // Info toggle buttons (Event Info vs Reward Info)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(83.r),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-                      child: TicketToggleButton(
-                        leftLabel: "Event Info",
-                        rightLabel: "Reward Info",
-                        selectedIndex: _selectedTabIndex,
-                        onChanged: (index) {
-                          setState(() {
-                            _selectedTabIndex = index;
-                          });
-                        },
-                        height: 50.h,
-                      ),
-                    ),
-                  ),
-                  UIHelper.verticalSpace(24.h),
-
-                  // Tab Content
-                  if (_selectedTabIndex == 0) ...[
-                    // ── Event Info Tab Content ──
-                    Text(
-                      "Description",
-                      style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    UIHelper.verticalSpace(8.h),
-                    Text(
-                      widget.description,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 13.sp,
-                            height: 1.5,
-                          ),
-                    ),
-                    UIHelper.verticalSpace(24.h),
-
-                    // Divider line
-                    Divider(color: Colors.white.withValues(alpha: 0.08)),
-                    UIHelper.verticalSpace(16.h),
-
-                    Text(
-                      "Artist Info",
-                      style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                        fontSize: 14.sp,
-                        color: AppColors.c848484,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    UIHelper.verticalSpace(12.h),
-
-                    // Artist profile card
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 24.r,
-                          backgroundImage: const NetworkImage(
-                            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(12.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Adam Levine",
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColorSecond.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(100.r),
+                              border: Border.all(
+                                color: AppColors.primaryColorSecond.withValues(
+                                  alpha: 0.3,
+                                ),
+                                width: 1.w,
+                              ),
+                            ),
+                            child: Text(
+                              "Music",
                               style: TextFontStyle
                                   .textStyle14cFFFFFFSFProRounded400
                                   .copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16.sp,
+                                    color: AppColors.primaryColorSecond,
+                                    fontSize: 12.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
-                            UIHelper.verticalSpace(4.h),
+                          ),
+                        ],
+                      ),
+                      UIHelper.verticalSpace(8.h),
+
+                      // Location
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.white.withValues(alpha: 0.6),
+                            size: 16.sp,
+                          ),
+                          UIHelper.horizontalSpace(6.w),
+                          Text(
+                            widget.location,
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 13.sp,
+                                ),
+                          ),
+                        ],
+                      ),
+                      UIHelper.verticalSpace(24.h),
+
+                      // Info toggle buttons (Event Info vs Reward Info)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(83.r),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+                          child: TicketToggleButton(
+                            leftLabel: "Event Info",
+                            rightLabel: "Reward Info",
+                            selectedIndex: _selectedTabIndex,
+                            onChanged: (index) {
+                              setState(() {
+                                _selectedTabIndex = index;
+                              });
+                            },
+                            height: 50.h,
+                          ),
+                        ),
+                      ),
+                      UIHelper.verticalSpace(24.h),
+
+                      // Tab Content
+                      if (_selectedTabIndex == 0) ...[
+                        // ── Event Info Tab Content ──
+                        Text(
+                          "Description",
+                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        UIHelper.verticalSpace(8.h),
+                        Text(
+                          widget.description,
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 13.sp,
+                                height: 1.5,
+                              ),
+                        ),
+                        UIHelper.verticalSpace(24.h),
+
+                        // Divider line
+                        Divider(color: Colors.white.withValues(alpha: 0.08)),
+                        UIHelper.verticalSpace(16.h),
+
+                        Text(
+                          "Artist Info",
+                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 14.sp,
+                                color: AppColors.c848484,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        UIHelper.verticalSpace(12.h),
+
+                        // Artist profile card
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 24.r,
+                              backgroundImage: const NetworkImage(
+                                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+                              ),
+                            ),
+                            UIHelper.horizontalSpace(12.w),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Adam Levine",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                UIHelper.verticalSpace(4.h),
+                                Text(
+                                  "Singer",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        fontSize: 12.sp,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        UIHelper.verticalSpace(16.h),
+
+                        // Social links row
+                        Row(
+                          children: [
                             Text(
-                              "Singer",
+                              "Media Link:",
                               style: TextFontStyle
                                   .textStyle14cFFFFFFSFProRounded400
                                   .copyWith(
                                     color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12.sp,
+                                    fontFamily: "SF Pro",
                                   ),
                             ),
+                            UIHelper.horizontalSpace(12.w),
+                            _buildSocialIcon(Icons.facebook),
+                            _buildSocialIcon(Icons.send_rounded), // Telegram
+                            _buildSocialIcon(
+                              Icons.play_circle_outline_rounded,
+                            ), // YouTube
+                            _buildTextSocialIcon("d"), // TikTok
+                            _buildTextSocialIcon("𝕏"), // X
+                            _buildSocialIcon(
+                              Icons.camera_alt_outlined,
+                            ), // Instagram
                           ],
                         ),
-                      ],
-                    ),
-                    UIHelper.verticalSpace(16.h),
+                        UIHelper.verticalSpace(24.h),
 
-                    // Social links row
-                    Row(
-                      children: [
-                        Text(
-                          "Media Link:",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 12.sp,
-                                fontFamily: "SF Pro",
-                              ),
-                        ),
-                        UIHelper.horizontalSpace(12.w),
-                        _buildSocialIcon(Icons.facebook),
-                        _buildSocialIcon(Icons.send_rounded), // Telegram
-                        _buildSocialIcon(
-                          Icons.play_circle_outline_rounded,
-                        ), // YouTube
-                        _buildTextSocialIcon("d"), // TikTok
-                        _buildTextSocialIcon("𝕏"), // X
-                        _buildSocialIcon(
-                          Icons.camera_alt_outlined,
-                        ), // Instagram
-                      ],
-                    ),
-                    UIHelper.verticalSpace(24.h),
-
-                    // Timeline Alert container box
-                    Container(
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppColors.primaryColorFirst.withValues(alpha: 0.1),
-                            AppColors.primaryColorSecond.withValues(alpha: 0.1),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // Timeline Alert container box
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                AppColors.primaryColorFirst.withValues(
+                                  alpha: 0.1,
+                                ),
+                                AppColors.primaryColorSecond.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                          child: Column(
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  text: "End Date : ",
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      text: "End Date : ",
+                                      style: TextFontStyle
+                                          .textStyle14cFFFFFFSFProRounded400
+                                          .copyWith(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.6,
+                                            ),
+                                            fontSize: 13.sp,
+                                            fontFamily: 'SF Pro',
+                                          ),
+                                      children: [
+                                        TextSpan(
+                                          text: "Aug 28, 2026",
+                                          style: TextFontStyle
+                                              .textStyle14cFFFFFFSFProRounded400
+                                              .copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13.sp,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    "7h 32m left",
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          color: AppColors.cF54141,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13.sp,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              UIHelper.verticalSpace(12.h),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    color: AppColors.primaryColorFirst,
+                                    size: 16.sp,
+                                  ),
+                                  UIHelper.horizontalSpace(8.w),
+                                  Expanded(
+                                    child: Text(
+                                      "This event is only for who are above 18 years old.",
+                                      style: TextFontStyle
+                                          .textStyle14cFFFFFFSFProRounded400
+                                          .copyWith(
+                                            color: AppColors.primaryColorFirst,
+                                            fontSize: 11.sp,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        UIHelper.verticalSpace(24.h),
+
+                        // Host section
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 24.r,
+                              backgroundImage: const NetworkImage(
+                                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+                              ),
+                            ),
+                            UIHelper.horizontalSpace(12.w),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Adam Levine",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: "SF Pro",
+                                      ),
+                                ),
+                                UIHelper.verticalSpace(4.h),
+                                Text(
+                                  "Host",
                                   style: TextFontStyle
                                       .textStyle14cFFFFFFSFProRounded400
                                       .copyWith(
                                         color: Colors.white.withValues(
-                                          alpha: 0.6,
+                                          alpha: 0.8,
                                         ),
-                                        fontSize: 13.sp,
-                                        fontFamily: 'SF Pro',
+                                        fontSize: 12.sp,
                                       ),
-                                  children: [
-                                    TextSpan(
-                                      text: "Aug 28, 2026",
-                                      style: TextFontStyle
-                                          .textStyle14cFFFFFFSFProRounded400
-                                          .copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13.sp,
-                                          ),
-                                    ),
-                                  ],
                                 ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        UIHelper.verticalSpace(16.h),
+
+                        // Seat info line
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.confirmation_num_outlined,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  size: 16.sp,
+                                ),
+                                UIHelper.horizontalSpace(6.w),
+                                Text(
+                                  "Buy this ticket & get 1 point",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        fontSize: 12.sp,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.event_seat,
+                                  color: AppColors.cDC822D,
+                                  size: 16.sp,
+                                ),
+                                UIHelper.horizontalSpace(6.w),
+                                Text(
+                                  "4 seat remaining",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: AppColors.cDC822D,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        UIHelper.verticalSpace(24.h),
+
+                        // Location Section with map
+                        Text(
+                          "Location:",
+                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                "7h 32m left",
+                        ),
+                        UIHelper.verticalSpace(12.h),
+
+                        // Map container
+                        Container(
+                          height: 180.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.r),
+                            child: Assets.images.mapEvent.image(
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(24.h),
+
+                        // Refer section
+                        if (!isHost) ...[
+                          Container(
+                            height: 52.h,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100.r),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  AppColors.primaryColorFirst,
+                                  AppColors.primaryColorSecond,
+                                ],
+                              ),
+                            ),
+                            padding: EdgeInsets.all(1.w),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF171A20),
+                                borderRadius: BorderRadius.circular(100.r),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Refer your friend",
                                 style: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
-                                      color: AppColors.primaryColorFirst,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15.sp,
+                                      fontFamily: "SF Pro",
                                     ),
                               ),
-                            ],
+                            ),
                           ),
                           UIHelper.verticalSpace(12.h),
                           Row(
@@ -606,7 +756,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               UIHelper.horizontalSpace(8.w),
                               Expanded(
                                 child: Text(
-                                  "This event is only for who are above 18 years old.",
+                                  "You'll receive 1 point only after your friend purchases a ticket.",
                                   style: TextFontStyle
                                       .textStyle14cFFFFFFSFProRounded400
                                       .copyWith(
@@ -618,382 +768,231 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             ],
                           ),
                         ],
-                      ),
-                    ),
-                    UIHelper.verticalSpace(24.h),
-
-                    // Host section
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 24.r,
-                          backgroundImage: const NetworkImage(
-                            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(12.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Adam Levine",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: "SF Pro",
-                                  ),
-                            ),
-                            UIHelper.verticalSpace(4.h),
-                            Text(
-                              "Host",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 12.sp,
-                                  ),
-                            ),
-                          ],
+                      ] else ...[
+                        // ── Reward Info Tab Content (Product List) ──
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: _rewardProducts.length,
+                          itemBuilder: (context, index) {
+                            return _buildRewardProductCard(
+                              _rewardProducts[index],
+                              index,
+                            );
+                          },
                         ),
                       ],
-                    ),
-                    UIHelper.verticalSpace(16.h),
-
-                    // Seat info line
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.confirmation_num_outlined,
-                              color: Colors.white.withValues(alpha: 0.6),
-                              size: 16.sp,
-                            ),
-                            UIHelper.horizontalSpace(6.w),
-                            Text(
-                              "Buy this ticket & get 1 point",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 12.sp,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.event_seat,
-                              color: AppColors.cDC822D,
-                              size: 16.sp,
-                            ),
-                            UIHelper.horizontalSpace(6.w),
-                            Text(
-                              "4 seat remaining",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: AppColors.cDC822D,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    UIHelper.verticalSpace(24.h),
-
-                    // Location Section with map
-                    Text(
-                      "Location:",
-                      style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    UIHelper.verticalSpace(12.h),
-
-                    // Map container
-                    Container(
-                      height: 180.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16.r),
-                        child: Assets.images.mapEvent.image(fit: BoxFit.cover),
-                      ),
-                    ),
-                    UIHelper.verticalSpace(24.h),
-
-                    // Refer section
-                    if (!isHost) ...[
-                      Container(
-                        height: 52.h,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100.r),
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.primaryColorFirst,
-                              AppColors.primaryColorSecond,
-                            ],
-                          ),
-                        ),
-                        padding: EdgeInsets.all(1.w),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF171A20),
-                            borderRadius: BorderRadius.circular(100.r),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Refer your friend",
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15.sp,
-                                  fontFamily: "SF Pro",
-                                ),
-                          ),
-                        ),
-                      ),
-                      UIHelper.verticalSpace(12.h),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColors.primaryColorFirst,
-                            size: 16.sp,
-                          ),
-                          UIHelper.horizontalSpace(8.w),
-                          Expanded(
-                            child: Text(
-                              "You'll receive 1 point only after your friend purchases a ticket.",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: AppColors.primaryColorFirst,
-                                    fontSize: 11.sp,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
-                  ] else ...[
-                    // ── Reward Info Tab Content (Product List) ──
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: _rewardProducts.length,
-                      itemBuilder: (context, index) {
-                        return _buildRewardProductCard(
-                          _rewardProducts[index],
-                          index,
-                        );
-                      },
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // ── Bottom Actions ──────────────────────────────────────────────
-            Container(
-              padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 36.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFF13151B),
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    width: 1.h,
                   ),
                 ),
-              ),
-              child: (appData.read(kAccountType) == "AccountType.host")
-                  ? Row(
-                      children: [
-                        Expanded(
-                          child: CustomGradientButton(
-                            onPressed: () {
-                              NavigationService.navigateTo(
-                                Routes.createEventScreen,
-                              );
-                            },
-                            title: "Edit Info",
-                            borderRadius: BorderRadius.circular(100.r),
-                            textStyle: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: const Color(0xFF262824),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16.sp,
-                                ),
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(16.w),
-                        Expanded(
-                          child: SizedBox(
-                            height: 50.h,
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFB42426),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100.r),
-                                ),
-                                padding: EdgeInsets.zero,
-                                elevation: 0,
+
+                // ── Bottom Actions ──────────────────────────────────────────────
+                Container(
+                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 36.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF13151B),
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        width: 1.h,
+                      ),
+                    ),
+                  ),
+                  child: (appData.read(kAccountType) == "AccountType.host")
+                      ? Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: CustomGradientButton(
+                                onPressed: () {
+                                  NavigationService.navigateTo(
+                                    Routes.createEventScreen,
+                                  );
+                                },
+                                title: "Edit Info",
+                                borderRadius: BorderRadius.circular(100.r),
+                                textStyle: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: const Color(0xFF262824),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16.sp,
+                                    ),
                               ),
-                              child: Text(
-                                "Delete",
-                                style: TextFontStyle
+                            ),
+                            UIHelper.horizontalSpace(16.w),
+                            Expanded(
+                              flex: 1,
+                              child: CustomGradientButton(
+                                onPressed: () {
+                                  _showDeleteBottomSheet(context);
+                                },
+                                title: "Delete",
+                                height: 50.h,
+                                borderRadius: BorderRadius.circular(100.r),
+                                textStyle: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 16.sp,
                                     ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : _selectedTabIndex == 0
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Quantity & Price Info Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Quantity Counter
-                            Container(
-                              height: 48.h,
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E222B),
-                                borderRadius: BorderRadius.circular(100.r),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.05),
-                                  width: 1.w,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFC72C2C),
+                                    Color(0xFF9E1F1F),
+                                  ],
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (_ticketCount > 1) {
-                                        setState(() {
-                                          _ticketCount--;
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      width: 32.h,
-                                      height: 32.h,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF262A34),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.remove,
-                                        color: Colors.white,
-                                        size: 16.sp,
-                                      ),
-                                    ),
-                                  ),
-                                  UIHelper.horizontalSpace(16.w),
-                                  Text(
-                                    "$_ticketCount",
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  UIHelper.horizontalSpace(16.w),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _ticketCount++;
-                                      });
-                                    },
-                                    child: Container(
-                                      width: 32.h,
-                                      height: 32.h,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF262A34),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 16.sp,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Price Container
-                            Container(
-                              height: 48.h,
-                              padding: EdgeInsets.symmetric(horizontal: 20.w),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E222B),
-                                borderRadius: BorderRadius.circular(100.r),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.05),
-                                  width: 1.w,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    Assets.icons.ticketIcon.path,
-                                    width: 18.w,
-                                    height: 18.w,
-                                    color: Colors.white,
-                                  ),
-                                  UIHelper.horizontalSpace(8.w),
-                                  Text(
-                                    "\$${199 * _ticketCount}",
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ],
                               ),
                             ),
                           ],
-                        ),
-                        UIHelper.verticalSpace(16.h),
+                        )
+                      : _selectedTabIndex == 0
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Quantity & Price Info Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Quantity Counter
+                                Container(
+                                  height: 48.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1E222B),
+                                    borderRadius: BorderRadius.circular(100.r),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      width: 1.w,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (_ticketCount > 1) {
+                                            setState(() {
+                                              _ticketCount--;
+                                            });
+                                          }
+                                        },
+                                        child: Container(
+                                          width: 32.h,
+                                          height: 32.h,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF262A34),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.remove,
+                                            color: Colors.white,
+                                            size: 16.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      UIHelper.horizontalSpace(16.w),
+                                      Text(
+                                        "$_ticketCount",
+                                        style: TextFontStyle
+                                            .textStyle14cFFFFFFSFProRounded400
+                                            .copyWith(
+                                              color: Colors.white,
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                      UIHelper.horizontalSpace(16.w),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _ticketCount++;
+                                          });
+                                        },
+                                        child: Container(
+                                          width: 32.h,
+                                          height: 32.h,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF262A34),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 16.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
-                        // Get Ticket Button
-                        CustomGradientButton(
-                          onPressed: _showBookingSuccessDialog,
-                          title: "Buy a Ticket",
+                                // Price Container
+                                Container(
+                                  height: 48.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1E222B),
+                                    borderRadius: BorderRadius.circular(100.r),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      width: 1.w,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Image.asset(
+                                        Assets.icons.ticketIcon.path,
+                                        width: 18.w,
+                                        height: 18.w,
+                                        color: Colors.white,
+                                      ),
+                                      UIHelper.horizontalSpace(8.w),
+                                      Text(
+                                        "\$${199 * _ticketCount}",
+                                        style: TextFontStyle
+                                            .textStyle14cFFFFFFSFProRounded400
+                                            .copyWith(
+                                              color: Colors.white,
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            UIHelper.verticalSpace(16.h),
+
+                            // Get Ticket Button
+                            CustomGradientButton(
+                              onPressed: _showBookingSuccessDialog,
+                              title: "Buy a Ticket",
+                              borderRadius: BorderRadius.circular(100.r),
+                              textStyle: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: const Color(0xFF262824),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16.sp,
+                                  ),
+                            ),
+                          ],
+                        )
+                      : CustomGradientButton(
+                          onPressed: _redeemRewardDirectly,
+                          title: "Redeem Reward",
                           borderRadius: BorderRadius.circular(100.r),
                           textStyle: TextFontStyle
                               .textStyle14cFFFFFFSFProRounded400
@@ -1003,22 +1002,59 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                 fontSize: 16.sp,
                               ),
                         ),
-                      ],
-                    )
-                  : CustomGradientButton(
-                      onPressed: _redeemRewardDirectly,
-                      title: "Redeem Reward",
-                      borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: const Color(0xFF262824),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
-                          ),
-                    ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Static Top back & share bar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 20.sp,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => showInviteFriendBottomSheet(context),
+                      child: Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.share_outlined,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1202,6 +1238,98 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showDeleteBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          decoration: BoxDecoration(
+            color: AppColors.scaffoldColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32.r),
+              topRight: Radius.circular(32.r),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Delete Event",
+                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              UIHelper.verticalSpace(16.h),
+              Text(
+                "Are you sure you want to delete this event? This action cannot be undone.",
+                textAlign: TextAlign.center,
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 13.sp,
+                  height: 1.5,
+                ),
+              ),
+              UIHelper.verticalSpace(24.h),
+              Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                thickness: 1.h,
+                height: 1.h,
+              ),
+              UIHelper.verticalSpace(24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: () => Navigator.pop(context),
+                      title: "Cancel",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      gradient: const LinearGradient(
+                        colors: [Colors.white, Colors.white],
+                      ),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(16.w),
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: () {
+                        // Confirm deletion logic here
+                        Navigator.pop(context);
+                      },
+                      title: "Delete",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              UIHelper.verticalSpace(8.h),
+            ],
+          ),
+        );
+      },
     );
   }
 }

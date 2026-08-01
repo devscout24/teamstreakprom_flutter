@@ -73,6 +73,14 @@ class TicketDetailsScreen extends StatelessWidget {
                   ),
                   UIHelper.verticalSpace(24.h),
 
+                  CustomPaint(
+                    size: Size(double.infinity, 1.w),
+                    painter: _DashedLinePainter(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  UIHelper.verticalSpace(12.h),
+
                   // Details Rows
                   _buildDetailRow("Event", eventName),
                   UIHelper.verticalSpace(12.h),

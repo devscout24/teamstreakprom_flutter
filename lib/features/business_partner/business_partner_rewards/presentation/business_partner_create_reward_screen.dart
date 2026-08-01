@@ -11,7 +11,8 @@ import 'widgets/reward_wizard_step_three.dart';
 import '../../../../../helpers/navigation_service.dart';
 
 class BusinessPartnerCreateRewardScreen extends StatefulWidget {
-  const BusinessPartnerCreateRewardScreen({super.key});
+  final bool isEdit;
+  const BusinessPartnerCreateRewardScreen({super.key, this.isEdit = false});
 
   @override
   State<BusinessPartnerCreateRewardScreen> createState() =>
@@ -120,7 +121,7 @@ class _BusinessPartnerCreateRewardScreenState
       child: Scaffold(
         backgroundColor: AppColors.scaffoldColor,
         appBar: CustomAppBar(
-          title: "Create Reward",
+          title: widget.isEdit ? "Edit Reward" : "Create Reward",
           showRightIcon: false,
           onBack: _previousStep,
           customAction: IconButton(

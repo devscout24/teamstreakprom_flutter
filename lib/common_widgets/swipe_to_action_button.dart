@@ -47,17 +47,18 @@ class _SwipeToActionButtonState extends State<SwipeToActionButton> {
             children: [
               Center(
                 child: Opacity(
-                  opacity: (1.0 -
-                          ((_dragPosition - padding) /
+                  opacity:
+                      (1.0 -
+                              ((_dragPosition - padding) /
                                   (maxDrag > padding ? maxDrag - padding : 1)))
-                      .clamp(0.0, 1.0),
+                          .clamp(0.0, 1.0),
                   child: Text(
                     widget.text,
                     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                         .copyWith(
                           color: AppColors.c1B1C1A, // Dark green/black tint
                           fontWeight: FontWeight.w600,
-                          fontSize: 16.sp,
+                          fontSize: 14.sp,
                           fontFamily: "SF Pro",
                         ),
                   ),

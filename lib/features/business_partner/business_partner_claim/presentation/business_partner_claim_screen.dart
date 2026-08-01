@@ -54,100 +54,110 @@ class _BusinessPartnerClaimScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
-          children: [
-            UIHelper.verticalSpace(16.h),
-            // Search Bar
-            Container(
-              height: 52.h,
-              decoration: BoxDecoration(
-                color: AppColors.c1E222B,
-                borderRadius: BorderRadius.circular(100.r),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  width: 1.w,
-                ),
-              ),
-              padding: EdgeInsets.only(left: 16.w, right: 6.w),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.search,
-                    color: Colors.white.withValues(alpha: 0.5),
-                    size: 24.sp,
-                  ),
-                  UIHelper.horizontalSpace(12),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Search...",
-                        hintStyle: TextFontStyle
-                            .textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              color: Colors.white.withValues(alpha: 0.4),
-                            ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 24.h),
+            child: Column(
+              children: [
+                UIHelper.verticalSpace(16.h),
+                // Search Bar
+                Container(
+                  height: 52.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.c1E222B,
+                    borderRadius: BorderRadius.circular(100.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      width: 1.w,
                     ),
                   ),
-                ],
-              ),
-            ),
-            UIHelper.verticalSpace(20.h),
-            ClaimFilterTabs(
-              selectedTab: _selectedTab,
-              onTabSelected: (tab) {
-                setState(() {
-                  _selectedTab = tab;
-                });
-              },
-            ),
-            UIHelper.verticalSpace(20.h),
-            Expanded(
-              child: ListView.separated(
-                itemCount: _dummyClaims.length,
-                separatorBuilder: (context, index) =>
-                    UIHelper.verticalSpace(16.h),
-                itemBuilder: (context, index) {
-                  final claim = _dummyClaims[index];
-                  // If not "All", filter by selected tab
-                  if (_selectedTab != "All" &&
-                      claim["status"] != _selectedTab) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return ClaimCard(
-                    name: claim["name"],
-                    email: claim["email"],
-                    rewardName: claim["rewardName"],
-                    date: claim["date"],
-                    status: claim["status"],
-                    onMarkAsRedeemed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
+                  padding: EdgeInsets.only(left: 16.w, right: 6.w),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.search,
+                        color: Colors.white.withValues(alpha: 0.5),
+                        size: 24.sp,
+                      ),
+                      UIHelper.horizontalSpace(12),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: "Search...",
+                            hintStyle: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
                           ),
-                          child: const VerifyRedeemBottomSheet(),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                UIHelper.verticalSpace(20.h),
+                ClaimFilterTabs(
+                  selectedTab: _selectedTab,
+                  onTabSelected: (tab) {
+                    setState(() {
+                      _selectedTab = tab;
+                    });
+                  },
+                ),
+                UIHelper.verticalSpace(20.h),
+                Expanded(
+                  child: ListView.separated(
+                    padding: EdgeInsets.only(bottom: 24.h),
+                    itemCount: _dummyClaims.length,
+                    separatorBuilder: (context, index) =>
+                        UIHelper.verticalSpace(16.h),
+                    itemBuilder: (context, index) {
+                      final claim = _dummyClaims[index];
+                      // If not "All", filter by selected tab
+                      if (_selectedTab != "All" &&
+                          claim["status"] != _selectedTab) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return ClaimCard(
+                        name: claim["name"],
+                        email: claim["email"],
+                        rewardName: claim["rewardName"],
+                        date: claim["date"],
+                        status: claim["status"],
+                        onMarkAsRedeemed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(
+                                  context,
+                                ).viewInsets.bottom,
+                              ),
+                              child: const VerifyRedeemBottomSheet(),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-            UIHelper.verticalSpace(20.h),
-          ],
+          ),
         ),
       ),
     );

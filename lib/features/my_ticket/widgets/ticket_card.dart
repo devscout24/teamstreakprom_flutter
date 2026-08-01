@@ -188,7 +188,7 @@ class TicketCard extends StatelessWidget {
                           fontFamily: 'SF Pro',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppColors.c1B1F26,
                         ),
                   ),
                 ),

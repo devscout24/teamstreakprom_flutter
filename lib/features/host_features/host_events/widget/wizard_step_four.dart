@@ -16,6 +16,7 @@ class WizardStepFour extends StatelessWidget {
   final VoidCallback onAddPhotos;
   final ValueChanged<int> onRemovePhoto;
   final TextEditingController rewardQuantityController;
+  final TextEditingController rewardPointController;
   final VoidCallback onAddReward;
   final VoidCallback onContinue;
   final VoidCallback onSkip;
@@ -30,6 +31,7 @@ class WizardStepFour extends StatelessWidget {
     required this.onAddPhotos,
     required this.onRemovePhoto,
     required this.rewardQuantityController,
+    required this.rewardPointController,
     required this.onAddReward,
     required this.onContinue,
     required this.onSkip,
@@ -130,7 +132,9 @@ class WizardStepFour extends StatelessWidget {
         // Reward Photo Upload
         DocumentUploadWidget(
           label: "Reward Photo",
-          fileName: rewardPhotoPaths.isNotEmpty ? "${rewardPhotoPaths.length} photos selected" : null,
+          fileName: rewardPhotoPaths.isNotEmpty
+              ? "${rewardPhotoPaths.length} photos selected"
+              : null,
           onTap: onAddPhotos,
           onRemove: () => onRemovePhoto(-1),
         ),
@@ -143,7 +147,8 @@ class WizardStepFour extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: rewardPhotoPaths.length,
-              separatorBuilder: (context, index) => UIHelper.horizontalSpace(10),
+              separatorBuilder: (context, index) =>
+                  UIHelper.horizontalSpace(10),
               itemBuilder: (context, index) {
                 final path = rewardPhotoPaths[index];
                 return Stack(
@@ -164,15 +169,16 @@ class WizardStepFour extends StatelessWidget {
                         child: Image.file(
                           File(path),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppColors.c242A34,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.white.withValues(alpha: 0.5),
-                              size: 20.w,
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: AppColors.c242A34,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.broken_image,
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  size: 20.w,
+                                ),
+                              ),
                         ),
                       ),
                     ),
@@ -208,6 +214,15 @@ class WizardStepFour extends StatelessWidget {
         _buildTextField(
           controller: rewardQuantityController,
           hint: "e.g. 200",
+          keyboardType: TextInputType.number,
+        ),
+        UIHelper.verticalSpace(16),
+
+        // Reward Point
+        _buildLabel("Reward Point"),
+        _buildTextField(
+          controller: rewardPointController,
+          hint: "e.g. 242 pts",
           keyboardType: TextInputType.number,
         ),
         UIHelper.verticalSpace(20),
@@ -299,7 +314,10 @@ class WizardStepFour extends StatelessWidget {
         prefixIcon: prefixIcon,
         filled: true,
         fillColor: const Color(0xFF1E222B),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: maxLines > 1 ? 14.h : 16.h),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: maxLines > 1 ? 14.h : 16.h,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide(
@@ -316,17 +334,11 @@ class WizardStepFour extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-            width: 1.w,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.w),
         ),
       ),
     );

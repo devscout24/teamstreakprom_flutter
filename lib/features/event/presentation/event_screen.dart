@@ -40,8 +40,12 @@ class _EventScreenState extends State<EventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.c121212,
-      body: SingleChildScrollView(
-        child: Padding(
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          child: Padding(
           padding: EdgeInsets.symmetric(vertical: 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,6 +180,7 @@ class _EventScreenState extends State<EventScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
