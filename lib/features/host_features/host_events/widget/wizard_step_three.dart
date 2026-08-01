@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/event_model.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
+import 'package:teamstreakpromo/common_widgets/gradient_container.dart';
 import '../../auth/widget/custom_selector_field.dart';
 import '../../auth/widget/document_upload_widget.dart';
 
@@ -91,187 +93,24 @@ class WizardStepThree extends StatelessWidget {
         ),
         UIHelper.verticalSpace(24),
 
-        // Render each artist form block
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: artistForms.length,
-          separatorBuilder: (context, index) => Column(
-            children: [
-              UIHelper.verticalSpace(24),
-              const Divider(color: Colors.white12, height: 1),
-              UIHelper.verticalSpace(24),
-            ],
+        // Render saved artists as cards
+        if (artistForms.length > 1) ...[
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: artistForms.length - 1,
+            separatorBuilder: (context, index) => UIHelper.verticalSpace(16),
+            itemBuilder: (context, index) {
+              return _buildArtistCard(artistForms[index], () => onRemoveArtist(index));
+            },
           ),
-          itemBuilder: (context, artistIndex) {
-            final artist = artistForms[artistIndex];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (artistIndex > 0)
-                      GestureDetector(
-                        onTap: () => onRemoveArtist(artistIndex),
-                        child: Text(
-                          "Remove",
-                          style: TextStyle(
-                            fontFamily: "SF Pro",
-                            fontSize: 13.sp,
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                UIHelper.verticalSpace(16),
+          UIHelper.verticalSpace(24),
+          const Divider(color: Colors.white12, height: 1),
+          UIHelper.verticalSpace(24),
+        ],
 
-                // Artist Name
-                _buildLabel("Artist Name"),
-                _buildTextField(
-                  controller: artist.nameController,
-                  hint: "e.g. Adam Levine",
-                ),
-                UIHelper.verticalSpace(16),
-
-                // Designation
-                _buildLabel("Designation"),
-                _buildTextField(
-                  controller: artist.designationController,
-                  hint: "e.g. Singer / Guitarist",
-                ),
-                UIHelper.verticalSpace(16),
-
-                // Artist Photo
-                DocumentUploadWidget(
-                  label: "Artist Photo",
-                  fileName: artist.photoPath != null
-                      ? artist.photoPath!.split('/').last
-                      : null,
-                  onTap: () => onArtistPhotoTap(artistIndex),
-                  onRemove: () => onArtistPhotoRemove(artistIndex),
-                ),
-                UIHelper.verticalSpace(16),
-
-                // Dynamic Multiple Social Media Links for this Artist
-                _buildLabel("Add Social Media Link"),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: artist.socialLinks.length,
-                  separatorBuilder: (context, index) =>
-                      UIHelper.verticalSpace(12),
-                  itemBuilder: (context, linkIndex) {
-                    final social = artist.socialLinks[linkIndex];
-                    final hasUrl = social.urlController.text.isNotEmpty;
-
-                    IconData platformIcon = Icons.link;
-                    if (social.platform.toLowerCase() == "facebook") {
-                      platformIcon = Icons.facebook;
-                    } else if (social.platform.toLowerCase() == "instagram") {
-                      platformIcon = Icons.camera_alt_outlined;
-                    } else if (social.platform.toLowerCase() == "twitter") {
-                      platformIcon = Icons.alternate_email;
-                    } else if (social.platform.toLowerCase() == "youtube") {
-                      platformIcon = Icons.play_circle_outline;
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomSelectorField(
-                                value: social.platform,
-                                hintText: "Platform",
-                                onTap: () =>
-                                    onSocialLinkEdit(artistIndex, linkIndex),
-                              ),
-                            ),
-                            if (linkIndex > 0) ...[
-                              UIHelper.horizontalSpace(8),
-                              GestureDetector(
-                                onTap: () =>
-                                    onRemoveSocialLink(artistIndex, linkIndex),
-                                child: Container(
-                                  padding: EdgeInsets.all(8.w),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white10,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.delete_outline_rounded,
-                                    color: Colors.redAccent,
-                                    size: 18.w,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        if (hasUrl) ...[
-                          UIHelper.verticalSpace(8),
-                          Row(
-                            children: [
-                              Icon(
-                                platformIcon,
-                                color: Colors.white,
-                                size: 16.w,
-                              ),
-                              UIHelper.horizontalSpace(8),
-                              Expanded(
-                                child: Text(
-                                  social.urlController.text,
-                                  style: TextStyle(
-                                    fontFamily: "SF Pro",
-                                    fontSize: 12.sp,
-                                    color: Colors.blueAccent,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: Colors.blueAccent,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    );
-                  },
-                ),
-                UIHelper.verticalSpace(12),
-
-                // Button to add another social link for this artist
-                GestureDetector(
-                  onTap: () => onAddSocialLink(artistIndex),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.add,
-                        color: AppColors.primaryColorSecond,
-                        size: 16.w,
-                      ),
-                      UIHelper.horizontalSpace(4),
-                      Text(
-                        "Add Social Link",
-                        style: TextStyle(
-                          fontFamily: "SF Pro Rounded",
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryColorSecond,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+        // Render the active artist form block
+        _buildArtistForm(context, artistForms.last, artistForms.length - 1),
         UIHelper.verticalSpace(24),
 
         // "+ Add Another Artist" outlined button at the very bottom
@@ -310,6 +149,251 @@ class WizardStepThree extends StatelessWidget {
         // Continue Button
         _buildContinueButton(onContinue),
         UIHelper.verticalSpace(30),
+      ],
+    );
+  }
+
+  Widget _buildArtistCard(ArtistFormModel artist, VoidCallback onRemove) {
+    return GradientContainer(
+      padding: EdgeInsets.all(12.w),
+      child: Stack(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // White rounded image container
+              Container(
+                width: 80.w,
+                height: 80.w,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                alignment: Alignment.center,
+                clipBehavior: Clip.hardEdge,
+                child: artist.photoPath != null
+                    ? Image.file(
+                        File(artist.photoPath!),
+                        width: 80.w,
+                        height: 80.w,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 80.w,
+                          height: 80.w,
+                          color: AppColors.c242A34,
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        Icons.person,
+                        color: AppColors.c242A34,
+                        size: 40.w,
+                      ),
+              ),
+              UIHelper.horizontalSpace(12),
+              // Text Content
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      artist.nameController.text.isNotEmpty
+                          ? artist.nameController.text
+                          : "Unnamed Artist",
+                      style: TextStyle(
+                        fontFamily: "SF Pro",
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    UIHelper.verticalSpace(6),
+                    Text(
+                      artist.designationController.text,
+                      style: TextStyle(
+                        fontFamily: "SF Pro",
+                        fontSize: 12.sp,
+                        color: AppColors.cBCBCBB,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Space for close button
+              UIHelper.horizontalSpace(32),
+            ],
+          ),
+          // Close button positioned top right
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close_rounded, color: Colors.red, size: 16.w),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildArtistForm(
+      BuildContext context, ArtistFormModel artist, int artistIndex) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Artist Name
+        _buildLabel("Artist Name"),
+        _buildTextField(
+          controller: artist.nameController,
+          hint: "e.g. Adam Levine",
+        ),
+        UIHelper.verticalSpace(16),
+
+        // Designation
+        _buildLabel("Designation"),
+        _buildTextField(
+          controller: artist.designationController,
+          hint: "e.g. Singer / Guitarist",
+        ),
+        UIHelper.verticalSpace(16),
+
+        // Artist Photo
+        DocumentUploadWidget(
+          label: "Artist Photo",
+          fileName: artist.photoPath != null
+              ? artist.photoPath!.split('/').last
+              : null,
+          onTap: () => onArtistPhotoTap(artistIndex),
+          onRemove: () => onArtistPhotoRemove(artistIndex),
+        ),
+        UIHelper.verticalSpace(16),
+
+        // Dynamic Multiple Social Media Links for this Artist
+        _buildLabel("Add Social Media Link"),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: artist.socialLinks.length,
+          separatorBuilder: (context, index) => UIHelper.verticalSpace(12),
+          itemBuilder: (context, linkIndex) {
+            final social = artist.socialLinks[linkIndex];
+            final hasUrl = social.urlController.text.isNotEmpty;
+
+            IconData platformIcon = Icons.link;
+            if (social.platform.toLowerCase() == "facebook") {
+              platformIcon = Icons.facebook;
+            } else if (social.platform.toLowerCase() == "instagram") {
+              platformIcon = Icons.camera_alt_outlined;
+            } else if (social.platform.toLowerCase() == "twitter") {
+              platformIcon = Icons.alternate_email;
+            } else if (social.platform.toLowerCase() == "youtube") {
+              platformIcon = Icons.play_circle_outline;
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomSelectorField(
+                        value: social.platform,
+                        hintText: "Platform",
+                        onTap: () => onSocialLinkEdit(artistIndex, linkIndex),
+                      ),
+                    ),
+                    if (linkIndex > 0) ...[
+                      UIHelper.horizontalSpace(8),
+                      GestureDetector(
+                        onTap: () => onRemoveSocialLink(artistIndex, linkIndex),
+                        child: Container(
+                          padding: EdgeInsets.all(8.w),
+                          decoration: const BoxDecoration(
+                            color: Colors.white10,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.delete_outline_rounded,
+                            color: Colors.redAccent,
+                            size: 18.w,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (hasUrl) ...[
+                  UIHelper.verticalSpace(8),
+                  Row(
+                    children: [
+                      Icon(
+                        platformIcon,
+                        color: Colors.white,
+                        size: 16.w,
+                      ),
+                      UIHelper.horizontalSpace(8),
+                      Expanded(
+                        child: Text(
+                          social.urlController.text,
+                          style: TextStyle(
+                            fontFamily: "SF Pro",
+                            fontSize: 12.sp,
+                            color: Colors.blueAccent,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blueAccent,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            );
+          },
+        ),
+        UIHelper.verticalSpace(12),
+
+        // Button to add another social link for this artist
+        GestureDetector(
+          onTap: () => onAddSocialLink(artistIndex),
+          child: Row(
+            children: [
+              Icon(
+                Icons.add,
+                color: AppColors.primaryColorSecond,
+                size: 16.w,
+              ),
+              UIHelper.horizontalSpace(4),
+              Text(
+                "Add Social Link",
+                style: TextStyle(
+                  fontFamily: "SF Pro Rounded",
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryColorSecond,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

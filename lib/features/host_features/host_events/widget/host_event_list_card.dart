@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
+import 'package:teamstreakpromo/common_widgets/custom_button.dart';
+import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
+import 'package:teamstreakpromo/constants/text_font_style.dart';
 
 class HostEventListCard extends StatelessWidget {
   final String imageUrl;
@@ -219,7 +222,7 @@ class HostEventListCard extends StatelessWidget {
                   children: [
                     // Delete Button
                     GestureDetector(
-                      onTap: onDelete,
+                      onTap: () => _showDeleteBottomSheet(context, onDelete),
                       child: Container(
                         width: 30.w,
                         height: 30.w,
@@ -259,6 +262,100 @@ class HostEventListCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDeleteBottomSheet(
+    BuildContext context,
+    VoidCallback onConfirmDelete,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          decoration: BoxDecoration(
+            color: AppColors.scaffoldColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32.r),
+              topRight: Radius.circular(32.r),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Delete Event",
+                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              UIHelper.verticalSpace(16.h),
+              Text(
+                "Are you sure you want to delete this event? This action cannot be undone.",
+                textAlign: TextAlign.center,
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 13.sp,
+                  height: 1.5,
+                ),
+              ),
+              UIHelper.verticalSpace(24.h),
+              Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                thickness: 1.h,
+                height: 1.h,
+              ),
+              UIHelper.verticalSpace(24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      onPressed: () => Navigator.pop(context),
+                      title: "Cancel",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.c262824,
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(16.w),
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onConfirmDelete();
+                      },
+                      title: "Delete",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              UIHelper.verticalSpace(8.h),
+            ],
+          ),
+        );
+      },
     );
   }
 }

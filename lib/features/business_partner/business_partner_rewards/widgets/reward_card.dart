@@ -5,6 +5,9 @@ import '../../../../common_widgets/gradient_container.dart';
 import '../../../../constants/text_font_style.dart';
 import '../../../../gen/colors.gen.dart';
 import '../../../../helpers/ui_helpers.dart';
+import '../../../../common_widgets/custom_button.dart';
+import '../../../../common_widgets/custom_gradient_button.dart';
+import '../presentation/business_partner_create_reward_screen.dart';
 
 class RewardCard extends StatelessWidget {
   const RewardCard({super.key});
@@ -174,12 +177,21 @@ class RewardCard extends StatelessWidget {
                         _buildActionButton(
                           iconPath: 'assets/icons/delete_icon.png',
                           iconColor: const Color(0xFFC72C2C),
-                          onTap: () {},
+                          onTap: () {
+                            _showDeleteBottomSheet(context);
+                          },
                         ),
                         _buildActionButton(
                           iconPath: 'assets/icons/edit_icon.png',
                           iconColor: const Color(0xFF1E211A),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BusinessPartnerCreateRewardScreen(isEdit: true),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -213,6 +225,97 @@ class RewardCard extends StatelessWidget {
           height: 16.sp,
         ),
       ),
+    );
+  }
+
+  void _showDeleteBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          decoration: BoxDecoration(
+            color: AppColors.scaffoldColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32.r),
+              topRight: Radius.circular(32.r),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Delete Reward",
+                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              UIHelper.verticalSpace(16.h),
+              Text(
+                "Are you sure you want to delete this reward? This action cannot be undone.",
+                textAlign: TextAlign.center,
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 13.sp,
+                  height: 1.5,
+                ),
+              ),
+              UIHelper.verticalSpace(24.h),
+              Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                thickness: 1.h,
+                height: 1.h,
+              ),
+              UIHelper.verticalSpace(24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      onPressed: () => Navigator.pop(context),
+                      title: "Cancel",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.c262824,
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(16.w),
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: () {
+                        // Confirm deletion logic here
+                        Navigator.pop(context);
+                      },
+                      title: "Delete",
+                      height: 48.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: AppColors.c262824,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              UIHelper.verticalSpace(8.h),
+            ],
+          ),
+        );
+      },
     );
   }
 }

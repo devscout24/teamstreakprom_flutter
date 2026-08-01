@@ -7,13 +7,13 @@ import '../../../gen/assets.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../home/model/reward_model.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../event/presentation/event_details_screen.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/reward_filter_chips.dart';
 import '../widgets/my_reward_card.dart';
 import 'reward_details_screen.dart';
 import 'marketplace_reward_details_screen.dart';
 import 'rewards_point_details_screen.dart';
+import '../../business_partner/business_partner_rewards/presentation/business_partner_rewards_details_screen.dart';
 
 class RewardsScreen extends StatefulWidget {
   const RewardsScreen({super.key});
@@ -71,16 +71,16 @@ class _RewardsScreenState extends State<RewardsScreen> {
     );
   }
 
-  void _redeemRewardDirectly() {
-    // Silent reward redemption
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      body: SingleChildScrollView(
-        child: Column(
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             UIHelper.verticalSpace(24.h),
@@ -282,16 +282,8 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => EventDetailsScreen(
-                                        title: reward.title,
-                                        location: "Divine Art Festival",
-                                        date: reward.expiryDate,
-                                        price: "${reward.points} pts",
-                                        imageUrl: reward.imageUrl,
-                                        description: reward.description,
-                                        points: reward.points,
-                                        isReward: true,
-                                      ),
+                                      builder: (context) =>
+                                          const BusinessPartnerRewardsDetailsScreen(),
                                     ),
                                   );
                                 },
@@ -547,6 +539,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
             UIHelper.verticalSpace(24.h),
           ],
         ),
+      ),
       ),
     );
   }

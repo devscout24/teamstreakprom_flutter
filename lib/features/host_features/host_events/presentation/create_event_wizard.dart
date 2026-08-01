@@ -10,7 +10,6 @@ import '../widget/wizard_step_one.dart';
 import '../widget/wizard_step_two.dart';
 import '../widget/wizard_step_three.dart';
 import '../widget/wizard_step_four.dart';
-import '../widget/wizard_step_five.dart';
 import '../widget/wizard_step_six.dart';
 
 class CreateEventWizard extends StatefulWidget {
@@ -22,7 +21,7 @@ class CreateEventWizard extends StatefulWidget {
 
 class _CreateEventWizardState extends State<CreateEventWizard> {
   int _currentStep =
-      1; // 1 to 5 represent wizard steps, 6 represents Overview page
+      1; // 1 to 4 represent wizard steps, 5 represents Overview page
   final _formKey = GlobalKey<FormState>();
 
   // Image Picker
@@ -54,6 +53,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final List<String> _rewardPhotoPaths = [];
   final TextEditingController _rewardQuantityController =
       TextEditingController();
+  final TextEditingController _rewardPointController = TextEditingController();
   final List<Map<String, dynamic>> _rewards = [];
 
   @override
@@ -67,6 +67,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
     _rewardTitleController.text = "";
     _rewardQuantityController.text = "";
+    _rewardPointController.text = "";
 
     // Pre-populate dynamic artist list with 1 complete artist & social links
     _artistForms.add(
@@ -82,15 +83,6 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       ),
     );
 
-    // Set default mockup reward inside list for Step 5 & Overview
-    _rewards.add({
-      "title": "Adidas Courtblock Shoes",
-      "desc":
-          "adidas is a leading athletic shoe brand known for innovation and quality.",
-      "image":
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
-      "qty": 30,
-    });
   }
 
   @override
@@ -110,6 +102,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     _rewardTitleController.dispose();
     _rewardDescController.dispose();
     _rewardQuantityController.dispose();
+    _rewardPointController.dispose();
     super.dispose();
   }
 
@@ -607,8 +600,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final showIndicator = _currentStep <= 5;
-    final isOverview = _currentStep == 6;
+    final showIndicator = _currentStep <= 4;
+    final isOverview = _currentStep == 5;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -627,7 +620,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             if (showIndicator) ...[
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 21.w),
-                child: WizardProgressIndicator(currentStep: _currentStep),
+                child: WizardProgressIndicator(currentStep: _currentStep, totalSteps: 4),
               ),
               UIHelper.verticalSpace(24),
             ],
@@ -651,7 +644,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   Widget _buildHeader() {
-    final isOverview = _currentStep == 6;
+    final isOverview = _currentStep == 5;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -864,6 +857,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             });
           },
           rewardQuantityController: _rewardQuantityController,
+          rewardPointController: _rewardPointController,
           onAddReward: () {
             if (_rewardTitleController.text.isNotEmpty) {
               setState(() {
@@ -874,11 +868,13 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                       ? List<String>.from(_rewardPhotoPaths)
                       : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                   "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
+                  "points": int.tryParse(_rewardPointController.text) ?? 0,
                 });
                 _rewardTitleController.clear();
                 _rewardDescController.clear();
                 _rewardPhotoPaths.clear();
                 _rewardQuantityController.clear();
+                _rewardPointController.clear();
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Reward added successfully!")),
@@ -894,71 +890,15 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                     ? List<String>.from(_rewardPhotoPaths)
                     : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
                 "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
+                "points": int.tryParse(_rewardPointController.text) ?? 0,
               });
               _rewardTitleController.clear();
               _rewardDescController.clear();
               _rewardPhotoPaths.clear();
               _rewardQuantityController.clear();
+              _rewardPointController.clear();
             }
             setState(() => _currentStep = 5);
-          },
-          onSkip: () => setState(() => _currentStep++),
-        );
-      case 5:
-        return WizardStepFive(
-          rewards: _rewards,
-          onRemoveReward: (index) => setState(() => _rewards.removeAt(index)),
-          rewardTitleController: _rewardTitleController,
-          rewardDescController: _rewardDescController,
-          rewardPhotoPaths: _rewardPhotoPaths,
-          onAddPhotos: () => _showFileSourceOptions(
-            context,
-            (paths) => setState(() => _rewardPhotoPaths.addAll(paths)),
-          ),
-          onRemovePhoto: (index) {
-            setState(() {
-              if (index == -1) {
-                _rewardPhotoPaths.clear();
-              } else {
-                _rewardPhotoPaths.removeAt(index);
-              }
-            });
-          },
-          rewardQuantityController: _rewardQuantityController,
-          onAddReward: () {
-            if (_rewardTitleController.text.isNotEmpty) {
-              setState(() {
-                _rewards.add({
-                  "title": _rewardTitleController.text,
-                  "desc": _rewardDescController.text,
-                  "image": _rewardPhotoPaths.isNotEmpty
-                      ? List<String>.from(_rewardPhotoPaths)
-                      : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
-                  "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
-                });
-                _rewardTitleController.clear();
-                _rewardDescController.clear();
-                _rewardPhotoPaths.clear();
-                _rewardQuantityController.clear();
-              });
-            }
-          },
-          onContinue: () {
-            if (_rewardTitleController.text.isNotEmpty) {
-              _rewards.add({
-                "title": _rewardTitleController.text,
-                "desc": _rewardDescController.text,
-                "image": _rewardPhotoPaths.isNotEmpty
-                    ? List<String>.from(_rewardPhotoPaths)
-                    : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
-                "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
-              });
-              _rewardTitleController.clear();
-              _rewardDescController.clear();
-              _rewardPhotoPaths.clear();
-              _rewardQuantityController.clear();
-            }
-            setState(() => _currentStep = 6);
           },
           onSkip: () => setState(() => _currentStep++),
         );

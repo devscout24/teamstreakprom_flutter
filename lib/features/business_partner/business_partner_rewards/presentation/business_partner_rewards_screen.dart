@@ -26,8 +26,9 @@ class _BusinessPartnerRewardsScreenState
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
+        bottom: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 24.h),
           child: Column(
             children: [
               // Header
@@ -99,7 +100,7 @@ class _BusinessPartnerRewardsScreenState
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                const BusinessPartnerRewardsDetailsScreen(),
+                                const BusinessPartnerRewardsDetailsScreen(type: 'businessPartner'),
                           ),
                         );
                       },

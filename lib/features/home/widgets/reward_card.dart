@@ -4,7 +4,7 @@ import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/app_network_image.dart';
-import '../../event/presentation/event_details_screen.dart';
+import '../../business_partner/business_partner_rewards/presentation/business_partner_rewards_details_screen.dart';
 
 class RewardCard extends StatelessWidget {
   final String title;
@@ -36,16 +36,7 @@ class RewardCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EventDetailsScreen(
-          title: title,
-          location: "Divine Art Festival",
-          date: expiryDate,
-          price: "$points pts",
-          imageUrl: imageUrl,
-          description: description,
-          points: points,
-          isReward: true,
-        ),
+        builder: (context) => const BusinessPartnerRewardsDetailsScreen(),
       ),
     );
   }

@@ -121,42 +121,48 @@ class MyRewardCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "Claimed : ",
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: const Color(0xFFF28F31), // Orange color
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    TextSpan(
-                      text: "$claimedDate  •  $claimedTime",
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.cADADAD,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "SF Pro",
-                          ),
-                    ),
-                  ],
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Claimed : ",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: const Color(0xFFF28F31), // Orange color
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      TextSpan(
+                        text: "$claimedDate  •  $claimedTime",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cADADAD,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "SF Pro",
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF23262F),
+                  color: AppColors.c2A313C,
                   borderRadius: BorderRadius.circular(100.r),
                 ),
                 child: Text(
                   type,
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(color: Colors.white, fontSize: 12.sp),
+                      .copyWith(
+                        color: type.toLowerCase() == "event"
+                            ? const Color(0xFF45A93D)
+                            : AppColors.cFFFFFF,
+                        fontSize: 12.sp,
+                      ),
                 ),
               ),
             ],
