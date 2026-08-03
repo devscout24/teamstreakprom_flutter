@@ -72,20 +72,24 @@ class WizardStepFour extends StatelessWidget {
             ),
             UIHelper.horizontalSpace(16),
             GestureDetector(
+
               onTap: onSkip,
               child: Container(
+                height: 32.h,
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColorFirst,
                   borderRadius: BorderRadius.circular(16.r),
                 ),
-                child: Text(
-                  "Skip",
-                  style: TextStyle(
-                    fontFamily: "SF Pro Rounded",
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                child: Center(
+                  child: Text(
+                    "Skip",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),

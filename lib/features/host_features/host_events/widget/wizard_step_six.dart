@@ -13,6 +13,7 @@ class WizardStepSix extends StatelessWidget {
   final String? selectedAgeRestriction;
   final List<Map<String, dynamic>> rewards;
   final VoidCallback onPostEvent;
+  final VoidCallback? onEditInfo;
 
   const WizardStepSix({
     super.key,
@@ -23,6 +24,7 @@ class WizardStepSix extends StatelessWidget {
     required this.selectedAgeRestriction,
     required this.rewards,
     required this.onPostEvent,
+    this.onEditInfo,
   });
 
   Widget _buildRewardImage(dynamic rewardImage, {required double width, required double height}) {
@@ -63,23 +65,61 @@ class WizardStepSix extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Overview",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        UIHelper.verticalSpace(8),
-        Text(
-          "Double check your information before making your event live.",
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Overview",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(8),
+                  Text(
+                    "Double check your information before making your event live.",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (onEditInfo != null) ...[
+              UIHelper.horizontalSpace(12),
+              GestureDetector(
+                onTap: onEditInfo,
+                child: Container(
+                  height: 32.h,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColorFirst,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Edit Info",
+                      style: TextStyle(
+                        fontFamily: "SF Pro Rounded",
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
         UIHelper.verticalSpace(24),
 
@@ -439,8 +479,8 @@ class WizardStepSix extends StatelessWidget {
               Color(0xFFF28F31),
               Color(0xFF72E84F),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         alignment: Alignment.center,
