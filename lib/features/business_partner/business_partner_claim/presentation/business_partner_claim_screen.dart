@@ -64,7 +64,6 @@ class _BusinessPartnerClaimScreenState
             padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 24.h),
             child: Column(
               children: [
-                UIHelper.verticalSpace(16.h),
                 // Search Bar
                 Container(
                   height: 52.h,
