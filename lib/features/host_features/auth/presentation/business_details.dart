@@ -32,15 +32,22 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   String? _selectedCategory;
   String? _selectedSubcategory;
   bool _showEinField = false;
+  bool _isHost = false;
 
   @override
   void initState() {
     super.initState();
     String? storedType = appData.read(kAccountType);
+
     if (storedType == AccountType.host.name ||
         storedType == AccountType.host.toString() ||
-        storedType == AccountType.businessPartner.name ||
-        storedType == AccountType.businessPartner.toString()) {
+        storedType == "AccountType.host") {
+      _isHost = true;
+    }
+
+    if (storedType == AccountType.businessPartner.name ||
+        storedType == AccountType.businessPartner.toString() ||
+        storedType == "AccountType.businessPartner") {
       _showEinField = true;
     }
   }
@@ -301,6 +308,22 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       ),
                       UIHelper.verticalSpace(16),
 
+                      CustomTextFormField(
+                        maxLines: 5,
+                        borderRadius: BorderRadius.circular(20),
+                        controller: _businessDescController,
+                        hintText: "Business Description",
+
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Business description is required";
+                          }
+                          return null;
+                        },
+                      ),
+                      UIHelper.verticalSpace(16),
                       if (_showEinField) ...[
                         CustomTextFormField(
                           controller: _einNumberController,
@@ -318,23 +341,6 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       ],
 
                       CustomTextFormField(
-                        maxLines: 5,
-                        borderRadius: BorderRadius.circular(20),
-                        controller: _businessDescController,
-                        hintText: "Business Description",
-
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Business description is required";
-                          }
-                          return null;
-                        },
-                      ),
-                      UIHelper.verticalSpace(16),
-
-                      CustomTextFormField(
                         controller: _locationController,
                         hintText: "Location",
                         keyboardType: TextInputType.streetAddress,
@@ -350,7 +356,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
 
                       CustomSelectorField(
                         value: _selectedCategory,
-                        hintText: "Category",
+                        hintText: _isHost ? "Event Category" : "Category",
                         onTap: _showCategoryBottomSheet,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -363,7 +369,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
 
                       CustomSelectorField(
                         value: _selectedSubcategory,
-                        hintText: "Subcategory",
+                        hintText: _isHost ? "Event Subcategory" : "Subcategory",
                         onTap: _showSubcategoryBottomSheet,
                         validator: (value) {
                           if (value == null || value.isEmpty) {

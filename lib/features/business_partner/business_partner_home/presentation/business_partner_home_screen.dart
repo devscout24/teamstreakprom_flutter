@@ -43,143 +43,146 @@ class BusinessPartnerHomeScreen extends StatelessWidget {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-
-              // Search Bar
-              Container(
-                height: 52.h,
-                decoration: BoxDecoration(
-                  color: AppColors.c1E222B,
-                  borderRadius: BorderRadius.circular(100.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    width: 1.w,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search Bar
+                Container(
+                  height: 52.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.c1E222B,
+                    borderRadius: BorderRadius.circular(100.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      width: 1.w,
+                    ),
+                  ),
+                  padding: EdgeInsets.only(left: 16.w, right: 6.w),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.search,
+                        color: Colors.white.withValues(alpha: 0.5),
+                        size: 24.sp,
+                      ),
+                      UIHelper.horizontalSpace(12),
+                      Expanded(
+                        child: TextField(
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: "Search...",
+                            hintStyle: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                padding: EdgeInsets.only(left: 16.w, right: 6.w),
-                child: Row(
+                UIHelper.verticalSpace(24),
+
+                // Stat Cards
+                Row(
                   children: [
-                    Icon(
-                      Icons.search,
-                      color: Colors.white.withValues(alpha: 0.5),
-                      size: 24.sp,
-                    ),
-                    UIHelper.horizontalSpace(12),
                     Expanded(
-                      child: TextField(
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: "Search...",
-                          hintStyle: TextFontStyle
-                              .textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: Colors.white.withValues(alpha: 0.4),
-                              ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
+                      child: HostStatCard(
+                        title: "Total Claims",
+                        value: "12,450",
+                        icon: Icons.check_box_outlined,
+                        iconColor: Colors.blueAccent,
+                        circleBgColor: Colors.blueAccent.withValues(
+                          alpha: 0.15,
+                        ),
+                      ),
+                    ),
+                    UIHelper.horizontalSpace(16),
+                    Expanded(
+                      child: HostStatCard(
+                        title: "Store Visits",
+                        value: "12,450",
+                        icon: Icons.people_outline_rounded,
+                        iconColor: Colors.greenAccent,
+                        circleBgColor: Colors.greenAccent.withValues(
+                          alpha: 0.15,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              UIHelper.verticalSpace(24),
+                UIHelper.verticalSpace(24),
 
-              // Stat Cards
-              Row(
-                children: [
-                  Expanded(
-                    child: HostStatCard(
-                      title: "Total Claims",
-                      value: "12,450",
-                      icon: Icons.check_box_outlined,
-                      iconColor: Colors.blueAccent,
-                      circleBgColor: Colors.blueAccent.withValues(alpha: 0.15),
+                // Chart Card
+                const RewardSellChartCard(),
+                UIHelper.verticalSpace(24),
+
+                // Active Rewards Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Active Rewards",
+                      style: TextFontStyle.textStyle16cFFFFFFSFProRounded700,
                     ),
-                  ),
-                  UIHelper.horizontalSpace(16),
-                  Expanded(
-                    child: HostStatCard(
-                      title: "Store Visits",
-                      value: "12,450",
-                      icon: Icons.people_outline_rounded,
-                      iconColor: Colors.greenAccent,
-                      circleBgColor: Colors.greenAccent.withValues(alpha: 0.15),
-                    ),
-                  ),
-                ],
-              ),
-              UIHelper.verticalSpace(24),
-
-              // Chart Card
-              const RewardSellChartCard(),
-              UIHelper.verticalSpace(24),
-
-              // Active Rewards Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Active Rewards",
-                    style: TextFontStyle.textStyle16cFFFFFFSFProRounded700,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              BusinessPartnerActiveRewardsScreen(
-                                activeRewards: _activeRewards,
-                              ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                BusinessPartnerActiveRewardsScreen(
+                                  activeRewards: _activeRewards,
+                                ),
+                          ),
+                        );
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
                         ),
-                      );
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 4.h,
-                      ),
-                      child: Text(
-                        "See All",
-                        style: TextFontStyle.textStyle12cFFFFFFSFPro600
-                            .copyWith(decoration: TextDecoration.underline),
+                        child: Text(
+                          "See All",
+                          style: TextFontStyle.textStyle12cFFFFFFSFPro600
+                              .copyWith(decoration: TextDecoration.underline),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              UIHelper.verticalSpace(16),
+                  ],
+                ),
+                UIHelper.verticalSpace(16),
 
-              // Rewards List
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _activeRewards.length,
-                separatorBuilder: (context, index) =>
-                    UIHelper.verticalSpace(16),
-                itemBuilder: (context, index) {
-                  final reward = _activeRewards[index];
-                  return BusinessPartnerActiveRewardCard(
-                    imageUrl: reward["imageUrl"],
-                    title: reward["title"],
-                    location: reward["location"],
-                    expiryDate: reward["expiryDate"],
-                    claimedCount: reward["claimedCount"],
-                    leftCount: reward["leftCount"],
-                  );
-                },
-              ),
-              UIHelper.verticalSpace(24),
-            ],
+                // Rewards List
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _activeRewards.length,
+                  separatorBuilder: (context, index) =>
+                      UIHelper.verticalSpace(16),
+                  itemBuilder: (context, index) {
+                    final reward = _activeRewards[index];
+                    return BusinessPartnerActiveRewardCard(
+                      imageUrl: reward["imageUrl"],
+                      title: reward["title"],
+                      location: reward["location"],
+                      expiryDate: reward["expiryDate"],
+                      claimedCount: reward["claimedCount"],
+                      leftCount: reward["leftCount"],
+                    );
+                  },
+                ),
+                UIHelper.verticalSpace(24),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

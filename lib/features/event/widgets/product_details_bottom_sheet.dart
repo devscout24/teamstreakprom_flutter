@@ -6,6 +6,8 @@ import '../../../gen/assets.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../presentation/event_details_screen.dart';
+import '../../../constants/app_constants.dart';
+import '../../../helpers/di.dart';
 
 void showProductDetailsBottomSheet({
   required BuildContext context,
@@ -24,6 +26,8 @@ void showProductDetailsBottomSheet({
       final PageController sheetPageController = PageController();
       int sheetCurrentIndex = 0;
       final List<String> sheetImages = product.imageUrls;
+      final accountType = appData.read(kAccountType);
+      final isHost = accountType == 'AccountType.host' || accountType == 'host';
 
       return StatefulBuilder(
         builder: (context, setSheetState) {
@@ -225,21 +229,23 @@ void showProductDetailsBottomSheet({
                     ),
                   ],
                 ),
-                UIHelper.verticalSpace(24.h),
-                CustomGradientButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    onContinueToPay();
-                  },
-                  title: "Continue to Redeem Reward",
-                  borderRadius: BorderRadius.circular(100.r),
-                  textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(
-                        color: const Color(0xFF262824),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16.sp,
-                      ),
-                ),
+                if (!isHost) ...[
+                  UIHelper.verticalSpace(24.h),
+                  CustomGradientButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onContinueToPay();
+                    },
+                    title: "Continue to Redeem Reward",
+                    borderRadius: BorderRadius.circular(100.r),
+                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: const Color(0xFF262824),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.sp,
+                        ),
+                  ),
+                ],
               ],
             ),
           );

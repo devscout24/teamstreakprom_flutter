@@ -9,6 +9,8 @@ import 'widgets/reward_wizard_step_one.dart';
 import 'widgets/reward_wizard_step_two.dart';
 import 'widgets/reward_wizard_step_three.dart';
 import '../../../../../helpers/navigation_service.dart';
+import '../../../../helpers/all_routes.dart';
+
 
 class BusinessPartnerCreateRewardScreen extends StatefulWidget {
   final bool isEdit;
@@ -74,7 +76,7 @@ class _BusinessPartnerCreateRewardScreenState
 
   void _onPost() {
     // Final post action
-    NavigationService.navigatorKey.currentState?.popUntil((route) => route.isFirst);
+    NavigationService.navigateToUntilReplacement(Routes.businessPartnerNavbarScreen);
   }
 
   // --- Step 2 Methods ---

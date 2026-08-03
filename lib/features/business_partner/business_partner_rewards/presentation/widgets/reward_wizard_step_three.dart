@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import '../../../../../gen/colors.gen.dart';
 import '../../../../../helpers/ui_helpers.dart';
 import '../../../../../constants/text_font_style.dart';

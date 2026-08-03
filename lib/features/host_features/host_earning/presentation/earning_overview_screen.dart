@@ -22,8 +22,6 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            UIHelper.verticalSpace(20),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),

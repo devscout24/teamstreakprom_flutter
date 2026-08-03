@@ -61,7 +61,7 @@ class _BusinessPartnerClaimScreenState
         child: SafeArea(
           bottom: false,
           child: Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 24.h),
+            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 0.h),
             child: Column(
               children: [
                 // Search Bar

@@ -28,7 +28,7 @@ class _BusinessPartnerRewardsScreenState
       body: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 24.h),
+          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 0.h),
           child: Column(
             children: [
               // Header
@@ -100,7 +100,9 @@ class _BusinessPartnerRewardsScreenState
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                const BusinessPartnerRewardsDetailsScreen(type: 'businessPartner'),
+                                const BusinessPartnerRewardsDetailsScreen(
+                                  type: 'businessPartner',
+                                ),
                           ),
                         );
                       },
