@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 12.h),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
       color: AppColors.c121212,
       child: Row(
         children: [
@@ -289,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 38.h,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
                     itemCount: _categories.length,
                     itemBuilder: (context, index) {
                       final isSelected = _selectedCategoryIndex == index;

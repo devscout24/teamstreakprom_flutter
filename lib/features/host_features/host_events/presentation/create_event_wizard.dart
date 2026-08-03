@@ -644,8 +644,6 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   Widget _buildHeader() {
-    final isOverview = _currentStep == 5;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -677,7 +675,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
         // Title
         Text(
-          isOverview ? "Create Event" : "Create Event",
+          "Create Event",
           style: TextStyle(
             fontFamily: "SF Pro Rounded",
             fontSize: 20.sp,
@@ -686,33 +684,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           ),
         ),
 
-        // Dynamic Right side button (Skip or Edit Info)
-        if (isOverview)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _currentStep = 1;
-              });
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColorFirst,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Text(
-                "Edit Info",
-                style: TextStyle(
-                  fontFamily: "SF Pro Rounded",
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          )
-        else
-          SizedBox(width: 40.w), // Spacer to balance layout
+        SizedBox(width: 40.w), // Spacer to balance layout
       ],
     );
   }
@@ -916,6 +888,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       selectedAgeRestriction: _selectedAgeRestriction,
       rewards: _rewards,
       onPostEvent: _handlePostEvent,
+      onEditInfo: () => setState(() => _currentStep = 1),
     );
   }
 }

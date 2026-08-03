@@ -135,7 +135,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        height: 78.h,
+        height: 90.h,
         decoration: BoxDecoration(
           color: const Color(0xFF13151B),
           border: Border(

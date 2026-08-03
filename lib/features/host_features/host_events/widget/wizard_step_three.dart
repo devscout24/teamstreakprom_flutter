@@ -73,7 +73,8 @@ class WizardStepThree extends StatelessWidget {
               onTap: onSkip,
               child: Container(
                 height: 32.h,
-                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 8.h),
+                // width: 80.w,
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColorFirst,
                   borderRadius: BorderRadius.circular(16.r),

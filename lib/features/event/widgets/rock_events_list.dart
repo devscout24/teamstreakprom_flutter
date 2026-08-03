@@ -76,7 +76,7 @@ class RockEventsList extends StatelessWidget {
           height: 425.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
             itemCount: _rockEvents.length,
             itemBuilder: (context, index) {
               final event = _rockEvents[index];

@@ -96,7 +96,6 @@ class HostEventCard extends StatelessWidget {
                 UIHelper.verticalSpace(8),
                 // Revenue & Going tags
                 SizedBox(
-                  width: 200,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

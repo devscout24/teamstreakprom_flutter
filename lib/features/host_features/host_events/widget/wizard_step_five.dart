@@ -72,6 +72,7 @@ class WizardStepFive extends StatelessWidget {
             GestureDetector(
               onTap: onSkip,
               child: Container(
+                height: 32.h,
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColorFirst,
