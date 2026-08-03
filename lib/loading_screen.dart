@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
-import 'package:teamstreakpromo/features/auth/presentation/signin_screen.dart';
 import 'package:teamstreakpromo/features/home/presentation/home_screen.dart';
 
 import 'constants/app_constants.dart';
@@ -27,8 +26,6 @@ class _LoadingState extends State<Loading> {
   @override
   void initState() {
     super.initState();
-
-
 
     _timer = Timer(const Duration(seconds: 0), () {
       if (_isLoading) {
@@ -59,16 +56,6 @@ class _LoadingState extends State<Loading> {
     });
   }
 
-  void _handleLogout() {
-    appData.write(kKeyIsLoggedIn, false);
-
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
   @override
   void dispose() {
     _timer?.cancel();
@@ -82,7 +69,7 @@ class _LoadingState extends State<Loading> {
     }
 
     if (appData.read(kKeyIsLoggedIn) == true) {
-      if(appData.read(kKeyIsFirstLoggedIn) == true){
+      if (appData.read(kKeyIsFirstLoggedIn) == true) {
         HomeScreen();
       }
     }
