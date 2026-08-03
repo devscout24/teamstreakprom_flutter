@@ -82,7 +82,6 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
         ],
       ),
     );
-
   }
 
   @override
@@ -620,7 +619,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             if (showIndicator) ...[
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 21.w),
-                child: WizardProgressIndicator(currentStep: _currentStep, totalSteps: 4),
+                child: WizardProgressIndicator(
+                  currentStep: _currentStep,
+                  totalSteps: 4,
+                ),
               ),
               UIHelper.verticalSpace(24),
             ],

@@ -7,8 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../common_widgets/app_network_image.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/custom_textform_field.dart';
-import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
+import '../../host_features/auth/widget/custom_selector_field.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -29,6 +29,86 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _businessDescriptionController =
       TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+
+  String? _selectedCategory;
+  final List<String> _categories = [
+    "Music",
+    "Comedy",
+    "Sports",
+    "Arts & Theatre",
+    "Festivals",
+    "Others",
+  ];
+
+  void _showCategoryBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.scaffoldColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Select Event Category",
+                style: TextStyle(
+                  fontFamily: "SF Pro Rounded",
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              UIHelper.verticalSpace(16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: _categories.length,
+                  separatorBuilder: (context, index) => Divider(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    height: 1.h,
+                  ),
+                  itemBuilder: (context, index) {
+                    final cat = _categories[index];
+                    final isSelected = _selectedCategory == cat;
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        cat,
+                        style: TextStyle(
+                          fontFamily: "SF Pro Rounded",
+                          fontSize: 16.sp,
+                          color: isSelected
+                              ? AppColors.primaryColorFirst
+                              : Colors.white,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? Icon(
+                              Icons.check,
+                              color: AppColors.primaryColorFirst,
+                            )
+                          : null,
+                      onTap: () {
+                        setState(() {
+                          _selectedCategory = cat;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -57,6 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isHostOrBP =
         accountType == "AccountType.host" ||
         accountType == "AccountType.businessPartner";
+    final isHost = accountType == "AccountType.host" || accountType == "host";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -121,6 +202,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             CustomTextFormField(
               controller: _nameController,
               hintText: "Full Name",
+              labelText: "Full Name",
             ),
             UIHelper.verticalSpace(16.h),
 
@@ -129,6 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextFormField(
                 controller: _emailController,
                 hintText: "Email",
+                labelText: "Email",
               ),
               UIHelper.verticalSpace(16.h),
             ],
@@ -137,6 +220,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             CustomTextFormField(
               controller: _phoneController,
               hintText: "Phone Number",
+              labelText: "Phone Number",
               keyboardType: TextInputType.phone,
             ),
             UIHelper.verticalSpace(16.h),
@@ -146,12 +230,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextFormField(
                 controller: _businessNameController,
                 hintText: "Business Name",
+                labelText: "Business Name",
               ),
               UIHelper.verticalSpace(16.h),
 
               CustomTextFormField(
                 controller: _businessDescriptionController,
                 hintText: "Business Description",
+                labelText: "Business Description",
                 maxLines: 4,
                 borderRadius: BorderRadius.circular(24.r),
               ),
@@ -160,8 +246,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextFormField(
                 controller: _locationController,
                 hintText: "Location",
+                labelText: "Location",
               ),
               UIHelper.verticalSpace(16.h),
+
+              if (isHost) ...[
+                CustomSelectorField(
+                  value: _selectedCategory,
+                  hintText: "Event Category",
+                  labelText: "Event Category",
+                  onTap: _showCategoryBottomSheet,
+                  validator: (value) => null,
+                ),
+                UIHelper.verticalSpace(16.h),
+              ],
             ],
 
             UIHelper.verticalSpace(32.h),

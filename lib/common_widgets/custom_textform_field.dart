@@ -56,7 +56,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   Widget build(BuildContext context) {
     final borderRadius = widget.borderRadius ?? BorderRadius.circular(100.r);
 
-    return TextFormField(
+    Widget textField = TextFormField(
       controller: widget.controller,
       validator: widget.validator,
       obscureText: _obscureText,
@@ -129,5 +129,27 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         ),
       ),
     );
+
+    if (widget.labelText != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.labelText!,
+            style: TextStyle(
+              fontFamily: "SF Pro Rounded",
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.cFFFFFF,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          textField,
+        ],
+      );
+    }
+
+    return textField;
   }
 }

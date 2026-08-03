@@ -5,6 +5,7 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 class CustomSelectorField extends StatelessWidget {
   final String? value;
   final String hintText;
+  final String? labelText;
   final VoidCallback onTap;
   final String? Function(String?)? validator;
 
@@ -12,6 +13,7 @@ class CustomSelectorField extends StatelessWidget {
     super.key,
     required this.value,
     required this.hintText,
+    this.labelText,
     required this.onTap,
     this.validator,
   });
@@ -28,6 +30,18 @@ class CustomSelectorField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (labelText != null) ...[
+              Text(
+                labelText!,
+                style: TextStyle(
+                  fontFamily: "SF Pro Rounded",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8.h),
+            ],
             GestureDetector(
               onTap: onTap,
               child: Container(

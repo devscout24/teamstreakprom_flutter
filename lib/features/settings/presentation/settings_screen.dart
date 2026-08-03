@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/rewards/presentation/rewards_point_details_screen.dart';
 import '../../../common_widgets/app_network_image.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/gradient_container.dart';
@@ -32,79 +33,81 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => const RewardsPointDetailsScreen(),
-              //       ),
-              //     );
-              //   },
-              //   child: Container(
-              //     padding: EdgeInsets.all(20.w),
-              //     decoration: BoxDecoration(
-              //       borderRadius: BorderRadius.circular(16.r),
-              //       image: DecorationImage(
-              //         image: AssetImage(Assets.images.pointBackground.path),
-              //         fit: BoxFit.cover,
-              //       ),
-              //     ),
-              //     child: Column(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Row(
-              //           children: [
-              //             Assets.icons.pointIcon.image(
-              //               color: AppColors.cFFFFFF,
-              //               height: 24.sp,
-              //               width: 24.sp,
-              //             ),
-              //             UIHelper.horizontalSpace(8.w),
-              //             Text(
-              //               "My Point",
-              //               style: TextFontStyle.textStyle24cFFFFFFSFPro590
-              //                   .copyWith(
-              //                     fontSize: 18.sp,
-              //                     fontWeight: FontWeight.w600,
-              //                     fontFamily: "SF Pro Rounded",
-              //                     color: AppColors.cE8E8E8,
-              //                   ),
-              //             ),
-              //             const Spacer(),
-              //             Text(
-              //               "95",
-              //               style: TextFontStyle.textStyle24cFFFFFFSFPro590
-              //                   .copyWith(
-              //                     fontSize: 32.sp,
-              //                     fontWeight: FontWeight.bold,
-              //                     fontFamily: "SF Pro Rounded",
-              //                     color: AppColors.cFFFFFF,
-              //                   ),
-              //             ),
-              //             Text(
-              //               " pts",
-              //               style: TextFontStyle
-              //                   .textStyle14cFFFFFFSFProRounded400
-              //                   .copyWith(fontSize: 14.sp),
-              //             ),
-              //           ],
-              //         ),
-              //         UIHelper.verticalSpace(16.h),
-              //         Text(
-              //           "Earn 325 more points to unlock more rewards.",
-              //           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-              //               .copyWith(
-              //                 fontSize: 13.sp,
-              //                 fontFamily: "SF Pro Rounded",
-              //                 color: AppColors.cE8E8E8,
-              //               ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              UIHelper.verticalSpace(16.h),
+              if (accountType == "AccountType.user") ...[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RewardsPointDetailsScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(20.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      image: DecorationImage(
+                        image: AssetImage(Assets.images.pointBackground.path),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Assets.icons.pointIcon.image(
+                              color: AppColors.cFFFFFF,
+                              height: 24.sp,
+                              width: 24.sp,
+                            ),
+                            UIHelper.horizontalSpace(8.w),
+                            Text(
+                              "My Point",
+                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: "SF Pro Rounded",
+                                    color: AppColors.cE8E8E8,
+                                  ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              "95",
+                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 32.sp,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "SF Pro Rounded",
+                                    color: AppColors.cFFFFFF,
+                                  ),
+                            ),
+                            Text(
+                              " pts",
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(fontSize: 14.sp),
+                            ),
+                          ],
+                        ),
+                        UIHelper.verticalSpace(16.h),
+                        Text(
+                          "Earn 325 more points to unlock more rewards.",
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                fontSize: 13.sp,
+                                fontFamily: "SF Pro Rounded",
+                                color: AppColors.cE8E8E8,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                UIHelper.verticalSpace(16.h),
+              ],
 
               // Profile Card
               GradientContainer(
