@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:teamstreakpromo/helpers/all_routes.dart';
-import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'gen/colors.gen.dart';
 import 'gen/assets.gen.dart';
 import 'features/home/presentation/home_screen.dart';
@@ -9,7 +7,6 @@ import 'features/event/presentation/event_screen.dart';
 import 'features/rewards/presentation/rewards_screen.dart';
 import 'features/my_ticket/presentation/my_ticket_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
-import 'common_widgets/app_network_image.dart';
 import 'constants/text_font_style.dart';
 import 'helpers/ui_helpers.dart';
 
@@ -122,8 +119,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +128,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
       body: SafeArea(
         child: Column(
           children: [
-
             Expanded(
               child: IndexedStack(index: _selectedIndex, children: _screens),
             ),
