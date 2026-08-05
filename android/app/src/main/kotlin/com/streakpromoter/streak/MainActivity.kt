@@ -1,4 +1,4 @@
-package com.example.teamstreakpromo
+package com.streakpromoter.streak
 
 import io.flutter.embedding.android.FlutterActivity
 
