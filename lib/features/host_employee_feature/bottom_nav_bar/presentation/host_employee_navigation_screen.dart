@@ -6,7 +6,7 @@ import 'package:teamstreakpromo/helpers/all_routes.dart';
 import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 import '../../home/presentation/host_employee_home_screen.dart';
-import '../../profile/presentation/host_employee_profile_screen.dart';
+import '../../settings/presentation/host_employee_settings_screen.dart';
 
 class HostEmployeeNavigationScreen extends StatefulWidget {
   const HostEmployeeNavigationScreen({super.key});
@@ -27,7 +27,7 @@ class _HostEmployeeNavigationScreenState
         });
       },
     ),
-    HostEmployeeProfileScreen(
+    HostEmployeeSettingsScreen(
       onBackTapped: () {
         setState(() {
           _currentIndex = 0;
@@ -82,8 +82,8 @@ class _HostEmployeeNavigationScreenState
               // Right Tab
               _buildTabItem(
                 index: 1,
-                iconPath: Assets.icons.profileIcon.path,
-                label: "Profile",
+                iconPath: Assets.icons.settingIcon.path,
+                label: "Settings",
               ),
             ],
           ),

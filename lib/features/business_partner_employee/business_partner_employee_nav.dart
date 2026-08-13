@@ -7,7 +7,7 @@ import 'package:teamstreakpromo/common_widgets/app_network_image.dart';
 
 import 'home/presentation/business_partner_employee_home.dart';
 import 'claim/presentation/business_partner_employee_claim.dart';
-import 'profile/presentation/business_partner_employee_profile.dart';
+import 'settings/presentation/business_partner_employee_settings_screen.dart';
 
 class BusinessPartnerEmployeeNav extends StatefulWidget {
   const BusinessPartnerEmployeeNav({super.key});
@@ -24,7 +24,7 @@ class _BusinessPartnerEmployeeNavState
   List<Widget> get _pages => [
     const BusinessPartnerEmployeeHome(),
     const BusinessPartnerEmployeeClaim(),
-    BusinessPartnerEmployeeProfile(
+    BusinessPartnerEmployeeSettingsScreen(
       onBackTapped: () {
         setState(() {
           _currentIndex = 0;
@@ -38,13 +38,13 @@ class _BusinessPartnerEmployeeNavState
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: Column(children: [
+          if (_currentIndex == 0) ...[
             _buildHeader(),
             UIHelper.verticalSpace(24.h),
-            Expanded(child: _pages[_currentIndex]),
           ],
-        ),
+          Expanded(child: _pages[_currentIndex]),
+        ]),
       ),
       bottomNavigationBar: BottomAppBar(
         color: AppColors.c2b2f32,
@@ -67,8 +67,8 @@ class _BusinessPartnerEmployeeNavState
               ),
               _buildTabItem(
                 index: 2,
-                iconPath: Assets.icons.profileIcon.path,
-                label: "Profile",
+                iconPath: Assets.icons.settingIcon.path,
+                label: "Settings",
               ),
             ],
           ),
