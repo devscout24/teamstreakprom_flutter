@@ -8,9 +8,15 @@ import '../../../common_widgets/custom_back_button.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
+import '../../../networks/api_acess.dart';
+import '../../../common_widgets/custom_toast.dart';
+import '../../../constants/validator.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
-  const CreateNewPasswordScreen({super.key});
+  final String? email;
+  final String? resetToken;
+
+  const CreateNewPasswordScreen({super.key, this.email, this.resetToken});
 
   @override
   State<CreateNewPasswordScreen> createState() =>
@@ -22,6 +28,38 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  Future<void> _resetPassword() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        bool success = await resetPasswordRxObj.resetPassword({
+          "resetToken": widget.resetToken,
+          "newPassword": _newPasswordController.text,
+          "confirmPassword": _confirmPasswordController.text,
+        });
+
+        if (success) {
+          final message =
+              resetPasswordRxObj.dataFetcher.value?.message ??
+              "Password reset successfully!";
+          customToastMessage("Success", message);
+
+          NavigationService.navigateToReplacement(Routes.signInScreen);
+        }
+      } catch (e) {
+        // Error handled globally
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -78,6 +116,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                   hintText: "New Password",
                   isPassword: true,
                   textInputAction: TextInputAction.next,
+                  validator: passwordValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Confirm New Password Field
@@ -86,17 +125,32 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                   hintText: "Confirm New Password",
                   isPassword: true,
                   textInputAction: TextInputAction.done,
+                  validator: (value) => confirmPasswordValidator(
+                    value,
+                    _newPasswordController.text,
+                  ),
                 ),
                 UIHelper.verticalSpace(36),
                 // Reset Password Button
                 CustomGradientButton(
-                  onPressed: () {
-                    // Perform reset password action
-                    NavigationService.navigateToReplacement(
-                      Routes.signInScreen,
-                    );
-                  },
-                  title: "Reset Password",
+                  onPressed: _isLoading ? null : _resetPassword,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Reset Password",
+                          style: TextFontStyle.textStyle16c000000SFPro590
+                              .copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.c262824,
+                              ),
+                        ),
                 ),
                 UIHelper.verticalSpace(24),
               ],

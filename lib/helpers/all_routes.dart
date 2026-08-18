@@ -196,23 +196,28 @@ final class RouteGenerator {
               );
 
       case Routes.otpScreen:
-        final type = settings.arguments as String?;
+        final args = settings.arguments as Map<String, dynamic>?;
+        final type = args?['type'] as String?;
+        final email = args?['email'] as String? ?? "jessicawilson@examle.com";
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => OtpVerificationScreen(type: type),
+                builder: (context) => OtpVerificationScreen(type: type, email: email),
               )
             : _FadedTransitionRoute(
-                widget: OtpVerificationScreen(type: type),
+                widget: OtpVerificationScreen(type: type, email: email),
                 settings: settings,
               );
 
       case Routes.createNewPasswordScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final email = args?['email'] as String?;
+        final resetToken = args?['resetToken'] as String?;
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => const CreateNewPasswordScreen(),
+                builder: (context) => CreateNewPasswordScreen(email: email, resetToken: resetToken),
               )
             : _FadedTransitionRoute(
-                widget: const CreateNewPasswordScreen(),
+                widget: CreateNewPasswordScreen(email: email, resetToken: resetToken),
                 settings: settings,
               );
 

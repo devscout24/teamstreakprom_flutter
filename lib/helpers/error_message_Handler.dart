@@ -83,6 +83,6 @@ class ErrorMessageHandler {
 
   static void showErrorToast(dynamic error) {
     final message = getErrorMessage(error);
-    customToastMessage('Error', message);
+    customToastMessage('Error', message, isError: true);
   }
 }

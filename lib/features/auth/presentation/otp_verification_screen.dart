@@ -8,6 +8,8 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
+import '../../../networks/api_acess.dart';
+import '../../../common_widgets/custom_toast.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({
@@ -24,12 +26,14 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final int _otpLength = 5;
+  final int _otpLength = 6;
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
 
   int _resendSeconds = 37;
   Timer? _timer;
+  bool _isLoading = false;
+  bool _isResending = false;
 
   @override
   void initState() {
@@ -142,20 +146,103 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               UIHelper.verticalSpace(40),
               // Verify Button
               CustomGradientButton(
-                onPressed: () {
-                  if (_otp.length == _otpLength) {
-                    if (widget.type != null) {
-                      NavigationService.navigateToUntilReplacement(
-                        Routes.signInScreen,
-                      );
-                    } else {
-                      NavigationService.navigateTo(
-                        Routes.createNewPasswordScreen,
-                      );
-                    }
-                  }
-                },
-                title: "Verify OTP",
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        if (_otp.length == _otpLength) {
+                          if (widget.type == "signup") {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              bool success = await verifyRegisterOtpRxObj
+                                  .verifyOtp({
+                                    "email": widget.email,
+                                    "otp": _otp,
+                                  });
+
+                              if (success) {
+                                final msg =
+                                    verifyRegisterOtpRxObj
+                                        .dataFetcher
+                                        .value
+                                        ?.message ??
+                                    "OTP Verified Successfully";
+                                customToastMessage("Success", msg);
+                                NavigationService.navigateToUntilReplacement(
+                                  Routes.signInScreen,
+                                );
+                              }
+                            } finally {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
+                          } else if (widget.type == "forgot_password") {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              bool success = await verifyForgotPasswordOtpRxObj
+                                  .verifyOtp({
+                                    "email": widget.email,
+                                    "otp": _otp,
+                                  });
+
+                              if (success) {
+                                final msg =
+                                    verifyForgotPasswordOtpRxObj
+                                        .dataFetcher
+                                        .value
+                                        ?.message ??
+                                    "OTP Verified Successfully";
+                                customToastMessage("Success", msg);
+                                final resetToken = verifyForgotPasswordOtpRxObj
+                                    .dataFetcher
+                                    .value
+                                    ?.data
+                                    ?.resetToken;
+                                NavigationService.navigateToWithArgs(
+                                  Routes.createNewPasswordScreen,
+                                  {
+                                    'email': widget.email,
+                                    'resetToken': resetToken,
+                                  },
+                                );
+                              }
+                            } finally {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
+                          } else if (widget.type != null) {
+                            NavigationService.navigateToUntilReplacement(
+                              Routes.signInScreen,
+                            );
+                          } else {
+                            NavigationService.navigateTo(
+                              Routes.createNewPasswordScreen,
+                            );
+                          }
+                        }
+                      },
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        "Verify OTP",
+                        style: TextFontStyle.textStyle16c000000SFPro590
+                            .copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.c262824,
+                            ),
+                      ),
               ),
               UIHelper.verticalSpace(24),
               // Resend Timer
@@ -183,16 +270,51 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                       )
                     : GestureDetector(
-                        onTap: _startTimer,
-                        child: Text(
-                          "Resend Code",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: AppColors.cF28F31,
-                                fontFamily: "SF Pro",
-                                fontWeight: FontWeight.w600,
+                        onTap: _isResending
+                            ? null
+                            : () async {
+                                setState(() {
+                                  _isResending = true;
+                                });
+                                try {
+                                  bool success = await resendRegisterOtpRxObj
+                                      .resendOtp({"email": widget.email});
+
+                                  if (success) {
+                                    final msg =
+                                        resendRegisterOtpRxObj
+                                            .dataFetcher
+                                            .value
+                                            ?.message ??
+                                        "OTP Resent Successfully";
+                                    customToastMessage("Success", msg);
+                                    _startTimer();
+                                  }
+                                } finally {
+                                  setState(() {
+                                    _isResending = false;
+                                  });
+                                }
+                              },
+                        child: _isResending
+                            ? SizedBox(
+                                width: 14.w,
+                                height: 14.w,
+                                child: const CircularProgressIndicator(
+                                  color: AppColors.cF28F31,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                "Resend Code",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: AppColors.cF28F31,
+                                      fontFamily: "SF Pro",
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
-                        ),
                       ),
               ),
               UIHelper.verticalSpace(24),

@@ -42,6 +42,17 @@ class AccountTypeData {
 class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
   AccountType _selectedType = AccountType.user;
 
+  String _getAccountTypeString(AccountType type) {
+    switch (type) {
+      case AccountType.user:
+        return "USER";
+      case AccountType.host:
+        return "HOST";
+      case AccountType.businessPartner:
+        return "BUSINESS";
+    }
+  }
+
   final List<AccountTypeData> _cards = const [
     AccountTypeData(
       type: AccountType.user,
@@ -359,9 +370,9 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
 
               CustomGradientButton(
                 onPressed: () {
-                  if (_selectedType != null) {
-                    appData.write(kAccountType, _selectedType.toString());
-                  }
+                  String typeStr = _getAccountTypeString(_selectedType);
+                  appData.write(kAccountType, typeStr);
+                  
                   NavigationService.navigateToWithArgs(Routes.signInScreen, {
                     'accountType': _selectedType,
                   });

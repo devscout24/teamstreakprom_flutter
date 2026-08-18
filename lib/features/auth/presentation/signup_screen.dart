@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
 import '../../../common_widgets/custom_textform_field.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/google_login_button.dart';
@@ -10,6 +11,11 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
+import '../../../constants/validator.dart';
+import 'package:dio/dio.dart';
+import '../../../helpers/di.dart';
+import '../../../constants/app_constants.dart';
+import '../../../common_widgets/custom_toast.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -28,6 +34,63 @@ class _SignupScreenState extends State<SignupScreen> {
 
   bool _is18Plus = false;
   bool _agreedToTerms = false;
+  bool _isLoading = false;
+  bool _is18PlusError = false;
+  bool _agreedToTermsError = false;
+
+  Future<void> _signUp() async {
+    setState(() {
+      _is18PlusError = !_is18Plus;
+      _agreedToTermsError = !_agreedToTerms;
+    });
+
+    if (_formKey.currentState!.validate()) {
+      if (!_is18Plus || !_agreedToTerms) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        FormData formData = FormData.fromMap({
+          "agreesToTerms": "true",
+          "businessName": "",
+          "name": _nameController.text.trim(),
+          "isAgeOver18": "true",
+          "einNumber": "",
+          "govtIdBackImage": "",
+          "govtIdFrontImage": "",
+          "businessLicenseBackImage": "",
+          "businessLicenseFrontImage": "",
+          "location": "",
+          "role": appData.read(kAccountType) ?? "USER",
+          "confirmPassword": _confirmPasswordController.text,
+          "password": _passwordController.text,
+          "businessDescription": "",
+          "email": _emailController.text.trim(),
+        });
+
+        bool success = await signUpRxObj.signUp(formData);
+
+        if (success) {
+          final message = signUpRxObj.dataFetcher.value?.message ?? "Account created successfully!";
+          customToastMessage("Success", message);
+          NavigationService.navigateToWithArgs(Routes.otpScreen, {
+            'type': "signup",
+            'email': _emailController.text.trim(),
+          });
+        }
+      } catch (e) {
+        // error handling is in rx layer
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -87,6 +150,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   hintText: "Name",
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
+                  validator: nameValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Email Field
@@ -95,6 +159,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   hintText: "Email",
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
+                  validator: emailValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Password Field
@@ -103,6 +168,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   hintText: "Password",
                   isPassword: true,
                   textInputAction: TextInputAction.next,
+                  validator: passwordValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Confirm Password Field
@@ -111,6 +177,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   hintText: "Confirm Password",
                   isPassword: true,
                   textInputAction: TextInputAction.done,
+                  validator: (value) =>
+                      confirmPasswordValidator(value, _passwordController.text),
                 ),
                 UIHelper.verticalSpace(16),
 
@@ -119,6 +187,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   onTap: () {
                     setState(() {
                       _is18Plus = !_is18Plus;
+                      if (_is18Plus) _is18PlusError = false;
                     });
                   },
                   child: Row(
@@ -134,6 +203,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           border: Border.all(
                             color: _is18Plus
                                 ? AppColors.cF28F31
+                                : _is18PlusError
+                                ? Colors.redAccent
                                 : Colors.white.withValues(alpha: 0.4),
                             width: 2.w,
                           ),
@@ -153,7 +224,9 @@ class _SignupScreenState extends State<SignupScreen> {
                             .copyWith(
                               fontSize: 12.sp,
                               fontFamily: "SF Pro",
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: _is18PlusError
+                                  ? Colors.redAccent
+                                  : Colors.white.withValues(alpha: 0.8),
                             ),
                       ),
                     ],
@@ -166,6 +239,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   onTap: () {
                     setState(() {
                       _agreedToTerms = !_agreedToTerms;
+                      if (_agreedToTerms) _agreedToTermsError = false;
                     });
                   },
                   child: Row(
@@ -181,6 +255,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           border: Border.all(
                             color: _agreedToTerms
                                 ? AppColors.cF28F31
+                                : _agreedToTermsError
+                                ? Colors.redAccent
                                 : Colors.white.withValues(alpha: 0.4),
                             width: 2.w,
                           ),
@@ -201,7 +277,9 @@ class _SignupScreenState extends State<SignupScreen> {
                               .copyWith(
                                 fontSize: 12.sp,
                                 fontFamily: "SF Pro",
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: _agreedToTermsError
+                                    ? Colors.redAccent
+                                    : Colors.white.withValues(alpha: 0.8),
                               ),
                           children: [
                             TextSpan(
@@ -224,11 +302,24 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 // Sign Up Button
                 CustomGradientButton(
-                  onPressed: () {
-                    // Perform sign up action
-                    NavigationService.navigateToWithArgs(Routes.otpScreen, "signup");
-                  },
-                  title: "Sign Up",
+                  onPressed: _isLoading ? null : _signUp,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Sign Up",
+                          style: TextFontStyle.textStyle16c000000SFPro590
+                              .copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.c262824,
+                              ),
+                        ),
                 ),
                 UIHelper.verticalSpace(24),
                 // Divider
