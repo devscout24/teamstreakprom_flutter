@@ -8,6 +8,9 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../helpers/all_routes.dart';
+import '../../../networks/api_acess.dart';
+import '../../../common_widgets/custom_toast.dart';
+import '../../../constants/validator.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -19,6 +22,40 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  Future<void> _forgotPassword() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final email = _emailController.text.trim();
+        bool success = await forgotPasswordRxObj.forgotPassword({
+          "email": email,
+        });
+
+        if (success) {
+          final message =
+              forgotPasswordRxObj.dataFetcher.value?.message ??
+              "Password reset instructions sent!";
+          customToastMessage("Success", message);
+
+          NavigationService.navigateToWithArgs(Routes.otpScreen, {
+            'type': "forgot_password",
+            'email': email,
+          });
+        }
+      } catch (e) {
+        // error handled globally
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -74,14 +111,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   hintText: "Email",
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.done,
+                  validator: emailValidator,
                 ),
                 UIHelper.verticalSpace(36),
                 // Forgot Password Button
                 CustomGradientButton(
-                  onPressed: () {
-                    NavigationService.navigateTo(Routes.otpScreen);
-                  },
-                  title: "Forgot Password",
+                  onPressed: _isLoading ? null : _forgotPassword,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Forgot Password",
+                          style: TextFontStyle.textStyle16c000000SFPro590
+                              .copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.c262824,
+                              ),
+                        ),
                 ),
                 UIHelper.verticalSpace(24),
               ],

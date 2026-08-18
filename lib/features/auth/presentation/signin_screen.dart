@@ -14,6 +14,9 @@ import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_s
 import 'package:teamstreakpromo/features/host_employee_feature/bottom_nav_bar/presentation/host_employee_navigation_screen.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
 import 'package:teamstreakpromo/constants/app_constants.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import '../../../common_widgets/custom_toast.dart';
+import '../../../constants/validator.dart';
 
 class SigninScreen extends StatefulWidget {
   final AccountType? accountType;
@@ -29,6 +32,7 @@ class _SigninScreenState extends State<SigninScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   AccountType? _currentAccountType;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -59,6 +63,90 @@ class _SigninScreenState extends State<SigninScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _logIn() async {
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      if (email == "employee@gmail.com" && password == "12345678") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HostEmployeeNavigationScreen(),
+          ),
+        );
+        return;
+      } else if (email == "businesspartner@gmail.com" && password == "12345678") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BusinessPartnerEmployeeNav(),
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        bool success = await logInRxObj.logIn({
+          "email": email,
+          "password": password,
+        });
+
+        if (success) {
+          final message = logInRxObj.dataFetcher.value?.message ?? "Logged in successfully!";
+          customToastMessage("Success", message);
+
+          final refreshToken = logInRxObj.dataFetcher.value?.data?.refreshToken;
+          
+          if (refreshToken != null) {
+            bool refreshSuccess = await refreshTokenRxObj.refreshToken({
+              "refreshToken": refreshToken
+            });
+            
+            if (refreshSuccess) {
+              final newAccessToken = refreshTokenRxObj.dataFetcher.value?.data?.accessToken;
+              if (newAccessToken != null) {
+                appData.write(kKeyAccessToken, newAccessToken);
+              }
+            }
+          }
+          
+          if (_currentAccountType != null) {
+            appData.write(
+              kAccountType,
+              _currentAccountType.toString(),
+            );
+          }
+
+          final role = logInRxObj.dataFetcher.value?.data?.role;
+          if (role == 'HOST' || _currentAccountType == AccountType.host) {
+            NavigationService.navigateToWithArgs(
+              Routes.hostNavigationScreen,
+              {'accountType': _currentAccountType ?? AccountType.host},
+            );
+          } else if (role == 'BUSINESS' || _currentAccountType == AccountType.businessPartner) {
+            NavigationService.navigateToWithArgs(
+              Routes.businessPartnerNavigationScreen,
+              {'accountType': _currentAccountType ?? AccountType.businessPartner},
+            );
+          } else {
+            NavigationService.navigateTo(Routes.pickInterestScreen);
+          }
+        }
+      } catch (e) {
+        // error handling is in rx layer
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -107,6 +195,7 @@ class _SigninScreenState extends State<SigninScreen> {
                   hintText: "Email",
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
+                  validator: emailValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Password Field
@@ -115,6 +204,7 @@ class _SigninScreenState extends State<SigninScreen> {
                   hintText: "Password",
                   isPassword: true,
                   textInputAction: TextInputAction.done,
+                  validator: passwordValidator,
                 ),
                 UIHelper.verticalSpace(16),
                 // Forgot Password (right aligned)
@@ -140,53 +230,24 @@ class _SigninScreenState extends State<SigninScreen> {
                 UIHelper.verticalSpace(36),
                 // Login Button
                 CustomGradientButton(
-                  onPressed: () {
-                    final email = _emailController.text.trim();
-                    final password = _passwordController.text.trim();
-
-                    if (email == "employee@gmail.com" &&
-                        password == "12345678") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const HostEmployeeNavigationScreen(),
+                  onPressed: _isLoading ? null : _logIn,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Log In",
+                          style: TextFontStyle.textStyle16c000000SFPro590
+                              .copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.c262824,
+                              ),
                         ),
-                      );
-                    } else if (email == "businesspartner@gmail.com" &&
-                        password == "12345678") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const BusinessPartnerEmployeeNav(),
-                        ),
-                      );
-                    } else {
-                      if (_currentAccountType != null) {
-                        appData.write(
-                          kAccountType,
-                          _currentAccountType.toString(),
-                        );
-                      }
-
-                      if (_currentAccountType == AccountType.host) {
-                        NavigationService.navigateToWithArgs(
-                          Routes.hostNavigationScreen,
-                          {'accountType': _currentAccountType},
-                        );
-                      } else if (_currentAccountType ==
-                          AccountType.businessPartner) {
-                        NavigationService.navigateToWithArgs(
-                          Routes.businessPartnerNavigationScreen,
-                          {'accountType': _currentAccountType},
-                        );
-                      } else {
-                        NavigationService.navigateTo(Routes.pickInterestScreen);
-                      }
-                    }
-                  },
-                  title: "Log In",
                 ),
                 UIHelper.verticalSpace(24),
                 // "or log in with" divider

@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-const String url = "https://api.zhndev.site/wp-json/foodflow/v1";
+const String url = "https://teamstreakpromo-mern-express.vercel.app";
 
 final class NetworkConstants {
   NetworkConstants._();
@@ -16,19 +16,24 @@ final class NetworkConstants {
 final class Endpoints {
   Endpoints._();
   //backend_url
-  static String signUp() => "/auth/register";
-  static String logIn() => "/auth/login";
+  static String signUp() => "/api/auth/register";
+  static String verifyRegisterOtp() => "/api/auth/verify-register-otp";
+  static String resendRegisterOtp() => "/api/auth/resend-activation-otp";
+  static String logIn() => "/api/auth/login";
+  static String refreshToken() => "/api/auth/refresh-token";
+  static String forgotPassword() => "/api/auth/forgot-password";
+  static String verifyForgotPasswordOtp() => "/api/auth/verify-forgot-password-otp";
+  static String resetPassword() => "/api/auth/reset-password";
 
-///profile
-  static String profile() => "/user/profile";
-
-
+  ///profile
+  static String profile() => "/api/user/profile";
 
   // static String getShopByCategories(String slug) =>
   //     "/api/shop-categories/$slug/";
 
-    static String example() => "/api/";
+  static String example() => "/api/";
 
-  static String products(int pageNum, int perPage) => "/products?page=$pageNum&per_page=$perPage";
+  static String products(int pageNum, int perPage) =>
+      "/products?page=$pageNum&per_page=$perPage";
   static String productDetails(int id) => "/products/$id";
 }
