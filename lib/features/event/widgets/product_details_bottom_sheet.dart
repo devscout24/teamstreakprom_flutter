@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/event/widgets/event_details_widgets.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
-import '../presentation/event_details_screen.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
+import '../../../common_widgets/app_network_image.dart';
 
 void showProductDetailsBottomSheet({
   required BuildContext context,
@@ -26,8 +27,10 @@ void showProductDetailsBottomSheet({
       final PageController sheetPageController = PageController();
       int sheetCurrentIndex = 0;
       final List<String> sheetImages = product.imageUrls;
-      final accountType = appData.read(kAccountType);
-      final isHost = accountType == 'AccountType.host' || accountType == 'host';
+      final String accountType =
+          appData.read(kAccountType)?.toString().toLowerCase() ?? '';
+      final bool isHost =
+          accountType == 'accounttype.host' || accountType == 'host';
 
       return StatefulBuilder(
         builder: (context, setSheetState) {
@@ -76,8 +79,8 @@ void showProductDetailsBottomSheet({
                             });
                           },
                           itemBuilder: (context, index) {
-                            return Image.network(
-                              sheetImages[index],
+                            return AppNetworkImage(
+                              imageUrl: sheetImages[index],
                               fit: BoxFit.cover,
                               width: double.infinity,
                               height: double.infinity,
@@ -201,7 +204,7 @@ void showProductDetailsBottomSheet({
                 ),
                 UIHelper.verticalSpace(8.h),
                 Text(
-                  "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
+                  product.description,
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
@@ -219,7 +222,7 @@ void showProductDetailsBottomSheet({
                     ),
                     UIHelper.horizontalSpace(8.w),
                     Text(
-                      "4 reward remaining",
+                      "${product.stock} reward remaining",
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: AppColors.primaryColorFirst,

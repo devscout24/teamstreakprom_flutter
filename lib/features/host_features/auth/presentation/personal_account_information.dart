@@ -48,7 +48,14 @@ class _PersonalAccountInformationScreenState
       debugPrint("Phone: ${_phoneController.text}");
       debugPrint("Password: ${_passwordController.text}");
 
-      NavigationService.navigateTo(Routes.businessDetailsScreen);
+      Map<String, dynamic> data = {
+        "name": _fullNameController.text,
+        "email": _emailController.text,
+        "password": _passwordController.text,
+        "confirmPassword": _confirmPasswordController.text,
+      };
+
+      NavigationService.navigateToWithArgs(Routes.businessDetailsScreen, data);
     }
   }
 
@@ -75,21 +82,23 @@ class _PersonalAccountInformationScreenState
                       // Title
                       Text(
                         "Personal Account Information",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "SF Pro Rounded",
-                        ),
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "SF Pro Rounded",
+                            ),
                       ),
                       UIHelper.verticalSpace(8),
 
                       // Subtitle
                       Text(
                         "Setup your administrative account security. This owner account controls the business entity.",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: AppColors.cFFFFFF.withValues(alpha: 0.6),
-                          fontFamily: "SF Pro",
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cFFFFFF.withValues(alpha: 0.6),
+                              fontFamily: "SF Pro",
+                            ),
                       ),
                       UIHelper.verticalSpace(24),
 

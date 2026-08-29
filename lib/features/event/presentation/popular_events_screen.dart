@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_app_bar.dart';
 import '../../home/widgets/filter_bottom_sheet.dart';
 import '../widgets/event_card.dart';

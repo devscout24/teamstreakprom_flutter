@@ -4,6 +4,8 @@ import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../../../../networks/api_acess.dart';
+import '../../onboarding/model/intrest_category_model.dart';
 
 class FilterBottomSheet extends StatefulWidget {
   const FilterBottomSheet({super.key});
@@ -15,7 +17,8 @@ class FilterBottomSheet extends StatefulWidget {
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
   // Filter States
   String _selectedContentType = 'Events';
-  String _selectedCategory = 'Sandals';
+  String _selectedCategory = '';
+  String _selectedSubCategory = '';
   String _selectedEventDate = 'This Week';
   RangeValues _priceRange = const RangeValues(10, 95);
   String _selectedDistance = '20 miles';
@@ -26,13 +29,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   // Constants lists
   static const List<String> _contentTypes = ['Events', 'Business Rewards'];
-  static const List<String> _categories = [
-    'T-shirt',
-    'Jersey',
-    'Shoes',
-    'Sandals',
-    'Boots',
-  ];
   static const List<String> _eventDates = [
     'Today',
     'Tomorrow',
@@ -103,7 +99,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   void _resetFilters() {
     setState(() {
       _selectedContentType = 'Events';
-      _selectedCategory = 'Sandals';
+      _selectedCategory = '';
+      _selectedSubCategory = '';
       _selectedEventDate = 'This Week';
       _priceRange = const RangeValues(10, 95);
       _selectedDistance = '20 miles';
@@ -405,12 +402,81 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
 
                   _buildSectionTitle("Categories"),
-                  _buildPillWrap(
-                    options: _categories,
-                    selectedValue: _selectedCategory,
-                    onSelected: (val) =>
-                        setState(() => _selectedCategory = val),
+                  StreamBuilder<IntrestCategoryModel>(
+                    stream: getCategoriesRxObj.getCategoriesData,
+                    builder: (context, snapshot) {
+                      final categories = snapshot.data?.data ?? [];
+                      final options = categories
+                          .map((e) => e.name ?? "")
+                          .where((e) => e.isNotEmpty)
+                          .toList();
+
+                      if (options.isEmpty) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryColorSecond,
+                          ),
+                        );
+                      }
+                      return _buildPillWrap(
+                        options: options,
+                        selectedValue: _selectedCategory,
+                        onSelected: (val) {
+                          setState(() {
+                            _selectedCategory = val;
+                            _selectedSubCategory = '';
+                          });
+                          final selectedCat = categories.firstWhere((e) => e.name == val);
+                          if (selectedCat.id != null) {
+                            getSubCategoriesRxObj.fetchSubCategories(selectedCat.id!);
+                          }
+                        },
+                      );
+                    },
                   ),
+
+                  if (_selectedCategory.isNotEmpty) ...[
+                    _buildSectionTitle("Sub Categories"),
+                    StreamBuilder<IntrestCategoryModel>(
+                      stream: getSubCategoriesRxObj.getSubCategoriesData,
+                      builder: (context, snapshot) {
+                        final subcategories = snapshot.data?.data ?? [];
+                        final options = subcategories
+                            .map((e) => e.name ?? "")
+                            .where((e) => e.isNotEmpty)
+                            .toList();
+
+                        if (snapshot.connectionState == ConnectionState.waiting && options.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primaryColorSecond,
+                            ),
+                          );
+                        }
+
+                        if (options.isEmpty) {
+                          return Text(
+                            "No subcategories available",
+                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
+                          );
+                        }
+
+                        return _buildPillWrap(
+                          options: options,
+                          selectedValue: _selectedSubCategory,
+                          onSelected: (val) {
+                            setState(() {
+                              _selectedSubCategory = val;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ],
 
                   if (_selectedContentType == 'Events') ...[
                     _buildSectionTitle("Event Date"),

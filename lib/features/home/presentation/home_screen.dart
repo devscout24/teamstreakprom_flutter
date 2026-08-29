@@ -4,22 +4,18 @@ import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../event/widgets/popular_events_list.dart';
-import '../../event/widgets/jazz_events_list.dart';
-import '../../event/widgets/rock_events_list.dart';
-import '../widgets/rewards_marketplace_list.dart';
+import '../../event/widgets/nearby_events_map.dart';
+import '../widgets/category_events_row.dart';
 import '../widgets/filter_bottom_sheet.dart';
 import '../../../helpers/all_routes.dart';
 import '../../../helpers/navigation_service.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../common_widgets/app_network_image.dart';
+import '../../../networks/api_acess.dart';
+import '../../onboarding/model/intrest_category_model.dart';
+import 'package:shimmer/shimmer.dart';
 
-const List<String> _categories = [
-  'All',
-  'Music',
-  'Nightlife',
-  'Festival',
-  'Sports',
-];
+
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToRewards;
@@ -31,6 +27,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategoryIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getCategoriesRxObj.fetchCategories();
+    _initEvents();
+  }
+
+  Future<void> _initEvents() async {
+    try {
+      await authMeRxObj.fetchAuthMe();
+      final authMeData = authMeRxObj.authMeData.valueOrNull?.data;
+      getEventsByCategoryRxObj.fetchEvents(seed: authMeData?.id);
+    } catch (e) {
+      getEventsByCategoryRxObj.fetchEvents();
+    }
+  }
 
   void _showFilterBottomSheet() {
     showModalBottomSheet(
@@ -287,51 +300,89 @@ class _HomeScreenState extends State<HomeScreen> {
                 // ── Categories Horizontal List ──────────
                 SizedBox(
                   height: 38.h,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      final isSelected = _selectedCategoryIndex == index;
-                      return Padding(
-                        padding: EdgeInsets.only(right: 8.w),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedCategoryIndex = index;
-                            });
+                  child: StreamBuilder<IntrestCategoryModel>(
+                    stream: getCategoriesRxObj.getCategoriesData,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                          itemCount: 5,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(right: 8.w),
+                              child: Shimmer.fromColors(
+                                baseColor: const Color(0xFF1E222B),
+                                highlightColor: Colors.white.withValues(alpha: 0.05),
+                                child: Container(
+                                  width: 80.w,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1E222B),
+                                    borderRadius: BorderRadius.circular(100.r),
+                                  ),
+                                ),
+                              ),
+                            );
                           },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20.w),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.cA8FF8E
-                                  : const Color(0xFF1E222B),
-                              borderRadius: BorderRadius.circular(100.r),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.transparent
-                                    : Colors.white.withValues(alpha: 0.05),
-                                width: 1.w,
+                        );
+                      }
+
+                      final dataList = snapshot.data?.data ?? [];
+                      
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        itemCount: dataList.length + 1, // +1 for 'All'
+                        itemBuilder: (context, index) {
+                          final isSelected = _selectedCategoryIndex == index;
+                          final categoryName = index == 0 ? 'All' : (dataList[index - 1].name ?? 'Unknown');
+                          return Padding(
+                            padding: EdgeInsets.only(right: 8.w),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategoryIndex = index;
+                                });
+                                final categoryId = index == 0 ? null : dataList[index - 1].id;
+                                final authMeData = authMeRxObj.authMeData.valueOrNull?.data;
+                                getEventsByCategoryRxObj.fetchEvents(
+                                  categoryId: categoryId, 
+                                  seed: authMeData?.id,
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.cA8FF8E
+                                      : const Color(0xFF1E222B),
+                                  borderRadius: BorderRadius.circular(100.r),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.transparent
+                                        : Colors.white.withValues(alpha: 0.05),
+                                    width: 1.w,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    categoryName,
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white.withValues(alpha: 0.7),
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.w400,
+                                        ),
+                                  ),
+                                ),
                               ),
                             ),
-                            child: Center(
-                              child: Text(
-                                _categories[index],
-                                style: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
-                                    .copyWith(
-                                      color: isSelected
-                                          ? Colors.black
-                                          : Colors.white.withValues(alpha: 0.7),
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -342,14 +393,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 const PopularEventsList(),
                 UIHelper.verticalSpace(24.h),
 
-                // ── Jazz Events List ────────────────────
-                const JazzEventsList(),
-                UIHelper.verticalSpace(24.h),
+                // ── Dynamic Category Lists ──────────────
+                StreamBuilder<IntrestCategoryModel>(
+                  stream: getCategoriesRxObj.getCategoriesData,
+                  builder: (context, snapshot) {
+                    final dataList = snapshot.data?.data ?? [];
+                    final authMeData = authMeRxObj.authMeData.valueOrNull?.data;
+                    
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemCount: dataList.length,
+                      itemBuilder: (context, index) {
+                        final category = dataList[index];
+                        if (category.id == null) return const SizedBox.shrink();
 
-                // ── Rock and Roll Events List ───────────
-                const RockEventsList(),
-                UIHelper.verticalSpace(24.h),
-                const RewardsMarketplaceList(),
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 24.h),
+                          child: CategoryEventsRow(
+                            categoryId: category.id!,
+                            categoryName: category.name ?? 'Events',
+                            seed: authMeData?.id,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const NearbyEventsMap(),
               ],
             ),
           ),

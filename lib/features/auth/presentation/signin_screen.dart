@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/business_partner_employee/business_partner_employee_nav.dart';
+import 'package:teamstreakpromo/networks/dio/dio.dart';
 import '../../../common_widgets/custom_textform_field.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/google_login_button.dart';
@@ -78,7 +79,8 @@ class _SigninScreenState extends State<SigninScreen> {
           ),
         );
         return;
-      } else if (email == "businesspartner@gmail.com" && password == "12345678") {
+      } else if (email == "businesspartner@gmail.com" &&
+          password == "12345678") {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -99,44 +101,45 @@ class _SigninScreenState extends State<SigninScreen> {
         });
 
         if (success) {
-          final message = logInRxObj.dataFetcher.value?.message ?? "Logged in successfully!";
+          final message =
+              logInRxObj.dataFetcher.value?.message ??
+              "Logged in successfully!";
           customToastMessage("Success", message);
 
           final refreshToken = logInRxObj.dataFetcher.value?.data?.refreshToken;
-          
           if (refreshToken != null) {
             bool refreshSuccess = await refreshTokenRxObj.refreshToken({
-              "refreshToken": refreshToken
+              "refreshToken": refreshToken,
             });
-            
             if (refreshSuccess) {
-              final newAccessToken = refreshTokenRxObj.dataFetcher.value?.data?.accessToken;
+              final newAccessToken =
+                  refreshTokenRxObj.dataFetcher.value?.data?.accessToken;
               if (newAccessToken != null) {
                 appData.write(kKeyAccessToken, newAccessToken);
+                DioSingleton.instance.update(newAccessToken);
               }
             }
           }
-          
-          if (_currentAccountType != null) {
-            appData.write(
-              kAccountType,
-              _currentAccountType.toString(),
-            );
-          }
+
+          appData.write(kKeyIsLoggedIn, true);
 
           final role = logInRxObj.dataFetcher.value?.data?.role;
-          if (role == 'HOST' || _currentAccountType == AccountType.host) {
-            NavigationService.navigateToWithArgs(
+          if (role != null) {
+            appData.write(kAccountType, role);
+          }
+
+          if (role == 'HOST') {
+            NavigationService.navigateToUntilReplacement(
               Routes.hostNavigationScreen,
-              {'accountType': _currentAccountType ?? AccountType.host},
             );
-          } else if (role == 'BUSINESS' || _currentAccountType == AccountType.businessPartner) {
-            NavigationService.navigateToWithArgs(
+          } else if (role == 'BUSINESS') {
+            NavigationService.navigateToUntilReplacement(
               Routes.businessPartnerNavigationScreen,
-              {'accountType': _currentAccountType ?? AccountType.businessPartner},
             );
           } else {
-            NavigationService.navigateTo(Routes.pickInterestScreen);
+            NavigationService.navigateToUntilReplacement(
+              Routes.pickInterestScreen,
+            );
           }
         }
       } catch (e) {
@@ -304,17 +307,10 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              if (_currentAccountType == AccountType.host ||
-                                  _currentAccountType ==
-                                      AccountType.businessPartner) {
-                                NavigationService.navigateTo(
-                                  Routes.personalAccountInformationScreen,
-                                );
-                              } else {
-                                NavigationService.navigateTo(
-                                  Routes.signUpScreen,
-                                );
-                              }
+                              NavigationService.navigateToWithArgs(
+                                Routes.chooseAccountTypeScreen,
+                                {'isSignUp': true},
+                              );
                             },
                         ),
                       ],

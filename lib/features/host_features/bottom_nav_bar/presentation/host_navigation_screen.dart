@@ -43,7 +43,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.scaffoldColor,
       body: _pages[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
@@ -141,9 +141,19 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
                     end: Alignment.bottomCenter,
                   ).createShader(bounds),
                   blendMode: BlendMode.srcIn,
-                  child: Image.asset(iconPath, color: Colors.white, width: 24.w, height: 24.w),
+                  child: Image.asset(
+                    iconPath,
+                    color: Colors.white,
+                    width: 24.w,
+                    height: 24.w,
+                  ),
                 )
-              : Image.asset(iconPath, color: Colors.white.withValues(alpha: 0.5), width: 24.w, height: 24.w),
+              : Image.asset(
+                  iconPath,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  width: 24.w,
+                  height: 24.w,
+                ),
           UIHelper.verticalSpace(4),
           // Label with dynamic gradient or gray color
           isSelected

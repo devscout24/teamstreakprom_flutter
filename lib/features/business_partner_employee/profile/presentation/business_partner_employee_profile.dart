@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
-import 'package:teamstreakpromo/common_widgets/custom_app_bar.dart';
 import 'package:teamstreakpromo/common_widgets/custom_textform_field.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import 'package:teamstreakpromo/common_widgets/app_network_image.dart';

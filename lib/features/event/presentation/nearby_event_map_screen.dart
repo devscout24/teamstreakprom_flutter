@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../gen/assets.gen.dart';
-import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_back_button.dart';
@@ -19,10 +18,7 @@ class NearbyEventMapScreen extends StatelessWidget {
         children: [
           // Background Map Image
           Positioned.fill(
-            child: Image.asset(
-              Assets.images.mapEvent.path,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(Assets.images.mapEvent.path, fit: BoxFit.cover),
           ),
 
           // Custom App Bar Overlay
@@ -45,10 +41,11 @@ class NearbyEventMapScreen extends StatelessWidget {
                     child: Center(
                       child: Text(
                         "Nearby Event",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   ),
@@ -71,7 +68,12 @@ class NearbyEventMapScreen extends StatelessWidget {
                 color: const Color(0xFF191B21),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
               ),
-              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h + MediaQuery.of(context).padding.bottom),
+              padding: EdgeInsets.fromLTRB(
+                16.w,
+                12.h,
+                16.w,
+                24.h + MediaQuery.of(context).padding.bottom,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -85,7 +87,7 @@ class NearbyEventMapScreen extends StatelessWidget {
                     ),
                   ),
                   UIHelper.verticalSpace(24.h),
-                  
+
                   // Event Card
                   Container(
                     decoration: BoxDecoration(
@@ -102,7 +104,8 @@ class NearbyEventMapScreen extends StatelessWidget {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(16.r),
                               child: AppNetworkImage(
-                                imageUrl: "https://images.unsplash.com/photo-1540039155732-61ee033d526e?auto=format&fit=crop&w=600&q=80",
+                                imageUrl:
+                                    "https://images.unsplash.com/photo-1540039155732-61ee033d526e?auto=format&fit=crop&w=600&q=80",
                                 height: 160.h,
                                 width: double.infinity,
                               ),
@@ -113,9 +116,14 @@ class NearbyEventMapScreen extends StatelessWidget {
                               left: 0,
                               right: 0,
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 8.h,
+                                ),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.r)),
+                                  borderRadius: BorderRadius.vertical(
+                                    bottom: Radius.circular(16.r),
+                                  ),
                                   gradient: LinearGradient(
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
@@ -126,30 +134,41 @@ class NearbyEventMapScreen extends StatelessWidget {
                                   ),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.calendar_today_outlined, color: Colors.white, size: 14.sp),
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          color: Colors.white,
+                                          size: 14.sp,
+                                        ),
                                         UIHelper.horizontalSpace(6.w),
                                         Text(
                                           "Sep 21 · 11:00 AM",
-                                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                                            fontSize: 12.sp,
-                                          ),
+                                          style: TextFontStyle
+                                              .textStyle14cFFFFFFSFProRounded400
+                                              .copyWith(fontSize: 12.sp),
                                         ),
                                       ],
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.local_activity_outlined, color: Colors.white, size: 14.sp),
+                                        Icon(
+                                          Icons.local_activity_outlined,
+                                          color: Colors.white,
+                                          size: 14.sp,
+                                        ),
                                         UIHelper.horizontalSpace(6.w),
                                         Text(
                                           "\$ 30",
-                                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: TextFontStyle
+                                              .textStyle14cFFFFFFSFProRounded400
+                                              .copyWith(
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -163,21 +182,26 @@ class NearbyEventMapScreen extends StatelessWidget {
                         // Event Details
                         Text(
                           "Lois Photographic Event",
-                          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                            fontSize: 18.sp,
-                          ),
+                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                              .copyWith(fontSize: 18.sp),
                         ),
                         UIHelper.verticalSpace(6.h),
                         Row(
                           children: [
-                            Icon(Icons.location_on_outlined, color: Colors.white.withValues(alpha: 0.6), size: 14.sp),
+                            Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white.withValues(alpha: 0.6),
+                              size: 14.sp,
+                            ),
                             UIHelper.horizontalSpace(4.w),
                             Text(
                               "Kamisama Art Club",
-                              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                                color: Colors.white.withValues(alpha: 0.6),
-                                fontSize: 12.sp,
-                              ),
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                    fontSize: 12.sp,
+                                  ),
                             ),
                           ],
                         ),
@@ -188,11 +212,13 @@ class NearbyEventMapScreen extends StatelessWidget {
                           title: "Buy Ticket",
                           height: 48.h,
                           borderRadius: BorderRadius.circular(100.r),
-                          textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                            color: const Color(0xFF1E211A),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
-                          ),
+                          textStyle: TextFontStyle
+                              .textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: const Color(0xFF1E211A),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16.sp,
+                              ),
                         ),
                       ],
                     ),
@@ -241,7 +267,11 @@ class NearbyEventMapScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(Icons.account_balance_outlined, color: Colors.black, size: 16.sp),
+                      child: Icon(
+                        Icons.account_balance_outlined,
+                        color: Colors.black,
+                        size: 16.sp,
+                      ),
                     ),
                   ),
                   UIHelper.horizontalSpace(8.w),
@@ -251,19 +281,18 @@ class NearbyEventMapScreen extends StatelessWidget {
                     children: [
                       Text(
                         "LOCAL HERO\nEXHIBITION",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          color: Colors.black,
-                          fontSize: 10.sp,
-                          height: 1.1,
-                        ),
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              color: Colors.black,
+                              fontSize: 10.sp,
+                              height: 1.1,
+                            ),
                       ),
                       UIHelper.verticalSpace(2.h),
                       Text(
                         "SS Art Center",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: Colors.grey,
-                          fontSize: 8.sp,
-                        ),
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(color: Colors.grey, fontSize: 8.sp),
                       ),
                     ],
                   ),
@@ -272,21 +301,9 @@ class NearbyEventMapScreen extends StatelessWidget {
             ),
           ),
           // A few star markers
-          Positioned(
-            top: 20.h,
-            left: 200.w,
-            child: _buildStarMarker(),
-          ),
-          Positioned(
-            top: 150.h,
-            left: 140.w,
-            child: _buildStarMarker(),
-          ),
-          Positioned(
-            top: 160.h,
-            right: 120.w,
-            child: _buildStarMarker(),
-          ),
+          Positioned(top: 20.h, left: 200.w, child: _buildStarMarker()),
+          Positioned(top: 150.h, left: 140.w, child: _buildStarMarker()),
+          Positioned(top: 160.h, right: 120.w, child: _buildStarMarker()),
         ],
       ),
     );
@@ -301,11 +318,7 @@ class NearbyEventMapScreen extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Center(
-        child: Icon(
-          Icons.star,
-          color: Colors.white,
-          size: 14.sp,
-        ),
+        child: Icon(Icons.star, color: Colors.white, size: 14.sp),
       ),
     );
   }

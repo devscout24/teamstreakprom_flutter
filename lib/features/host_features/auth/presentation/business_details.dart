@@ -7,7 +7,7 @@ import 'package:teamstreakpromo/constants/text_font_style.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/features/host_features/auth/widget/auth_progress_indicator.dart';
-import 'package:teamstreakpromo/features/host_features/auth/widget/custom_selector_field.dart';
+import 'package:teamstreakpromo/features/host_features/auth/widget/document_upload_widget.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
@@ -23,6 +23,16 @@ class BusinessDetailsScreen extends StatefulWidget {
 
 class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
+  Map<String, dynamic> _args = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      _args = Map.from(args);
+    }
+  }
 
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _businessDescController = TextEditingController();
@@ -31,6 +41,8 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
 
   String? _selectedCategory;
   String? _selectedSubcategory;
+  String? _businessLicenseFileName;
+  String? _businessPermitFileName;
   bool _showEinField = false;
   bool _isHost = false;
 
@@ -39,13 +51,15 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
     super.initState();
     String? storedType = appData.read(kAccountType);
 
-    if (storedType == AccountType.host.name ||
+    if (storedType == "HOST" ||
+        storedType == AccountType.host.name ||
         storedType == AccountType.host.toString() ||
         storedType == "AccountType.host") {
       _isHost = true;
     }
 
-    if (storedType == AccountType.businessPartner.name ||
+    if (storedType == "BUSINESS" ||
+        storedType == AccountType.businessPartner.name ||
         storedType == AccountType.businessPartner.toString() ||
         storedType == "AccountType.businessPartner") {
       _showEinField = true;
@@ -239,7 +253,16 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
       debugPrint("Category: $_selectedCategory");
       debugPrint("Subcategory: $_selectedSubcategory");
 
-      NavigationService.navigateTo(Routes.verifyIdentityScreen);
+      _args["businessName"] = _businessNameController.text;
+      if (_showEinField) {
+        _args["einNumber"] = _einNumberController.text;
+      }
+      _args["businessDescription"] = _businessDescController.text;
+      _args["location"] = _locationController.text;
+      _args["category"] = _selectedCategory;
+      _args["subcategory"] = _selectedSubcategory;
+
+      NavigationService.navigateToWithArgs(Routes.verifyIdentityScreen, _args);
     }
   }
 
@@ -338,6 +361,34 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                           },
                         ),
                         UIHelper.verticalSpace(16),
+                        DocumentUploadWidget(
+                          label: "Business license photo (Optional)",
+                          fileName: _businessLicenseFileName,
+                          onTap: () {
+                            // TODO: Implement file picker
+                          },
+                          onRemove: () {
+                            setState(() {
+                              _businessLicenseFileName = null;
+                            });
+                          },
+                          // Optional, so no validator needed
+                        ),
+                        UIHelper.verticalSpace(16),
+                        DocumentUploadWidget(
+                          label: "Business Permit photo (Optional)",
+                          fileName: _businessPermitFileName,
+                          onTap: () {
+                            // TODO: Implement file picker
+                          },
+                          onRemove: () {
+                            setState(() {
+                              _businessPermitFileName = null;
+                            });
+                          },
+                          // Optional, so no validator needed
+                        ),
+                        UIHelper.verticalSpace(16),
                       ],
 
                       CustomTextFormField(
@@ -354,30 +405,30 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       ),
                       UIHelper.verticalSpace(16),
 
-                      CustomSelectorField(
-                        value: _selectedCategory,
-                        hintText: _isHost ? "Event Category" : "Category",
-                        onTap: _showCategoryBottomSheet,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please select category";
-                          }
-                          return null;
-                        },
-                      ),
-                      UIHelper.verticalSpace(16),
+                      // CustomSelectorField(
+                      //   value: _selectedCategory,
+                      //   hintText: _isHost ? "Event Category" : "Category",
+                      //   onTap: _showCategoryBottomSheet,
+                      //   validator: (value) {
+                      //     if (value == null || value.isEmpty) {
+                      //       return "Please select category";
+                      //     }
+                      //     return null;
+                      //   },
+                      // ),
+                      // UIHelper.verticalSpace(16),
 
-                      CustomSelectorField(
-                        value: _selectedSubcategory,
-                        hintText: _isHost ? "Event Subcategory" : "Subcategory",
-                        onTap: _showSubcategoryBottomSheet,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please select subcategory";
-                          }
-                          return null;
-                        },
-                      ),
+                      // CustomSelectorField(
+                      //   value: _selectedSubcategory,
+                      //   hintText: _isHost ? "Event Subcategory" : "Subcategory",
+                      //   onTap: _showSubcategoryBottomSheet,
+                      //   validator: (value) {
+                      //     if (value == null || value.isEmpty) {
+                      //       return "Please select subcategory";
+                      //     }
+                      //     return null;
+                      //   },
+                      // ),
                       UIHelper.verticalSpace(40),
                     ],
                   ),

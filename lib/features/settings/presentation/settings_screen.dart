@@ -14,6 +14,8 @@ import '../widgets/settings_item.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
 import '../../host_features/profile/presentation/host_edit_profile_screen.dart';
+import '../../../networks/api_acess.dart';
+import '../../../networks/dio/dio.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -259,98 +261,137 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showLogOutBottomSheet(BuildContext context) {
+    bool isLoading = false;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E222B),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24.r),
-              topRight: Radius.circular(24.r),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              UIHelper.verticalSpace(8.h),
-              Text(
-                "Log Out",
-                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E222B),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24.r),
+                  topRight: Radius.circular(24.r),
                 ),
               ),
-              UIHelper.verticalSpace(16.h),
-              Text(
-                "Are you sure you want log out from app.\nThis action cannot be undone.",
-                textAlign: TextAlign.center,
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 14.sp,
-                  height: 1.5,
-                ),
-              ),
-              UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.1),
-                thickness: 1.h,
-              ),
-              UIHelper.verticalSpace(24.h),
-              Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        height: 52.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100.r),
+                  UIHelper.verticalSpace(8.h),
+                  Text(
+                    "Log Out",
+                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(16.h),
+                  Text(
+                    "Are you sure you want log out from app.\nThis action cannot be undone.",
+                    textAlign: TextAlign.center,
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 14.sp,
+                          height: 1.5,
                         ),
-                        child: Center(
-                          child: Text(
-                            "Cancel",
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: const Color(0xFF1E222B),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.sp,
-                                ),
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Divider(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    thickness: 1.h,
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: isLoading
+                              ? null
+                              : () => Navigator.pop(context),
+                          child: Container(
+                            height: 52.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(100.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Cancel",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: const Color(0xFF1E222B),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.sp,
+                                    ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      UIHelper.horizontalSpace(16.w),
+                      Expanded(
+                        child: CustomGradientButton(
+                          onPressed: isLoading
+                              ? null
+                              : () async {
+                                  setModalState(() {
+                                    isLoading = true;
+                                  });
+                                  bool success = await logOutRxObj.logOut();
+                                  if (success) {
+                                    appData.write(kKeyIsLoggedIn, false);
+                                    appData.remove(kKeyAccessToken);
+                                    DioSingleton.instance.update("");
+
+                                    // ignore: use_build_context_synchronously
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close bottom sheet
+                                    NavigationService.navigateToReplacement(
+                                      Routes.signInScreen,
+                                    );
+                                  } else {
+                                    setModalState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                },
+                          height: 52.h,
+                          borderRadius: BorderRadius.circular(100.r),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  "Log Out",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: const Color(0xFF1E211A),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16.sp,
+                                      ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
-                  UIHelper.horizontalSpace(16.w),
-                  Expanded(
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        // TODO: Implement actual logout logic
-                        NavigationService.navigateToReplacement(
-                          Routes.chooseAccountTypeScreen,
-                        );
-                      },
-                      title: "Log Out",
-                      height: 52.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: const Color(0xFF1E211A),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
-                          ),
-                    ),
-                  ),
+                  UIHelper.verticalSpace(16.h),
                 ],
               ),
-              UIHelper.verticalSpace(16.h),
-            ],
-          ),
+            );
+          },
         );
       },
     );

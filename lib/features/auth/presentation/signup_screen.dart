@@ -38,6 +38,22 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _is18PlusError = false;
   bool _agreedToTermsError = false;
 
+  void _showTermsAndConditionsDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _TermsAndConditionsDialog(
+        onAgreed: () {
+          setState(() {
+            _agreedToTerms = true;
+            _agreedToTermsError = false;
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
   Future<void> _signUp() async {
     setState(() {
       _is18PlusError = !_is18Plus;
@@ -75,7 +91,9 @@ class _SignupScreenState extends State<SignupScreen> {
         bool success = await signUpRxObj.signUp(formData);
 
         if (success) {
-          final message = signUpRxObj.dataFetcher.value?.message ?? "Account created successfully!";
+          final message =
+              signUpRxObj.dataFetcher.value?.message ??
+              "Account created successfully!";
           customToastMessage("Success", message);
           NavigationService.navigateToWithArgs(Routes.otpScreen, {
             'type': "signup",
@@ -237,10 +255,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Checkbox 2: Agree to Terms & Conditions
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      _agreedToTerms = !_agreedToTerms;
-                      if (_agreedToTerms) _agreedToTermsError = false;
-                    });
+                    if (_agreedToTerms) {
+                      setState(() {
+                        _agreedToTerms = false;
+                      });
+                    } else {
+                      _showTermsAndConditionsDialog();
+                    }
                   },
                   child: Row(
                     children: [
@@ -389,6 +410,135 @@ class _SignupScreenState extends State<SignupScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TermsAndConditionsDialog extends StatefulWidget {
+  final VoidCallback onAgreed;
+  const _TermsAndConditionsDialog({required this.onAgreed});
+
+  @override
+  State<_TermsAndConditionsDialog> createState() =>
+      _TermsAndConditionsDialogState();
+}
+
+class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolledToBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 20) {
+        if (!_isScrolledToBottom) {
+          setState(() {
+            _isScrolledToBottom = true;
+          });
+        }
+      }
+    });
+    // Check if content is smaller than screen initially
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.maxScrollExtent <= 0) {
+        setState(() {
+          _isScrolledToBottom = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
+      backgroundColor: AppColors.scaffoldColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Terms and Conditions",
+                  style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                    fontSize: 20.sp,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            UIHelper.verticalSpace(16),
+            Expanded(
+              child: Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Text(
+                    "Welcome to Team Streak Promo!\n\n"
+                    "These terms and conditions outline the rules and regulations for the use of our app.\n\n"
+                    "By accessing this app we assume you accept these terms and conditions. Do not continue to use the app if you do not agree to take all of the terms and conditions stated on this page.\n\n"
+                    "1. Introduction\n"
+                    "By using our app you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions or any part of these terms and conditions, you must not use our app.\n\n"
+                    "2. License to use app\n"
+                    "Unless otherwise stated, we or our licensors own the intellectual property rights in the app and material on the app. Subject to the license below, all these intellectual property rights are reserved.\n\n"
+                    "3. Acceptable use\n"
+                    "You must not use our app in any way that causes, or may cause, damage to the app or impairment of the availability or accessibility of the app; or in any way which is unlawful, illegal, fraudulent or harmful, or in connection with any unlawful, illegal, fraudulent or harmful purpose or activity.\n\n"
+                    "4. Restricted access\n"
+                    "Access to certain areas of our app is restricted. We reserve the right to restrict access to other areas of our app, or indeed our whole app, at our discretion.\n\n"
+                    "5. User content\n"
+                    "In these terms and conditions, “your user content” means material (including without limitation text, images, audio material, video material and audio-visual material) that you submit to our app, for whatever purpose.\n\n"
+                    "6. Limited warranties\n"
+                    "We do not warrant the completeness or accuracy of the information published on this app; nor do we commit to ensuring that the app remains available or that the material on the app is kept up-to-date.\n\n"
+                    "7. Breaches of these terms and conditions\n"
+                    "Without prejudice to our other rights under these terms and conditions, if you breach these terms and conditions in any way, we may take such action as we deem appropriate to deal with the breach, including suspending your access to the app, prohibiting you from accessing the app.\n\n"
+                    "8. Variation\n"
+                    "We may revise these terms and conditions from time to time. Revised terms and conditions will apply to the use of our app from the date of the publication of the revised terms and conditions on our app.\n\n"
+                    "9. Assignment\n"
+                    "We may transfer, sub-contract or otherwise deal with our rights and/or obligations under these terms and conditions without notifying you or obtaining your consent.\n\n"
+                    "10. Severability\n"
+                    "If a provision of these terms and conditions is determined by any court or other competent authority to be unlawful and/or unenforceable, the other provisions will continue in effect.\n\n"
+                    "Please scroll to the bottom to agree to the terms.",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(color: Colors.white.withValues(alpha: 0.8)),
+                  ),
+                ),
+              ),
+            ),
+            UIHelper.verticalSpace(16),
+            Opacity(
+              opacity: _isScrolledToBottom ? 1.0 : 0.5,
+              child: CustomGradientButton(
+                onPressed: _isScrolledToBottom ? widget.onAgreed : null,
+                child: Text(
+                  "I have read and agree",
+                  textAlign: TextAlign.center,
+                  style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14.sp,
+                    color: AppColors.c262824,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

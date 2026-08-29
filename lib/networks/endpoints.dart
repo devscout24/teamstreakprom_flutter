@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-const String url = "https://teamstreakpromo-mern-express.vercel.app";
+const String url = "https://teamstreakpromo-mern-express-indol.vercel.app";
 
 final class NetworkConstants {
   NetworkConstants._();
@@ -20,9 +20,11 @@ final class Endpoints {
   static String verifyRegisterOtp() => "/api/auth/verify-register-otp";
   static String resendRegisterOtp() => "/api/auth/resend-activation-otp";
   static String logIn() => "/api/auth/login";
+  static String logOut() => "/api/auth/logout";
   static String refreshToken() => "/api/auth/refresh-token";
   static String forgotPassword() => "/api/auth/forgot-password";
-  static String verifyForgotPasswordOtp() => "/api/auth/verify-forgot-password-otp";
+  static String verifyForgotPasswordOtp() =>
+      "/api/auth/verify-forgot-password-otp";
   static String resetPassword() => "/api/auth/reset-password";
 
   ///profile
@@ -36,4 +38,19 @@ final class Endpoints {
   static String products(int pageNum, int perPage) =>
       "/products?page=$pageNum&per_page=$perPage";
   static String productDetails(int id) => "/products/$id";
+
+  static String categories() => "/api/categories";
+  static String subcategories(String parentId) =>
+      "/api/categories?parentCategory=$parentId";
+  static String createEvent() => "/api/events";
+  static String getEvents({String? hostId}) {
+    if (hostId != null && hostId.isNotEmpty) {
+      return "/api/events?hostId=$hostId";
+    }
+    return "/api/events";
+  }
+
+  static String getEventDetails(String id) => "/api/events/$id";
+  static String deleteEvent(String id) => "/api/events/$id";
+  static String authMe() => "/api/auth/me";
 }

@@ -10,9 +10,14 @@ class WizardStepSix extends StatelessWidget {
   final String eventName;
   final String location;
   final String eventDesc;
+  final String startDate;
+  final String endDate;
+  final String price;
+  final String capacity;
   final List<ArtistFormModel> artistForms;
   final String? selectedAgeRestriction;
   final List<Map<String, dynamic>> rewards;
+  final bool isPostingEvent;
   final VoidCallback onPostEvent;
   final VoidCallback? onEditInfo;
 
@@ -21,9 +26,14 @@ class WizardStepSix extends StatelessWidget {
     required this.eventName,
     required this.location,
     required this.eventDesc,
+    required this.startDate,
+    required this.endDate,
+    required this.price,
+    required this.capacity,
     required this.artistForms,
     required this.selectedAgeRestriction,
     required this.rewards,
+    required this.isPostingEvent,
     required this.onPostEvent,
     this.onEditInfo,
   });
@@ -57,21 +67,20 @@ class WizardStepSix extends StatelessWidget {
         fit: BoxFit.cover,
       );
     } else {
-      return Container(
+      return Image.asset(
+        'assets/images/placeholder_image.jpeg',
         width: width,
         height: height,
-        color: AppColors.c242A34,
-        child: Icon(
-          Icons.card_giftcard,
-          color: Colors.white.withValues(alpha: 0.5),
-        ),
+        fit: BoxFit.cover,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstReward = rewards.isNotEmpty ? rewards[0] : null;
+    final validRewards = rewards.where((r) => r['title'] != null && r['title'].toString().trim().isNotEmpty).toList();
+    final firstReward = validRewards.isNotEmpty ? validRewards.first : null;
+    final validArtists = artistForms.where((a) => a.nameController.text.trim().isNotEmpty).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +166,7 @@ class WizardStepSix extends StatelessWidget {
             children: [
               // Event Name
               Text(
-                eventName.isEmpty ? "Adidas Court block Shoes" : eventName,
+                "Event Name : ${eventName.isEmpty ? 'Not set' : eventName}",
                 style: TextStyle(
                   fontFamily: "SF Pro Rounded",
                   fontSize: 16.sp,
@@ -176,7 +185,7 @@ class WizardStepSix extends StatelessWidget {
                   ),
                   UIHelper.horizontalSpace(4),
                   Text(
-                    location.isEmpty ? "Divine Art Festival" : location,
+                    location.isEmpty ? "Location Not Set" : location,
                     style: TextStyle(
                       fontFamily: "SF Pro",
                       fontSize: 12.sp,
@@ -201,7 +210,7 @@ class WizardStepSix extends StatelessWidget {
               // Description Value
               Text(
                 eventDesc.isEmpty
-                    ? "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion."
+                    ? "No description provided."
                     : eventDesc,
                 style: TextStyle(
                   fontFamily: "SF Pro",
@@ -213,25 +222,26 @@ class WizardStepSix extends StatelessWidget {
               UIHelper.verticalSpace(16),
 
               // Artist Info Section (Displaying all dynamic artists)
-              Text(
-                "Artist Info",
-                style: TextStyle(
-                  fontFamily: "SF Pro Rounded",
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.6),
+              if (validArtists.isNotEmpty) ...[
+                Text(
+                  "Artist Info",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
                 ),
-              ),
-              UIHelper.verticalSpace(8),
+                UIHelper.verticalSpace(8),
 
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: artistForms.length,
+                itemCount: validArtists.length,
                 separatorBuilder: (context, index) =>
                     UIHelper.verticalSpace(14),
                 itemBuilder: (context, index) {
-                  final artist = artistForms[index];
+                  final artist = validArtists[index];
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -315,17 +325,39 @@ class WizardStepSix extends StatelessWidget {
                 },
               ),
               UIHelper.verticalSpace(14),
+              ],
 
-              // Date & Seats Row
+              // Dates
+              Text(
+                "Start Date : ${startDate.isEmpty ? 'Not set' : startDate}",
+                style: TextStyle(
+                  fontFamily: "SF Pro",
+                  fontSize: 13.sp,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
+              ),
+              UIHelper.verticalSpace(6),
+              Text(
+                "End Date : ${endDate.isEmpty ? 'Not set' : endDate}",
+                style: TextStyle(
+                  fontFamily: "SF Pro",
+                  fontSize: 13.sp,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
+              ),
+              UIHelper.verticalSpace(14),
+              
+              // Price and Capacity
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "End Date : Aug 38, 2026",
+                    "Price : \$${price.isEmpty ? '0.00' : price}",
                     style: TextStyle(
-                      fontFamily: "SF Pro",
-                      fontSize: 13.sp,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primaryColorFirst,
                     ),
                   ),
                   Row(
@@ -337,10 +369,10 @@ class WizardStepSix extends StatelessWidget {
                       ),
                       UIHelper.horizontalSpace(6),
                       Text(
-                        "4 seat remaining",
+                        "${capacity.isEmpty ? '0' : capacity} seat remaining",
                         style: TextStyle(
                           fontFamily: "SF Pro Rounded",
-                          fontSize: 13.sp,
+                          fontSize: 14.sp,
                           color: AppColors.primaryColorFirst,
                         ),
                       ),
@@ -389,128 +421,138 @@ class WizardStepSix extends StatelessWidget {
         UIHelper.verticalSpace(24),
 
         // Reward Information Section
-        Text(
-          "Reward Information",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+        if (validRewards.isNotEmpty) ...[
+          Text(
+            "Reward Information",
+            style: TextStyle(
+              fontFamily: "SF Pro Rounded",
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
-        ),
-        UIHelper.verticalSpace(12),
+          UIHelper.verticalSpace(12),
 
-        GradientContainer(
-          padding: EdgeInsets.all(12.w),
-          borderRadius: BorderRadius.circular(16.r),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: Container(
-                  width: 80.w,
-                  height: 80.w,
-                  color: Colors.white,
-                  child: firstReward != null
-                      ? _buildRewardImage(
-                          firstReward["image"],
-                          width: 80.w,
-                          height: 80.w,
-                        )
-                      : Image.network(
-                          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&auto=format&fit=cover",
-                          width: 80.w,
-                          height: 80.w,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
-              UIHelper.horizontalSpace(12),
-              Expanded(
-                child: Column(
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: validRewards.length,
+            separatorBuilder: (context, index) => UIHelper.verticalSpace(12),
+            itemBuilder: (context, index) {
+              final reward = validRewards[index];
+              return GradientContainer(
+                padding: EdgeInsets.all(12.w),
+                borderRadius: BorderRadius.circular(16.r),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      firstReward != null
-                          ? firstReward["title"]
-                          : "Adidas Courtblock Shoes",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
+                    // Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: Container(
+                        width: 80.w,
+                        height: 80.w,
                         color: Colors.white,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    UIHelper.verticalSpace(6),
-                    Text(
-                      firstReward != null
-                          ? firstReward["desc"]
-                          : "NIKE is a leading athletic shoe brand known for innovation and quality.",
-                      style: TextStyle(
-                        fontFamily: "SF Pro",
-                        fontSize: 10.sp,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        height: 1.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    UIHelper.verticalSpace(10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Available In ${firstReward != null ? firstReward['qty'] : 30}pcs",
-                          style: TextStyle(
-                            fontFamily: "SF Pro",
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF72E84F),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(100.r),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.emoji_events_outlined,
-                                color: Colors.white,
-                                size: 14.w,
+                        child: reward != null
+                            ? _buildRewardImage(
+                                reward["image"],
+                                width: 80.w,
+                                height: 80.w,
+                              )
+                            : Container(
+                                width: 80.w,
+                                height: 80.w,
+                                color: AppColors.c242A34,
+                                child: Icon(
+                                  Icons.card_giftcard,
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                ),
                               ),
-                              UIHelper.horizontalSpace(4),
+                      ),
+                    ),
+                    UIHelper.horizontalSpace(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            reward["title"],
+                            style: TextStyle(
+                              fontFamily: "SF Pro Rounded",
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          UIHelper.verticalSpace(6),
+                          Text(
+                            reward["desc"],
+                            style: TextStyle(
+                              fontFamily: "SF Pro",
+                              fontSize: 10.sp,
+                              color: Colors.white.withValues(alpha: 0.6),
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          UIHelper.verticalSpace(10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               Text(
-                                "95 pts",
+                                "Available In ${reward['qty']}pcs",
                                 style: TextStyle(
-                                  fontFamily: "SF Pro Rounded",
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  fontFamily: "SF Pro",
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF72E84F),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.w,
+                                  vertical: 4.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(100.r),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.emoji_events_outlined,
+                                      color: Colors.white,
+                                      size: 14.w,
+                                    ),
+                                    UIHelper.horizontalSpace(4),
+                                    Text(
+                                      "${reward['points']} pts",
+                                      style: TextStyle(
+                                        fontFamily: "SF Pro Rounded",
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        ),
-        UIHelper.verticalSpace(36),
+          UIHelper.verticalSpace(36),
+        ],
 
         // Post Event Button
         _buildPostEventButton(onPostEvent),
@@ -521,7 +563,7 @@ class WizardStepSix extends StatelessWidget {
 
   Widget _buildPostEventButton(VoidCallback onPressed) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isPostingEvent ? null : onPressed,
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -534,15 +576,24 @@ class WizardStepSix extends StatelessWidget {
           ),
         ),
         alignment: Alignment.center,
-        child: Text(
-          "Post Event",
-          style: TextStyle(
-            fontFamily: "SF Pro Rounded",
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
-        ),
+        child: isPostingEvent
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.black,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                "Post Event",
+                style: TextStyle(
+                  fontFamily: "SF Pro Rounded",
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
+              ),
       ),
     );
   }

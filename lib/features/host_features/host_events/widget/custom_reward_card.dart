@@ -45,14 +45,11 @@ class CustomRewardCard extends StatelessWidget {
         fit: BoxFit.cover,
       );
     } else {
-      return Container(
+      return Image.asset(
+        'assets/images/placeholder_image.jpeg',
         width: width,
         height: height,
-        color: AppColors.c242A34,
-        child: Icon(
-          Icons.card_giftcard,
-          color: Colors.white.withValues(alpha: 0.5),
-        ),
+        fit: BoxFit.cover,
       );
     }
   }

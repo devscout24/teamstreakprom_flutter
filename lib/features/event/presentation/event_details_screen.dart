@@ -6,16 +6,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import '../../../gen/colors.gen.dart';
-import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
-import '../widgets/product_details_bottom_sheet.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
 import '../widgets/reward_success_dialog.dart';
+import '../widgets/event_details_widgets.dart';
+import '../widgets/event_info_tab.dart';
+import '../widgets/event_bottom_actions.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart';
+import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
+import 'package:intl/intl.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final String title;
@@ -26,6 +30,7 @@ class EventDetailsScreen extends StatefulWidget {
   final String description;
   final String? points;
   final bool isReward;
+  final String? eventId;
 
   const EventDetailsScreen({
     super.key,
@@ -37,6 +42,7 @@ class EventDetailsScreen extends StatefulWidget {
     required this.description,
     this.points,
     this.isReward = false,
+    this.eventId,
   });
 
   @override
@@ -45,24 +51,47 @@ class EventDetailsScreen extends StatefulWidget {
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   int _selectedTabIndex = 0; // 0: Event Info, 1: Reward Info
-  int _ticketCount = 4;
+  int _ticketCount = 1;
   int _currentCarouselIndex = 0;
   final PageController _pageController = PageController();
   Timer? _carouselTimer;
   int? _selectedRewardProductIndex;
 
+  bool _isLoadingDetails = false;
+  bool _isDeleting = false;
+  HostEventDetailsModel? _eventDetails;
+
+  late String _displayTitle;
+  late String _displayLocation;
+  late String _displayDate;
+  late String _displayPrice;
+  late String _displayImageUrl;
+  late String _displayDescription;
+  List<ArtistInfo> _artists = [];
+
   // Mock list of carousel images
-  late final List<String> _carouselImages;
+  late List<String> _carouselImages;
 
   @override
   void initState() {
     super.initState();
+    _displayTitle = widget.title;
+    _displayLocation = widget.location;
+    _displayDate = widget.date;
+    _displayPrice = widget.price;
+    _displayImageUrl = widget.imageUrl;
+    _displayDescription = widget.description;
+
     _selectedTabIndex = widget.isReward ? 1 : 0;
     _carouselImages = [
       widget.imageUrl,
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=600&q=80",
     ];
+
+    if (widget.eventId != null) {
+      _fetchEventDetails();
+    }
 
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted && _pageController.hasClients) {
@@ -81,6 +110,89 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         }
       }
     });
+  }
+
+  Future<void> _fetchEventDetails() async {
+    setState(() => _isLoadingDetails = true);
+    try {
+      final response = await getEventDetailsRxObj.getEventDetails(
+        widget.eventId!,
+      );
+      setState(() {
+        _eventDetails = response;
+        final data = response.data;
+        if (data != null) {
+          _displayTitle = data.title ?? _displayTitle;
+          _displayLocation = data.placeName ?? _displayLocation;
+          _displayDate = data.startDate != null
+              ? DateFormat("d MMM, yyyy • ha").format(data.startDate!)
+              : _displayDate;
+          _displayPrice =
+              "\$ ${data.ticketPrice ?? _displayPrice.replaceAll('\$', '').trim()}";
+          _displayImageUrl = (data.images != null && data.images!.isNotEmpty)
+              ? data.images!.first
+              : _displayImageUrl;
+          _displayDescription = data.description ?? _displayDescription;
+
+          if (data.images != null && data.images!.isNotEmpty) {
+            _carouselImages = data.images!;
+          }
+
+          if (data.artistInfo != null) {
+            _artists = data.artistInfo!;
+          }
+
+          if (data.rewards != null) {
+            _rewardProducts = data.rewards!
+                .map(
+                  (r) => RewardProduct(
+                    title: r.title ?? "Reward",
+                    description: r.description ?? "",
+                    imageUrls: (r.images != null && r.images!.isNotEmpty)
+                        ? r.images!
+                        : ["https://via.placeholder.com/400"],
+                    isStockIn: (r.stock ?? 0) > 0,
+                    points: r.pointsRequired?.toString() ?? "0",
+                    stock: r.stock ?? 0,
+                  ),
+                )
+                .toList();
+          }
+        }
+      });
+    } catch (e) {
+      debugPrint("Failed to fetch event details: $e");
+    } finally {
+      if (mounted) setState(() => _isLoadingDetails = false);
+    }
+  }
+
+  String get _formattedEndDate {
+    if (_eventDetails?.data?.endDate != null) {
+      return DateFormat(
+        "MMM d, yyyy · h:mm a",
+      ).format(_eventDetails!.data!.endDate!);
+    }
+    return "N/A";
+  }
+
+  String get _timeLeft {
+    if (_eventDetails?.data?.endDate == null) return "";
+    final now = DateTime.now();
+    final end = _eventDetails!.data!.endDate!;
+    if (now.isAfter(end)) return "Ended";
+
+    final diff = end.difference(now);
+    if (diff.inDays > 0) {
+      final hours = diff.inHours % 24;
+      return "${diff.inDays}d ${hours}h left";
+    }
+    if (diff.inHours > 0) {
+      final mins = diff.inMinutes % 60;
+      return "${diff.inHours}h ${mins}m left";
+    }
+    if (diff.inMinutes > 0) return "${diff.inMinutes}m left";
+    return "Ending soon";
   }
 
   @override
@@ -143,7 +255,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ),
         ),
         content: Text(
-          "Successfully booked $_ticketCount tickets for ${widget.title}!",
+          "Successfully booked $_ticketCount tickets for $_displayTitle!",
           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
             color: Colors.white.withValues(alpha: 0.8),
           ),
@@ -204,808 +316,322 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Account Type: ${appData.read(kAccountType)}");
+    final String accountType =
+        appData.read(kAccountType)?.toString().toLowerCase() ?? '';
     final bool isHost =
-        appData.read(kAccountType) == "host" ||
-        appData.read(kAccountType) == "AccountType.host";
+        accountType == "host" || accountType == "accounttype.host";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
+      bottomNavigationBar: (_isLoadingDetails || _eventDetails == null)
+          ? const SizedBox.shrink()
+          : EventBottomActions(
+              isHost: isHost,
+              selectedTabIndex: _selectedTabIndex,
+              ticketCount: _ticketCount,
+              isDeleting: _isDeleting,
+              ticketPrice: _eventDetails?.data?.ticketPrice ?? 0.0,
+              onTicketCountIncrement: () {
+                setState(() {
+                  _ticketCount++;
+                });
+              },
+              onTicketCountDecrement: () {
+                if (_ticketCount > 1) {
+                  setState(() {
+                    _ticketCount--;
+                  });
+                }
+              },
+              onBuyTicket: _showBookingSuccessDialog,
+              onRedeemReward: _redeemRewardDirectly,
+              onEditEvent: () {
+                NavigationService.navigateTo(Routes.createEventScreen);
+              },
+              onDeleteEvent: () async {
+                if (widget.eventId != null) {
+                  setState(() {
+                    _isDeleting = true;
+                  });
+                  try {
+                    bool success = await deleteEventRxObj.deleteEvent(
+                      widget.eventId!,
+                    );
+                    if (success && mounted) {
+                      final String? hostId = appData.read('id');
+                      if (hostId != null) {
+                        locator<GetEventsRx>().fetchEvents(hostId: hostId);
+                      }
+                      NavigationService.goBack(); // Go back to event list
+                    }
+                  } catch (e) {
+                    debugPrint("Error deleting event: $e");
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isDeleting = false;
+                      });
+                    }
+                  }
+                }
+              },
+            ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ── Image Slider Header ────────────────────────────────────
-                SizedBox(
-                  height: 300.h,
-                  child: Stack(
-                    children: [
-                      // PageView
-                      PageView.builder(
-                        controller: _pageController,
-                        itemCount: _carouselImages.length,
-                        onPageChanged: (index) {
-                          if (mounted) {
-                            setState(() {
-                              _currentCarouselIndex = index;
-                            });
-                          }
-                        },
-                        itemBuilder: (context, index) {
-                          return CachedNetworkImage(
-                            imageUrl: _carouselImages[index],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            placeholder: (context, url) => Container(
-                              color: const Color(0xFF1E222B),
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => const Icon(
-                              Icons.image_not_supported,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
-                      ),
-                      // Dark overlay gradient
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withValues(alpha: 0.4),
-                                Colors.transparent,
-                                Colors.black.withValues(alpha: 0.8),
-                              ],
-                              stops: const [0.0, 0.5, 1.0],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Carousel Dot Indicators
-                      Positioned(
-                        bottom: 24.h,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            _carouselImages.length,
-                            (index) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              width: _currentCarouselIndex == index
-                                  ? 20.w
-                                  : 8.w,
-                              height: 8.h,
-                              margin: EdgeInsets.symmetric(horizontal: 4.w),
-                              decoration: BoxDecoration(
-                                color: _currentCarouselIndex == index
-                                    ? AppColors.primaryColorSecond
-                                    : Colors.white.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(100.r),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ── Details Body ─────────────────────────────────────────
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 10.h,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title and Category Badge row
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.title,
-                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                                  .copyWith(
-                                    fontSize: 22.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                          UIHelper.horizontalSpace(12.w),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 8.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryColorSecond.withValues(
-                                alpha: 0.1,
-                              ),
-                              borderRadius: BorderRadius.circular(100.r),
-                              border: Border.all(
-                                color: AppColors.primaryColorSecond.withValues(
-                                  alpha: 0.3,
-                                ),
-                                width: 1.w,
-                              ),
-                            ),
-                            child: Text(
-                              "Music",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: AppColors.primaryColorSecond,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      UIHelper.verticalSpace(8.h),
-
-                      // Location
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.white.withValues(alpha: 0.6),
-                            size: 16.sp,
-                          ),
-                          UIHelper.horizontalSpace(6.w),
-                          Text(
-                            widget.location,
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  fontSize: 13.sp,
-                                ),
-                          ),
-                        ],
-                      ),
-                      UIHelper.verticalSpace(24.h),
-
-                      // Info toggle buttons (Event Info vs Reward Info)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(83.r),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-                          child: TicketToggleButton(
-                            leftLabel: "Event Info",
-                            rightLabel: "Reward Info",
-                            selectedIndex: _selectedTabIndex,
-                            onChanged: (index) {
+          if (_isLoadingDetails || _eventDetails == null)
+            const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColorFirst,
+              ),
+            )
+          else
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Image Slider Header ────────────────────────────────────
+                  SizedBox(
+                    height: 300.h,
+                    child: Stack(
+                      children: [
+                        // PageView
+                        PageView.builder(
+                          controller: _pageController,
+                          itemCount: _carouselImages.length,
+                          onPageChanged: (index) {
+                            if (mounted) {
                               setState(() {
-                                _selectedTabIndex = index;
+                                _currentCarouselIndex = index;
                               });
-                            },
-                            height: 50.h,
-                          ),
-                        ),
-                      ),
-                      UIHelper.verticalSpace(24.h),
-
-                      // Tab Content
-                      if (_selectedTabIndex == 0) ...[
-                        // ── Event Info Tab Content ──
-                        Text(
-                          "Description",
-                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                              .copyWith(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        UIHelper.verticalSpace(8.h),
-                        Text(
-                          widget.description,
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 13.sp,
-                                height: 1.5,
-                              ),
-                        ),
-                        UIHelper.verticalSpace(24.h),
-
-                        // Divider line
-                        Divider(color: Colors.white.withValues(alpha: 0.08)),
-                        UIHelper.verticalSpace(16.h),
-
-                        Text(
-                          "Artist Info",
-                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                              .copyWith(
-                                fontSize: 14.sp,
-                                color: AppColors.c848484,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        UIHelper.verticalSpace(12.h),
-
-                        // Artist profile card
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 24.r,
-                              backgroundImage: const NetworkImage(
-                                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-                              ),
-                            ),
-                            UIHelper.horizontalSpace(12.w),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Adam Levine",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white,
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                                UIHelper.verticalSpace(4.h),
-                                Text(
-                                  "Singer",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        UIHelper.verticalSpace(16.h),
-
-                        // Social links row
-                        Row(
-                          children: [
-                            Text(
-                              "Media Link:",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 12.sp,
-                                    fontFamily: "SF Pro",
-                                  ),
-                            ),
-                            UIHelper.horizontalSpace(12.w),
-                            _buildSocialIcon(Icons.facebook),
-                            _buildSocialIcon(Icons.send_rounded), // Telegram
-                            _buildSocialIcon(
-                              Icons.play_circle_outline_rounded,
-                            ), // YouTube
-                            _buildTextSocialIcon("d"), // TikTok
-                            _buildTextSocialIcon("𝕏"), // X
-                            _buildSocialIcon(
-                              Icons.camera_alt_outlined,
-                            ), // Instagram
-                          ],
-                        ),
-                        UIHelper.verticalSpace(24.h),
-
-                        // Timeline Alert container box
-                        Container(
-                          padding: EdgeInsets.all(16.w),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                AppColors.primaryColorFirst.withValues(
-                                  alpha: 0.1,
-                                ),
-                                AppColors.primaryColorSecond.withValues(
-                                  alpha: 0.1,
-                                ),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      text: "End Date : ",
-                                      style: TextFontStyle
-                                          .textStyle14cFFFFFFSFProRounded400
-                                          .copyWith(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.6,
-                                            ),
-                                            fontSize: 13.sp,
-                                            fontFamily: 'SF Pro',
-                                          ),
-                                      children: [
-                                        TextSpan(
-                                          text: "Aug 28, 2026",
-                                          style: TextFontStyle
-                                              .textStyle14cFFFFFFSFProRounded400
-                                              .copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13.sp,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    "7h 32m left",
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          color: AppColors.cF54141,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13.sp,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              UIHelper.verticalSpace(12.h),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.info_outline,
-                                    color: AppColors.primaryColorFirst,
-                                    size: 16.sp,
-                                  ),
-                                  UIHelper.horizontalSpace(8.w),
-                                  Expanded(
-                                    child: Text(
-                                      "This event is only for who are above 18 years old.",
-                                      style: TextFontStyle
-                                          .textStyle14cFFFFFFSFProRounded400
-                                          .copyWith(
-                                            color: AppColors.primaryColorFirst,
-                                            fontSize: 11.sp,
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        UIHelper.verticalSpace(24.h),
-
-                        // Host section
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 24.r,
-                              backgroundImage: const NetworkImage(
-                                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-                              ),
-                            ),
-                            UIHelper.horizontalSpace(12.w),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Adam Levine",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white,
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: "SF Pro",
-                                      ),
-                                ),
-                                UIHelper.verticalSpace(4.h),
-                                Text(
-                                  "Host",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        UIHelper.verticalSpace(16.h),
-
-                        // Seat info line
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.confirmation_num_outlined,
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  size: 16.sp,
-                                ),
-                                UIHelper.horizontalSpace(6.w),
-                                Text(
-                                  "Buy this ticket & get 1 point",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.event_seat,
-                                  color: AppColors.cDC822D,
-                                  size: 16.sp,
-                                ),
-                                UIHelper.horizontalSpace(6.w),
-                                Text(
-                                  "4 seat remaining",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: AppColors.cDC822D,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        UIHelper.verticalSpace(24.h),
-
-                        // Location Section with map
-                        Text(
-                          "Location:",
-                          style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                              .copyWith(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        UIHelper.verticalSpace(12.h),
-
-                        // Map container
-                        Container(
-                          height: 180.h,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.r),
-                            child: Assets.images.mapEvent.image(
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        UIHelper.verticalSpace(24.h),
-
-                        // Refer section
-                        if (!isHost) ...[
-                          Container(
-                            height: 52.h,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100.r),
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.primaryColorFirst,
-                                  AppColors.primaryColorSecond,
-                                ],
-                              ),
-                            ),
-                            padding: EdgeInsets.all(1.w),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF171A20),
-                                borderRadius: BorderRadius.circular(100.r),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "Refer your friend",
-                                style: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
-                                    .copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15.sp,
-                                      fontFamily: "SF Pro",
-                                    ),
-                              ),
-                            ),
-                          ),
-                          UIHelper.verticalSpace(12.h),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: AppColors.primaryColorFirst,
-                                size: 16.sp,
-                              ),
-                              UIHelper.horizontalSpace(8.w),
-                              Expanded(
-                                child: Text(
-                                  "You'll receive 1 point only after your friend purchases a ticket.",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: AppColors.primaryColorFirst,
-                                        fontSize: 11.sp,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ] else ...[
-                        // ── Reward Info Tab Content (Product List) ──
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemCount: _rewardProducts.length,
+                            }
+                          },
                           itemBuilder: (context, index) {
-                            return _buildRewardProductCard(
-                              _rewardProducts[index],
-                              index,
+                            return CachedNetworkImage(
+                              imageUrl: _carouselImages[index],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              placeholder: (context, url) => Container(
+                                color: const Color(0xFF1E222B),
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                              ),
                             );
                           },
                         ),
-                      ],
-                    ],
-                  ),
-                ),
+                        // Dark overlay gradient
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.4),
+                                  Colors.transparent,
+                                  Colors.black.withValues(alpha: 0.8),
+                                ],
+                                stops: const [0.0, 0.5, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
 
-                // ── Bottom Actions ──────────────────────────────────────────────
-                Container(
-                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 36.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF13151B),
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        width: 1.h,
-                      ),
+                        // Carousel Dot Indicators
+                        Positioned(
+                          bottom: 24.h,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              _carouselImages.length,
+                              (index) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                width: _currentCarouselIndex == index
+                                    ? 20.w
+                                    : 8.w,
+                                height: 8.h,
+                                margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                decoration: BoxDecoration(
+                                  color: _currentCarouselIndex == index
+                                      ? AppColors.primaryColorSecond
+                                      : Colors.white.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(100.r),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: (appData.read(kAccountType) == "AccountType.host")
-                      ? Row(
+
+                  // ── Details Body ─────────────────────────────────────────
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 10.h,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title and Category Badge row
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 2,
-                              child: CustomGradientButton(
-                                onPressed: () {
-                                  NavigationService.navigateTo(
-                                    Routes.createEventScreen,
-                                  );
-                                },
-                                title: "Edit Info",
-                                borderRadius: BorderRadius.circular(100.r),
-                                textStyle: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
+                              child: Text(
+                                _displayTitle,
+                                style: TextFontStyle.textStyle24cFFFFFFSFPro590
                                     .copyWith(
-                                      color: const Color(0xFF262824),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16.sp,
+                                      fontSize: 22.sp,
+                                      fontWeight: FontWeight.bold,
                                     ),
                               ),
                             ),
-                            UIHelper.horizontalSpace(16.w),
-                            Expanded(
-                              flex: 1,
-                              child: CustomGradientButton(
-                                onPressed: () {
-                                  _showDeleteBottomSheet(context);
-                                },
-                                title: "Delete",
-                                height: 50.h,
+                            UIHelper.horizontalSpace(12.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 8.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColorSecond.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(100.r),
-                                textStyle: TextFontStyle
+                                border: Border.all(
+                                  color: AppColors.primaryColorSecond
+                                      .withValues(alpha: 0.3),
+                                  width: 1.w,
+                                ),
+                              ),
+                              child: Text(
+                                _eventDetails?.data?.categoryId?.name ??
+                                    "Event",
+                                style: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16.sp,
+                                      color: AppColors.primaryColorSecond,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFC72C2C),
-                                    Color(0xFF9E1F1F),
-                                  ],
-                                ),
                               ),
                             ),
                           ],
-                        )
-                      : _selectedTabIndex == 0
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
+                        ),
+                        UIHelper.verticalSpace(8.h),
+
+                        // Location
+                        Row(
                           children: [
-                            // Quantity & Price Info Row
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Quantity Counter
-                                Container(
-                                  height: 48.h,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1E222B),
-                                    borderRadius: BorderRadius.circular(100.r),
-                                    border: Border.all(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      width: 1.w,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (_ticketCount > 1) {
-                                            setState(() {
-                                              _ticketCount--;
-                                            });
-                                          }
-                                        },
-                                        child: Container(
-                                          width: 32.h,
-                                          height: 32.h,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFF262A34),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: Colors.white,
-                                            size: 16.sp,
-                                          ),
-                                        ),
-                                      ),
-                                      UIHelper.horizontalSpace(16.w),
-                                      Text(
-                                        "$_ticketCount",
-                                        style: TextFontStyle
-                                            .textStyle14cFFFFFFSFProRounded400
-                                            .copyWith(
-                                              color: Colors.white,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      UIHelper.horizontalSpace(16.w),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _ticketCount++;
-                                          });
-                                        },
-                                        child: Container(
-                                          width: 32.h,
-                                          height: 32.h,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFF262A34),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Colors.white,
-                                            size: 16.sp,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                // Price Container
-                                Container(
-                                  height: 48.h,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1E222B),
-                                    borderRadius: BorderRadius.circular(100.r),
-                                    border: Border.all(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      width: 1.w,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Image.asset(
-                                        Assets.icons.ticketIcon.path,
-                                        width: 18.w,
-                                        height: 18.w,
-                                        color: Colors.white,
-                                      ),
-                                      UIHelper.horizontalSpace(8.w),
-                                      Text(
-                                        "\$${199 * _ticketCount}",
-                                        style: TextFontStyle
-                                            .textStyle14cFFFFFFSFProRounded400
-                                            .copyWith(
-                                              color: Colors.white,
-                                              fontSize: 18.sp,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white.withValues(alpha: 0.6),
+                              size: 16.sp,
                             ),
-                            UIHelper.verticalSpace(16.h),
-
-                            // Get Ticket Button
-                            CustomGradientButton(
-                              onPressed: _showBookingSuccessDialog,
-                              title: "Buy a Ticket",
-                              borderRadius: BorderRadius.circular(100.r),
-                              textStyle: TextFontStyle
+                            UIHelper.horizontalSpace(6.w),
+                            Text(
+                              _displayLocation,
+                              style: TextFontStyle
                                   .textStyle14cFFFFFFSFProRounded400
                                   .copyWith(
-                                    color: const Color(0xFF262824),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16.sp,
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                    fontSize: 13.sp,
                                   ),
                             ),
                           ],
-                        )
-                      : CustomGradientButton(
-                          onPressed: _redeemRewardDirectly,
-                          title: "Redeem Reward",
-                          borderRadius: BorderRadius.circular(100.r),
-                          textStyle: TextFontStyle
-                              .textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: const Color(0xFF262824),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16.sp,
-                              ),
                         ),
-                ),
-              ],
+                        UIHelper.verticalSpace(24.h),
+
+                        // Info toggle buttons (Event Info vs Reward Info)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(83.r),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+                            child: TicketToggleButton(
+                              leftLabel: "Event Info",
+                              rightLabel: "Reward Info",
+                              selectedIndex: _selectedTabIndex,
+                              onChanged: (index) {
+                                setState(() {
+                                  _selectedTabIndex = index;
+                                });
+                              },
+                              height: 50.h,
+                            ),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(24.h),
+
+                        // Tab Content
+                        if (_selectedTabIndex == 0) ...[
+                          EventInfoTab(
+                            isHost: isHost,
+                            displayDescription: _displayDescription,
+                            artists: _artists,
+                            formattedEndDate: _formattedEndDate,
+                            timeLeft: _timeLeft,
+                            ageRestriction: _eventDetails?.data?.ageRestriction,
+                            stock: _eventDetails?.data?.stock,
+                            host: _eventDetails?.data?.hostId,
+                          ),
+                        ] else ...[
+                          // ── Reward Info Tab Content (Product List) ──
+                          if (_rewardProducts.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40.h),
+                              child: Center(
+                                child: Text(
+                                  "No rewards available for this event.",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        fontSize: 14.sp,
+                                      ),
+                                ),
+                              ),
+                            )
+                          else
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.zero,
+                              itemCount: _rewardProducts.length,
+                              itemBuilder: (context, index) {
+                                return RewardProductCard(
+                                  product: _rewardProducts[index],
+                                  isSelected:
+                                      _selectedRewardProductIndex == index,
+                                  displayLocation: _displayLocation,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedRewardProductIndex = index;
+                                    });
+                                  },
+                                  onContinueToPay: _redeemRewardDirectly,
+                                );
+                              },
+                            ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // Bottom actions moved to bottomNavigationBar
+                ],
+              ),
             ),
-          ),
           // Static Top back & share bar
           Positioned(
             top: 0,
@@ -1059,293 +685,5 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  final List<RewardProduct> _rewardProducts = const [
-    RewardProduct(
-      title: "Adidas Courtblock Shoes",
-      description:
-          "NIKE is a leading athletic shoe brand known for innovation and quality.",
-      imageUrls: [
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=400&q=80",
-      ],
-      isStockIn: true,
-      points: "95",
-    ),
-    RewardProduct(
-      title: "Adidas Courtblock Shoes",
-      description:
-          "NIKE is a leading athletic shoe brand known for innovation and quality.",
-      imageUrls: [
-        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=400&q=80",
-      ],
-      isStockIn: false,
-      points: "95",
-    ),
-    RewardProduct(
-      title: "Adidas Courtblock Shoes",
-      description:
-          "NIKE is a leading athletic shoe brand known for innovation and quality.",
-      imageUrls: [
-        "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=80",
-      ],
-      isStockIn: true,
-      points: "95",
-    ),
-  ];
-
-  Widget _buildRewardProductCard(RewardProduct product, int index) {
-    final bool isSelected = _selectedRewardProductIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedRewardProductIndex = index;
-        });
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: 16.h),
-        padding: EdgeInsets.all(12.w),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E222B),
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFFFFA500)
-                : Colors.white.withValues(alpha: 0.05),
-            width: 1.w,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product image
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedRewardProductIndex = index;
-                });
-                showProductDetailsBottomSheet(
-                  context: context,
-                  product: product,
-                  location: widget.location,
-                  onContinueToPay: _redeemRewardDirectly,
-                );
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: Image.network(
-                  product.imageUrls.first,
-                  width: 80.w,
-                  height: 80.w,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            UIHelper.horizontalSpace(16.w),
-            // Product info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.title,
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15.sp,
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  UIHelper.verticalSpace(4.h),
-                  Text(
-                    product.description,
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 12.sp,
-                          height: 1.3,
-                        ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  UIHelper.verticalSpace(8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        product.isStockIn ? "Stock In" : "Stock Out",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              color: product.isStockIn
-                                  ? AppColors.primaryColorSecond
-                                  : const Color(0xFFDD1F1F),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.sp,
-                            ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 6.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(100.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [
-                                  AppColors.primaryColorFirst,
-                                  AppColors.primaryColorSecond,
-                                ],
-                              ).createShader(bounds),
-                              blendMode: BlendMode.srcIn,
-                              child: Image.asset(
-                                Assets.icons.pointIcon.path,
-                                width: 14.w,
-                                height: 14.w,
-                                color: Colors.white,
-                              ),
-                            ),
-                            UIHelper.horizontalSpace(6.w),
-                            Text(
-                              "${product.points} pts",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12.sp,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          decoration: BoxDecoration(
-            color: AppColors.scaffoldColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32.r),
-              topRight: Radius.circular(32.r),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Delete Event",
-                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              UIHelper.verticalSpace(16.h),
-              Text(
-                "Are you sure you want to delete this event? This action cannot be undone.",
-                textAlign: TextAlign.center,
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 13.sp,
-                  height: 1.5,
-                ),
-              ),
-              UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.1),
-                thickness: 1.h,
-                height: 1.h,
-              ),
-              UIHelper.verticalSpace(24.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomGradientButton(
-                      onPressed: () => Navigator.pop(context),
-                      title: "Cancel",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      gradient: const LinearGradient(
-                        colors: [Colors.white, Colors.white],
-                      ),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
-                    ),
-                  ),
-                  UIHelper.horizontalSpace(16.w),
-                  Expanded(
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        // Confirm deletion logic here
-                        Navigator.pop(context);
-                      },
-                      title: "Delete",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              UIHelper.verticalSpace(8.h),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class RewardProduct {
-  final String title;
-  final String description;
-  final List<String> imageUrls;
-  final bool isStockIn;
-  final String points;
-
-  const RewardProduct({
-    required this.title,
-    required this.description,
-    required this.imageUrls,
-    required this.isStockIn,
-    required this.points,
-  });
+  List<RewardProduct> _rewardProducts = [];
 }

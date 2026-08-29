@@ -8,10 +8,20 @@ import '../widget/revenue_chart_card.dart';
 import '../widget/ticket_sales_chart_card.dart';
 import '../widget/host_event_card.dart';
 import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
+import 'package:teamstreakpromo/networks/dio/dio.dart';
+import 'package:teamstreakpromo/networks/endpoints.dart';
+import 'package:teamstreakpromo/features/host_features/host_home/model/profile_information_model.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
 
-class HostHomeScreen extends StatelessWidget {
+class HostHomeScreen extends StatefulWidget {
   const HostHomeScreen({super.key});
 
+  @override
+  State<HostHomeScreen> createState() => _HostHomeScreenState();
+}
+
+class _HostHomeScreenState extends State<HostHomeScreen> {
   final List<Map<String, String>> _homeEvents = const [
     {
       "imageUrl":
@@ -38,6 +48,28 @@ class HostHomeScreen extends StatelessWidget {
       "going": "150 going",
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileAndEvents();
+  }
+
+  Future<void> _fetchProfileAndEvents() async {
+    try {
+      final response = await getHttp(Endpoints.authMe());
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final profile = ProfileInformationModel.fromJson(response.data);
+        final id = profile.data?.id;
+        if (id != null) {
+          appData.write('id', id);
+          locator<GetEventsRx>().fetchEvents(hostId: id);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching profile: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
