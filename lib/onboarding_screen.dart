@@ -80,8 +80,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     } else {
       // Save that user has completed onboarding
       appData.write(kKeyfirstTime, false);
-      // Navigate to ChooseAccountTypeScreen using NavigationService
-      NavigationService.navigateToReplacement(Routes.chooseAccountTypeScreen);
+      // Navigate to SigninScreen using NavigationService
+      NavigationService.navigateToReplacement(Routes.signInScreen);
     }
   }
 

@@ -2,6 +2,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 class AppNetworkImage extends StatelessWidget {
   final String imageUrl;
@@ -50,19 +52,13 @@ class AppNetworkImage extends StatelessWidget {
   }
 
   Widget _buildPlaceholder() {
-    return Container(
-      height: height?.h,
-      width: width?.w,
-      color: placeholderColor,
-      child: Center(
-        child: SizedBox(
-          width: placeholderIconSize.w,
-          height: placeholderIconSize.h,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.w,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
-          ),
-        ),
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFF1E222B),
+      highlightColor: Colors.white.withValues(alpha: 0.05),
+      child: Container(
+        height: height?.h ?? double.infinity,
+        width: width?.w ?? double.infinity,
+        color: const Color(0xFF1E222B),
       ),
     );
   }
@@ -73,10 +69,9 @@ class AppNetworkImage extends StatelessWidget {
       width: width?.w,
       color: errorColor,
       child: Center(
-        child: Icon(
-          Icons.image_not_supported_outlined,
-          size: errorIconSize.sp,
-          color: Colors.grey[500],
+        child: Image.asset(
+          Assets.images.placeholderImage.path,
+          fit: BoxFit.cover,
         ),
       ),
     );

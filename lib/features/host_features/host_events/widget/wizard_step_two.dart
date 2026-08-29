@@ -74,7 +74,7 @@ class WizardStepTwo extends StatelessWidget {
                   _buildDateField(
                     context,
                     controller: startDateController,
-                    hint: "DD/MM/YYYY",
+                    hint: "YYYY-MM-DD",
                   ),
                 ],
               ),
@@ -110,7 +110,7 @@ class WizardStepTwo extends StatelessWidget {
                   _buildDateField(
                     context,
                     controller: endDateController,
-                    hint: "DD/MM/YYYY",
+                    hint: "YYYY-MM-DD",
                   ),
                 ],
               ),
@@ -342,7 +342,7 @@ class WizardStepTwo extends StatelessWidget {
             lastDate: DateTime(2030),
           );
           if (date != null) {
-            controller.text = "${date.day}/${date.month}/${date.year}";
+            controller.text = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
           }
         },
         style: TextStyle(
@@ -392,7 +392,7 @@ class WizardStepTwo extends StatelessWidget {
             initialTime: TimeOfDay.now(),
           );
           if (time != null) {
-            controller.text = time.format(context);
+            controller.text = "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
           }
         },
         style: TextStyle(

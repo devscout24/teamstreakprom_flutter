@@ -19,6 +19,7 @@ class EventCard extends StatelessWidget {
   final double? width;
   final double? height;
   final VoidCallback? onTap;
+  final String? eventId;
 
   const EventCard({
     super.key,
@@ -32,6 +33,7 @@ class EventCard extends StatelessWidget {
     this.width,
     this.height,
     this.onTap,
+    this.eventId,
   });
 
   void _navigateToDetails(BuildContext context) {
@@ -47,6 +49,7 @@ class EventCard extends StatelessWidget {
           description:
               "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
           isReward: false,
+          eventId: eventId,
         ),
       ),
     );

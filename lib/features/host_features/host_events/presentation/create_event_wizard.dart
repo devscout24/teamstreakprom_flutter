@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:teamstreakpromo/features/host_features/auth/widget/custom_selector_field.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/event_model.dart';
@@ -11,6 +12,10 @@ import '../widget/wizard_step_two.dart';
 import '../widget/wizard_step_three.dart';
 import '../widget/wizard_step_four.dart';
 import '../widget/wizard_step_six.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/features/onboarding/model/intrest_category_model.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
 
 class CreateEventWizard extends StatefulWidget {
   const CreateEventWizard({super.key});
@@ -32,6 +37,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final TextEditingController _eventDescController = TextEditingController();
   String? _selectedCategory;
   String? _selectedSubcategory;
+  String? _selectedSubcategoryId;
   final TextEditingController _locationController = TextEditingController();
 
   // Step 2 Controllers
@@ -55,10 +61,12 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       TextEditingController();
   final TextEditingController _rewardPointController = TextEditingController();
   final List<Map<String, dynamic>> _rewards = [];
+  bool _isPostingEvent = false;
 
   @override
   void initState() {
     super.initState();
+    getCategoriesRxObj.fetchCategories();
     // Pre-populate mock values for demonstration matching mockup
     _eventNameController.text = "";
     _locationController.text = "";
@@ -75,10 +83,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
         defaultName: "",
         defaultRole: "",
         defaultSocialLinks: [
-          SocialLinkModel(
-            platform: "Facebook",
-            defaultUrl: "https://m.me/v/3aWzhSWinH",
-          ),
+          SocialLinkModel(platform: "Facebook", defaultUrl: ""),
         ],
       ),
     );
@@ -510,86 +515,219 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     );
   }
 
-  void _handlePostEvent() {
+  void _handlePostEvent() async {
+    setState(() => _isPostingEvent = true);
+
+    List<dio.MultipartFile> eventImages = [];
+    for (String path in _eventPhotoPaths) {
+      if (path.isNotEmpty) {
+        eventImages.add(await dio.MultipartFile.fromFile(path));
+      }
+    }
+
+    final Map<String, dynamic> body = {
+      "subCategoryId": _selectedSubcategoryId ?? "65c8f1e29a8f3b0012345678",
+      "title": _eventNameController.text,
+      "latitude": 40.7128,
+      "longitude": -74.006,
+      "ageRestriction":
+          int.tryParse(
+            _selectedAgeRestriction?.replaceAll(RegExp(r'[^0-9]'), '') ?? '18',
+          ) ??
+          18,
+      "placeName": _locationController.text,
+      "description": _eventDescController.text,
+      "startDate": _startDateController.text.isNotEmpty
+          ? "${_startDateController.text}T${_startTimeController.text.isNotEmpty ? _startTimeController.text : "00:00"}:00.000Z"
+          : "2026-09-01T18:00:00.000Z",
+      "endDate": _endDateController.text.isNotEmpty
+          ? "${_endDateController.text}T${_endTimeController.text.isNotEmpty ? _endTimeController.text : "00:00"}:00.000Z"
+          : "2026-09-01T23:00:00.000Z",
+      "ticketPrice": double.tryParse(_priceController.text) ?? 0.0,
+      "stock": int.tryParse(_capacityController.text) ?? 0,
+      "images": eventImages,
+      // Pass the complex objects as they were; if the backend expects JSON strings, you may need to jsonEncode them.
+      // Assuming Dio will handle or the backend parses form-data correctly.
+    };
+
+    List<dio.MultipartFile> artistImagesList = [];
+    
+    // Add artists
+    for (int i = 0; i < _artistForms.length; i++) {
+      final artist = _artistForms[i];
+      if (artist.nameController.text.trim().isNotEmpty) {
+        body['artistInfo[$i][name]'] = artist.nameController.text;
+        body['artistInfo[$i][role]'] = artist.designationController.text;
+        
+        if (artist.photoPath != null && artist.photoPath!.isNotEmpty) {
+          artistImagesList.add(await dio.MultipartFile.fromFile(
+            artist.photoPath!,
+          ));
+        }
+        
+        int j = 0;
+        for (var link in artist.socialLinks.where(
+          (l) => l.urlController.text.trim().isNotEmpty,
+        )) {
+          body['artistInfo[$i][socialMediaLinks][${link.platform.toLowerCase()}]'] =
+              link.urlController.text.trim();
+          j++;
+        }
+      }
+    }
+    
+    if (artistImagesList.isNotEmpty) {
+      body['artistImages'] = artistImagesList;
+    }
+
+    final validRewards = _rewards
+        .where(
+          (reward) =>
+              reward['title'] != null &&
+              reward['title'].toString().trim().isNotEmpty,
+        )
+        .toList();
+
+    for (int i = 0; i < validRewards.length; i++) {
+      final reward = validRewards[i];
+      body['rewards[$i][title]'] = reward['title'];
+      body['rewards[$i][description]'] = reward['desc'];
+      body['rewards[$i][pointsRequired]'] = reward['points'];
+      body['rewards[$i][stock]'] = reward['qty'];
+
+      List<String> paths = (reward['image'] is List)
+          ? List<String>.from(reward['image'])
+          : [reward['image']?.toString() ?? ""];
+
+      List<dio.MultipartFile> rewardMultiFiles = [];
+      for (String path in paths) {
+        if (path.isNotEmpty) {
+          rewardMultiFiles.add(await dio.MultipartFile.fromFile(path));
+        }
+      }
+      body['rewardImages_$i'] = rewardMultiFiles;
+    }
+
+    dio.FormData formData = dio.FormData.fromMap(body);
+
+    print("Event Body Data: $body");
+    print("Sending FormData...");
+
+    try {
+      final success = await createEventRxObj.createEvent(formData);
+
+      if (mounted) {
+        setState(() => _isPostingEvent = false);
+      }
+
+      if (success) {
+        final String? hostId = appData.read('id');
+        locator<GetEventsRx>().fetchEvents(hostId: hostId);
+        _showSuccessDialog();
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to create event")),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isPostingEvent = false);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    }
+  }
+
+  void _showSuccessDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF1E222B),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check_circle_outline_rounded,
-                    color: AppColors.primaryColorSecond,
-                    size: 50.w,
-                  ),
-                ),
-                UIHelper.verticalSpace(20),
-                Text(
-                  "Success!",
-                  style: TextStyle(
-                    fontFamily: "SF Pro Rounded",
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                UIHelper.verticalSpace(10),
-                Text(
-                  "Your event has been created and is now live on the platform.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: "SF Pro",
-                    fontSize: 14.sp,
-                    color: Colors.white.withValues(alpha: 0.6),
-                    height: 1.4,
-                  ),
-                ),
-                UIHelper.verticalSpace(24),
-                GestureDetector(
-                  onTap: () {
-                    // Pop dialog
-                    Navigator.pop(context);
-                    // Pop wizard to return back to Events list screen!
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: const Color(0xFF1E222B),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF28F31), Color(0xFF72E84F)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      color: AppColors.primaryColorSecond.withValues(
+                        alpha: 0.15,
                       ),
+                      shape: BoxShape.circle,
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Done",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
+                    child: Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: AppColors.primaryColorSecond,
+                      size: 50.w,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(20),
+                  Text(
+                    "Success!",
+                    style: TextStyle(
+                      fontFamily: "SF Pro Rounded",
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(10),
+                  Text(
+                    "Your event has been created and is now live on the platform.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 14.sp,
+                      color: Colors.white.withValues(alpha: 0.6),
+                      height: 1.4,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(24),
+                  GestureDetector(
+                    onTap: () {
+                      // Pop dialog
+                      Navigator.pop(context);
+                      // Pop wizard to return back to Events list screen!
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.r),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFF28F31), Color(0xFF72E84F)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Done",
+                        style: TextStyle(
+                          fontFamily: "SF Pro Rounded",
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -694,40 +832,85 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 1:
-        return WizardStepOne(
-          eventNameController: _eventNameController,
-          eventDescController: _eventDescController,
-          selectedCategory: _selectedCategory,
-          selectedSubcategory: _selectedSubcategory,
-          locationController: _locationController,
-          onCategoryTap: () {
-            _showSelectorBottomSheet(
-              title: "Choose Categories",
-              options: const [
-                "Music Concert",
-                "Art Festival",
-                "Food Expo",
-                "Techno Rave",
-              ],
-              onSelected: (val) => setState(() => _selectedCategory = val),
+        return StreamBuilder<IntrestCategoryModel>(
+          stream: getCategoriesRxObj.getCategoriesData,
+          builder: (context, catSnapshot) {
+            final isCatLoading =
+                catSnapshot.connectionState == ConnectionState.waiting &&
+                !catSnapshot.hasData;
+            final catDataList = catSnapshot.data?.data ?? [];
+            final categoryNames = catDataList
+                .map((e) => e.name ?? '')
+                .where((e) => e.isNotEmpty)
+                .toList();
+
+            return StreamBuilder<IntrestCategoryModel>(
+              stream: getSubCategoriesRxObj.getSubCategoriesData,
+              builder: (context, subSnapshot) {
+                final isSubLoading =
+                    subSnapshot.connectionState == ConnectionState.waiting &&
+                    !subSnapshot.hasData;
+                final subDataList = subSnapshot.data?.data ?? [];
+                final subcategoryNames = subDataList
+                    .map((e) => e.name ?? '')
+                    .where((e) => e.isNotEmpty)
+                    .toList();
+
+                return WizardStepOne(
+                  eventNameController: _eventNameController,
+                  eventDescController: _eventDescController,
+                  selectedCategory: _selectedCategory,
+                  selectedSubcategory: _selectedSubcategory,
+                  locationController: _locationController,
+                  isLoadingCategories: isCatLoading,
+                  isLoadingSubcategories: isSubLoading,
+                  hasSubcategories:
+                      subcategoryNames.isNotEmpty && !isSubLoading,
+                  onCategoryTap: () {
+                    if (categoryNames.isEmpty) return;
+                    _showSelectorBottomSheet(
+                      title: "Choose Categories",
+                      options: categoryNames,
+                      onSelected: (val) {
+                        setState(() {
+                          _selectedCategory = val;
+                          _selectedSubcategory = null;
+                          _selectedSubcategoryId = null;
+                        });
+                        // Fetch subcategories
+                        final cat = catDataList.firstWhere(
+                          (e) => e.name == val,
+                        );
+                        if (cat.id != null) {
+                          getSubCategoriesRxObj.fetchSubCategories(cat.id!);
+                        }
+                      },
+                    );
+                  },
+                  onSubcategoryTap: () {
+                    if (subcategoryNames.isEmpty) return;
+                    _showSelectorBottomSheet(
+                      title: "Choose Subcategories",
+                      options: subcategoryNames,
+                      onSelected: (val) {
+                        setState(() {
+                          _selectedSubcategory = val;
+                          final sub = subDataList.firstWhere(
+                            (e) => e.name == val,
+                          );
+                          _selectedSubcategoryId = sub.id;
+                        });
+                      },
+                    );
+                  },
+                  onContinue: () {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() => _currentStep = 2);
+                    }
+                  },
+                );
+              },
             );
-          },
-          onSubcategoryTap: () {
-            _showSelectorBottomSheet(
-              title: "Choose Subcategories",
-              options: const [
-                "Rock & Pop",
-                "Rave & Electronic",
-                "Fine Art Gallery",
-                "Gourmet Tasting",
-              ],
-              onSelected: (val) => setState(() => _selectedSubcategory = val),
-            );
-          },
-          onContinue: () {
-            if (_formKey.currentState!.validate()) {
-              setState(() => _currentStep = 2);
-            }
           },
         );
       case 2:
@@ -840,7 +1023,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                   "desc": _rewardDescController.text,
                   "image": _rewardPhotoPaths.isNotEmpty
                       ? List<String>.from(_rewardPhotoPaths)
-                      : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                      : "",
                   "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
                   "points": int.tryParse(_rewardPointController.text) ?? 0,
                 });
@@ -862,7 +1045,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 "desc": _rewardDescController.text,
                 "image": _rewardPhotoPaths.isNotEmpty
                     ? List<String>.from(_rewardPhotoPaths)
-                    : "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop",
+                    : "",
                 "qty": int.tryParse(_rewardQuantityController.text) ?? 200,
                 "points": int.tryParse(_rewardPointController.text) ?? 0,
               });
@@ -882,13 +1065,25 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   Widget _buildOverviewContent() {
+    final startFull = _startDateController.text.isNotEmpty
+        ? "${_startDateController.text} ${_startTimeController.text.isNotEmpty ? _startTimeController.text : "00:00"}"
+        : "";
+    final endFull = _endDateController.text.isNotEmpty
+        ? "${_endDateController.text} ${_endTimeController.text.isNotEmpty ? _endTimeController.text : "00:00"}"
+        : "";
+
     return WizardStepSix(
       eventName: _eventNameController.text,
       location: _locationController.text,
       eventDesc: _eventDescController.text,
+      startDate: startFull,
+      endDate: endFull,
+      price: _priceController.text,
+      capacity: _capacityController.text,
       artistForms: _artistForms,
       selectedAgeRestriction: _selectedAgeRestriction,
       rewards: _rewards,
+      isPostingEvent: _isPostingEvent,
       onPostEvent: _handlePostEvent,
       onEditInfo: () => setState(() => _currentStep = 1),
     );

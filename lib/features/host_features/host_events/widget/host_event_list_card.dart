@@ -5,6 +5,7 @@ import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_button.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import 'package:teamstreakpromo/constants/text_font_style.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HostEventListCard extends StatelessWidget {
   final String imageUrl;
@@ -14,7 +15,7 @@ class HostEventListCard extends StatelessWidget {
   final String price;
   final int ticketsSold;
   final int capacity;
-  final VoidCallback onDelete;
+  final Future<void> Function() onDelete;
   final VoidCallback onEdit;
 
   const HostEventListCard({
@@ -50,22 +51,35 @@ class HostEventListCard extends StatelessWidget {
           // 1. Event Image
           ClipRRect(
             borderRadius: BorderRadius.circular(16.r),
-            child: Image.network(
-              imageUrl,
-              width: double.infinity,
-              height: 160.h,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: double.infinity,
-                height: 160.h,
-                color: AppColors.c242A34,
-                child: Icon(
-                  Icons.music_note,
-                  color: Colors.white.withValues(alpha: 0.5),
-                  size: 40.w,
-                ),
-              ),
-            ),
+            child: imageUrl.isEmpty
+                ? Image.asset(
+                    'assets/images/placeholder_image.jpeg',
+                    width: double.infinity,
+                    height: 160.h,
+                    fit: BoxFit.cover,
+                  )
+                : CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: double.infinity,
+                    height: 160.h,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      width: double.infinity,
+                      height: 160.h,
+                      color: AppColors.c242A34,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColorSecond,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Image.asset(
+                      'assets/images/placeholder_image.jpeg',
+                      width: double.infinity,
+                      height: 160.h,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
           ),
           UIHelper.verticalSpace(14),
 
@@ -267,93 +281,110 @@ class HostEventListCard extends StatelessWidget {
 
   void _showDeleteBottomSheet(
     BuildContext context,
-    VoidCallback onConfirmDelete,
+    Future<void> Function() onConfirmDelete,
   ) {
+    bool isDeleting = false;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      isDismissible: false,
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          decoration: BoxDecoration(
-            color: AppColors.scaffoldColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32.r),
-              topRight: Radius.circular(32.r),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Delete Event",
-                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32.r),
+                  topRight: Radius.circular(32.r),
                 ),
               ),
-              UIHelper.verticalSpace(16.h),
-              Text(
-                "Are you sure you want to delete this event? This action cannot be undone.",
-                textAlign: TextAlign.center,
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 13.sp,
-                  height: 1.5,
-                ),
-              ),
-              UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.1),
-                thickness: 1.h,
-                height: 1.h,
-              ),
-              UIHelper.verticalSpace(24.h),
-              Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: CustomButton(
-                      onPressed: () => Navigator.pop(context),
-                      title: "Cancel",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.c262824,
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
+                  Text(
+                    "Delete Event",
+                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  UIHelper.horizontalSpace(16.w),
-                  Expanded(
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        onConfirmDelete();
-                      },
-                      title: "Delete",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                  UIHelper.verticalSpace(16.h),
+                  Text(
+                    "Are you sure you want to delete this event? This action cannot be undone.",
+                    textAlign: TextAlign.center,
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 13.sp,
+                      height: 1.5,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Divider(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    thickness: 1.h,
+                    height: 1.h,
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          onPressed: isDeleting ? () {} : () => Navigator.pop(context),
+                          title: "Cancel",
+                          height: 48.h,
+                          borderRadius: BorderRadius.circular(100.r),
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.c262824,
+                          textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.c262824,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14.sp,
+                              ),
+                        ),
                       ),
-                    ),
+                      UIHelper.horizontalSpace(16.w),
+                      Expanded(
+                        child: CustomGradientButton(
+                          onPressed: isDeleting ? null : () async {
+                            setState(() { isDeleting = true; });
+                            await onConfirmDelete();
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          title: isDeleting ? null : "Delete",
+                          child: isDeleting 
+                            ? SizedBox(
+                                height: 24.w, 
+                                width: 24.w, 
+                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                              ) 
+                            : null,
+                          height: 48.h,
+                          borderRadius: BorderRadius.circular(100.r),
+                          textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.c262824,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14.sp,
+                              ),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                  UIHelper.verticalSpace(8.h),
                 ],
               ),
-              UIHelper.verticalSpace(8.h),
-            ],
-          ),
+            );
+          },
         );
       },
     );

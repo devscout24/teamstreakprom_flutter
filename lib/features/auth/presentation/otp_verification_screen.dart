@@ -150,7 +150,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ? null
                     : () async {
                         if (_otp.length == _otpLength) {
-                          if (widget.type == "signup") {
+                          if (widget.type == "signup" || widget.type == "host") {
                             setState(() {
                               _isLoading = true;
                             });
@@ -173,6 +173,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   Routes.signInScreen,
                                 );
                               }
+                            } catch (e) {
+                              debugPrint("OTP verification failed: $e");
                             } finally {
                               setState(() {
                                 _isLoading = false;
@@ -277,19 +279,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   _isResending = true;
                                 });
                                 try {
-                                  bool success = await resendRegisterOtpRxObj
-                                      .resendOtp({"email": widget.email});
-
-                                  if (success) {
-                                    final msg =
-                                        resendRegisterOtpRxObj
-                                            .dataFetcher
-                                            .value
-                                            ?.message ??
-                                        "OTP Resent Successfully";
-                                    customToastMessage("Success", msg);
-                                    _startTimer();
+                                  if (widget.type == "signup" || widget.type == "host") {
+                                    bool success = await resendRegisterOtpRxObj
+                                        .resendOtp({"email": widget.email});
+                                    if (success) {
+                                      final msg = resendRegisterOtpRxObj
+                                              .dataFetcher.value?.message ??
+                                          "OTP Resent Successfully";
+                                      customToastMessage("Success", msg);
+                                      _startTimer();
+                                    }
+                                  } else if (widget.type == "forgot_password") {
+                                    bool success = await forgotPasswordRxObj
+                                        .forgotPassword({"email": widget.email});
+                                    if (success) {
+                                      final msg = forgotPasswordRxObj
+                                              .dataFetcher.value?.message ??
+                                          "OTP Resent Successfully";
+                                      customToastMessage("Success", msg);
+                                      _startTimer();
+                                    }
                                   }
+                                } catch (e) {
+                                  debugPrint("Resend OTP failed: $e");
                                 } finally {
                                   setState(() {
                                     _isResending = false;

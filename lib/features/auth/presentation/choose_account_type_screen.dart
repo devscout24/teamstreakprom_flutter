@@ -12,7 +12,8 @@ import '../../../constants/app_constants.dart';
 enum AccountType { user, host, businessPartner }
 
 class ChooseAccountTypeScreen extends StatefulWidget {
-  const ChooseAccountTypeScreen({super.key});
+  final bool isSignUp;
+  const ChooseAccountTypeScreen({super.key, this.isSignUp = false});
 
   @override
   State<ChooseAccountTypeScreen> createState() =>
@@ -372,10 +373,26 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                 onPressed: () {
                   String typeStr = _getAccountTypeString(_selectedType);
                   appData.write(kAccountType, typeStr);
+                  appData.write(kKeyfirstTime, false);
                   
-                  NavigationService.navigateToWithArgs(Routes.signInScreen, {
-                    'accountType': _selectedType,
-                  });
+                  if (widget.isSignUp) {
+                    if (_selectedType == AccountType.host ||
+                        _selectedType == AccountType.businessPartner) {
+                      NavigationService.navigateToWithArgs(
+                        Routes.personalAccountInformationScreen,
+                        {'accountType': _selectedType},
+                      );
+                    } else {
+                      NavigationService.navigateToWithArgs(
+                        Routes.signUpScreen,
+                        {'accountType': _selectedType},
+                      );
+                    }
+                  } else {
+                    NavigationService.navigateToWithArgs(Routes.signInScreen, {
+                      'accountType': _selectedType,
+                    });
+                  }
                 },
                 title: "Continue",
               ),

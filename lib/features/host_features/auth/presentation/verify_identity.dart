@@ -21,6 +21,16 @@ class VerifyIdentityScreen extends StatefulWidget {
 
 class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
   final _formKey = GlobalKey<FormState>();
+  Map<String, dynamic> _args = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      _args = Map.from(args);
+    }
+  }
 
   String? _frontIdName;
   String? _backIdName;
@@ -169,7 +179,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       debugPrint("Front ID: $_frontIdName");
       debugPrint("Back ID: $_backIdName");
 
-      NavigationService.navigateTo(Routes.uploadBusinessDocumentsScreen);
+      _args["govtIdFrontImage"] = _frontIdName;
+      _args["govtIdBackImage"] = _backIdName;
+
+      NavigationService.navigateToWithArgs(Routes.uploadBusinessDocumentsScreen, _args);
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
@@ -14,6 +15,9 @@ import 'package:teamstreakpromo/helpers/all_routes.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
 import 'package:teamstreakpromo/constants/app_constants.dart';
 import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/common_widgets/custom_toast.dart';
 
 class UploadBusinessDocumentsScreen extends StatefulWidget {
   const UploadBusinessDocumentsScreen({super.key});
@@ -26,11 +30,38 @@ class UploadBusinessDocumentsScreen extends StatefulWidget {
 class _UploadBusinessDocumentsScreenState
     extends State<UploadBusinessDocumentsScreen> {
   final _formKey = GlobalKey<FormState>();
+  Map<String, dynamic> _args = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      _args = Map.from(args);
+    }
+  }
 
   String? _frontLicenceName;
   String? _backLicenceName;
   bool _agreedToTerms = false;
   bool _showCheckboxError = false;
+  bool _isLoading = false;
+
+  void _showTermsAndConditionsDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _TermsAndConditionsDialog(
+        onAgreed: () {
+          setState(() {
+            _agreedToTerms = true;
+            _showCheckboxError = false;
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
 
   final ImagePicker _picker = ImagePicker();
 
@@ -49,7 +80,7 @@ class _UploadBusinessDocumentsScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Upload Business Licence",
+                "Upload Business License",
                 style: TextStyle(
                   fontFamily: "SF Pro Rounded",
                   fontSize: 18.sp,
@@ -180,85 +211,166 @@ class _UploadBusinessDocumentsScreenState
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     setState(() {
       _showCheckboxError = !_agreedToTerms;
     });
 
     if (_formKey.currentState!.validate() && _agreedToTerms) {
       // Setup is fully complete!
+      debugPrint("=========================================");
+      debugPrint("         UPLOAD BUSINESS DOCUMENTS       ");
+      debugPrint("=========================================");
       debugPrint("Front Licence: $_frontLicenceName");
       debugPrint("Back Licence: $_backLicenceName");
+      debugPrint("Agreed to terms: $_agreedToTerms");
 
-      showDialog(
-        context: context,
-        builder: (context) {
-          final gradient = LinearGradient(
-            colors: [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          );
+      Map<String, dynamic> businessProfile = {
+        "businessName": _args["businessName"],
+        "businessDescription": _args["businessDescription"],
+        if (_args.containsKey("einNumber")) "einNumber": _args["einNumber"],
+        "location": _args["location"],
+        "govtIdFrontImage": _args["govtIdFrontImage"],
+        "govtIdBackImage": _args["govtIdBackImage"],
+        "businessLicenseFrontImage": _frontLicenceName,
+        "businessLicenseBackImage": _backLicenceName,
+      };
 
-          return AlertDialog(
-            backgroundColor: const Color(0xFF1E222B),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  width: 32.w,
-                  height: 32.w,
-                  decoration: BoxDecoration(
-                    gradient: gradient,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, color: Colors.black, size: 18),
+      String? storedType = appData.read(kAccountType);
+      String role = "USER";
+      if (storedType == "HOST" ||
+          storedType == AccountType.host.name ||
+          storedType == AccountType.host.toString() ||
+          storedType == "AccountType.host") {
+        role = "HOST";
+      } else if (storedType == "BUSINESS" ||
+          storedType == AccountType.businessPartner.name ||
+          storedType == AccountType.businessPartner.toString() ||
+          storedType == "AccountType.businessPartner") {
+        role = "BUSINESS";
+      }
+
+      Map<String, dynamic> body = {
+        "name": _args["name"],
+        "email": _args["email"],
+        "password": _args["password"],
+        "confirmPassword": _args["confirmPassword"],
+        "role": role,
+        "isAgeOver18": true,
+        "agreesToTerms": _agreedToTerms,
+        "businessProfile": businessProfile,
+      };
+
+      dio.FormData formData = dio.FormData.fromMap(body);
+
+      debugPrint("---------- Final JSON Body ----------");
+      debugPrint(const JsonEncoder.withIndent('  ').convert(body));
+      debugPrint("=========================================");
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        bool result = await signUpRxObj.signUp(formData);
+        debugPrint("Sign up API call successful, result: $result");
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (!mounted) return;
+
+        if (result) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              final gradient = LinearGradient(
+                colors: [
+                  AppColors.primaryColorFirst,
+                  AppColors.primaryColorSecond,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              );
+
+              return AlertDialog(
+                backgroundColor: const Color(0xFF1E222B),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
-                UIHelper.horizontalSpace(12),
-                Text(
-                  "Setup Complete",
+                title: Row(
+                  children: [
+                    Container(
+                      width: 32.w,
+                      height: 32.w,
+                      decoration: BoxDecoration(
+                        gradient: gradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.black,
+                        size: 18,
+                      ),
+                    ),
+                    UIHelper.horizontalSpace(12),
+                    Text(
+                      "Setup Complete",
+                      style: TextStyle(
+                        fontFamily: "SF Pro Rounded",
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                content: Text(
+                  "Your host administrative account has been set up successfully. We will review your documents shortly.",
                   style: TextStyle(
-                    fontFamily: "SF Pro Rounded",
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontFamily: "SF Pro",
+                    fontSize: 14.sp,
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
-              ],
-            ),
-            content: Text(
-              "Your host administrative account has been set up successfully. We will review your documents shortly.",
-              style: TextStyle(
-                fontFamily: "SF Pro",
-                fontSize: 14.sp,
-                color: Colors.white.withValues(alpha: 0.8),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  appData.write(kAccountType, AccountType.host.name);
-                  Navigator.pop(context); // Close dialog
-                  // Navigate to OTP
-                  NavigationService.navigateToWithArgs(
-                    Routes.otpScreen,
-                    "host",
-                  );
-                },
-                child: Text(
-                  "Finish",
-                  style: TextStyle(
-                    fontFamily: "SF Pro Rounded",
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryColorSecond,
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      appData.write(kAccountType, AccountType.host.name);
+                      Navigator.pop(context); // Close dialog
+                      // Navigate to OTP
+                      NavigationService.navigateToWithArgs(Routes.otpScreen, {
+                        "type": "host",
+                        "email": _args["email"],
+                      });
+                    },
+                    child: Text(
+                      "Finish",
+                      style: TextStyle(
+                        fontFamily: "SF Pro Rounded",
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryColorSecond,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           );
-        },
-      );
+        } else {
+          customToastMessage(
+            "Sign Up Failed",
+            "Could not complete registration.",
+            isError: true,
+          );
+        }
+      } catch (e) {
+        debugPrint("Sign up API call failed: $e");
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -314,7 +426,7 @@ class _UploadBusinessDocumentsScreenState
 
                       // Document upload components
                       DocumentUploadWidget(
-                        label: "Business licence (Front)",
+                        label: "Business license (Front)",
                         fileName: _frontLicenceName,
                         onTap: () => _pickDocument(true),
                         onRemove: () {
@@ -352,12 +464,13 @@ class _UploadBusinessDocumentsScreenState
                       // Checkbox: Terms & Conditions
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _agreedToTerms = !_agreedToTerms;
-                            if (_agreedToTerms) {
-                              _showCheckboxError = false;
-                            }
-                          });
+                          if (_agreedToTerms) {
+                            setState(() {
+                              _agreedToTerms = false;
+                            });
+                          } else {
+                            _showTermsAndConditionsDialog();
+                          }
                         },
                         child: Row(
                           children: [
@@ -438,8 +551,147 @@ class _UploadBusinessDocumentsScreenState
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
               child: CustomGradientButton(
-                onPressed: _submitForm,
+                onPressed: _isLoading ? null : _submitForm,
                 title: "Confirm",
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TermsAndConditionsDialog extends StatefulWidget {
+  final VoidCallback onAgreed;
+  const _TermsAndConditionsDialog({required this.onAgreed});
+
+  @override
+  State<_TermsAndConditionsDialog> createState() =>
+      _TermsAndConditionsDialogState();
+}
+
+class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolledToBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 20) {
+        if (!_isScrolledToBottom) {
+          setState(() {
+            _isScrolledToBottom = true;
+          });
+        }
+      }
+    });
+    // Check if content is smaller than screen initially
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.maxScrollExtent <= 0) {
+        setState(() {
+          _isScrolledToBottom = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
+      backgroundColor: AppColors.scaffoldColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Terms and Conditions",
+                  style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                    fontSize: 20.sp,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            UIHelper.verticalSpace(16),
+            Expanded(
+              child: Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Text(
+                    "Welcome to Team Streak Promo!\n\n"
+                    "These terms and conditions outline the rules and regulations for the use of our app.\n\n"
+                    "By accessing this app we assume you accept these terms and conditions. Do not continue to use the app if you do not agree to take all of the terms and conditions stated on this page.\n\n"
+                    "1. Introduction\n"
+                    "By using our app you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions or any part of these terms and conditions, you must not use our app.\n\n"
+                    "2. License to use app\n"
+                    "Unless otherwise stated, we or our licensors own the intellectual property rights in the app and material on the app. Subject to the license below, all these intellectual property rights are reserved.\n\n"
+                    "3. Acceptable use\n"
+                    "You must not use our app in any way that causes, or may cause, damage to the app or impairment of the availability or accessibility of the app; or in any way which is unlawful, illegal, fraudulent or harmful, or in connection with any unlawful, illegal, fraudulent or harmful purpose or activity.\n\n"
+                    "4. Restricted access\n"
+                    "Access to certain areas of our app is restricted. We reserve the right to restrict access to other areas of our app, or indeed our whole app, at our discretion.\n\n"
+                    "5. User content\n"
+                    "In these terms and conditions, “your user content” means material (including without limitation text, images, audio material, video material and audio-visual material) that you submit to our app, for whatever purpose.\n\n"
+                    "6. Limited warranties\n"
+                    "We do not warrant the completeness or accuracy of the information published on this app; nor do we commit to ensuring that the app remains available or that the material on the app is kept up-to-date.\n\n"
+                    "7. Breaches of these terms and conditions\n"
+                    "Without prejudice to our other rights under these terms and conditions, if you breach these terms and conditions in any way, we may take such action as we deem appropriate to deal with the breach, including suspending your access to the app, prohibiting you from accessing the app.\n\n"
+                    "8. Variation\n"
+                    "We may revise these terms and conditions from time to time. Revised terms and conditions will apply to the use of our app from the date of the publication of the revised terms and conditions on our app.\n\n"
+                    "9. Assignment\n"
+                    "We may transfer, sub-contract or otherwise deal with our rights and/or obligations under these terms and conditions without notifying you or obtaining your consent.\n\n"
+                    "10. Severability\n"
+                    "If a provision of these terms and conditions is determined by any court or other competent authority to be unlawful and/or unenforceable, the other provisions will continue in effect.\n\n"
+                    "Please scroll to the bottom to agree to the terms.",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(color: Colors.white.withValues(alpha: 0.8)),
+                  ),
+                ),
+              ),
+            ),
+            UIHelper.verticalSpace(16),
+            Opacity(
+              opacity: _isScrolledToBottom ? 1.0 : 0.5,
+              child: CustomGradientButton(
+                onPressed: _isScrolledToBottom ? widget.onAgreed : null,
+                child: Text(
+                  "I have read and agree",
+                  textAlign: TextAlign.center,
+                  style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14.sp,
+                    color: AppColors.c262824,
+                  ),
+                ),
               ),
             ),
           ],

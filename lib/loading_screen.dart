@@ -1,8 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
-import 'package:teamstreakpromo/features/home/presentation/home_screen.dart';
+import 'package:teamstreakpromo/features/auth/presentation/signin_screen.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_navbar_screen.dart';
+import 'package:teamstreakpromo/features/host_features/bottom_nav_bar/presentation/host_navigation_screen.dart';
+import 'package:teamstreakpromo/navigation_screen.dart';
 
 import 'constants/app_constants.dart';
 import 'helpers/di.dart';
@@ -21,33 +22,28 @@ final class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool _isLoading = true;
-  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-
-    _timer = Timer(const Duration(seconds: 0), () {
-      if (_isLoading) {
-        loadInitialData();
-      }
-    });
+    loadInitialData();
   }
 
   Future<void> loadInitialData() async {
     try {
       await setInitValue();
+      bool isLoggedIn = appData.read(kKeyIsLoggedIn) ?? false;
 
-      if (appData.read(kKeyIsLoggedIn) == true) {
+      if (isLoggedIn) {
         final String token = appData.read(kKeyAccessToken) ?? '';
         DioSingleton.instance.update(token);
         await performPostLoginActions();
+      } else {
+        DioSingleton.instance.update("");
       }
     } catch (e) {
       debugPrint('Loading Error: $e');
     }
-
-    _timer?.cancel();
 
     if (!mounted) return;
 
@@ -57,27 +53,30 @@ class _LoadingState extends State<Loading> {
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const WelcomeScreen();
     }
 
-    if (appData.read(kKeyIsLoggedIn) == true) {
-      if (appData.read(kKeyIsFirstLoggedIn) == true) {
-        HomeScreen();
+    bool isLoggedIn = appData.read(kKeyIsLoggedIn) ?? false;
+    String token = appData.read(kKeyAccessToken) ?? '';
+
+    if (isLoggedIn && token.isNotEmpty) {
+      String role = appData.read(kAccountType) ?? '';
+      if (role == 'HOST') {
+        return const HostNavigationScreen();
+      } else if (role == 'BUSINESS') {
+        return const BusinessPartnerNavbarScreen();
+      } else {
+        return const NavigationScreen();
       }
     }
 
-    if (appData.read(kKeyfirstTime) == true) {
+    // Otherwise, show onboarding
+    if (appData.read(kKeyfirstTime) ?? true) {
       return const OnBoardingScreen();
     }
 
-    return const ChooseAccountTypeScreen();
+    return const SigninScreen();
   }
 }

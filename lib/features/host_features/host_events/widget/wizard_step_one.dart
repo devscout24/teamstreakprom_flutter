@@ -14,6 +14,9 @@ class WizardStepOne extends StatelessWidget {
   final VoidCallback onCategoryTap;
   final VoidCallback onSubcategoryTap;
   final VoidCallback onContinue;
+  final bool isLoadingCategories;
+  final bool isLoadingSubcategories;
+  final bool hasSubcategories;
 
   const WizardStepOne({
     super.key,
@@ -25,6 +28,9 @@ class WizardStepOne extends StatelessWidget {
     required this.onCategoryTap,
     required this.onSubcategoryTap,
     required this.onContinue,
+    this.isLoadingCategories = false,
+    this.isLoadingSubcategories = false,
+    this.hasSubcategories = false,
   });
 
   @override
@@ -71,21 +77,65 @@ class WizardStepOne extends StatelessWidget {
 
         // Category dropdown selector
         _buildLabel("Event Category"),
-        CustomSelectorField(
-          value: selectedCategory,
-          hintText: "Choose Categories",
-          onTap: onCategoryTap,
-        ),
+        isLoadingCategories
+            ? Container(
+                height: 54.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E222B),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1.w,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(
+                    color: AppColors.primaryColorFirst,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+            : CustomSelectorField(
+                value: selectedCategory,
+                hintText: "Choose Categories",
+                onTap: onCategoryTap,
+              ),
         UIHelper.verticalSpace(16),
 
-        // Subcategory dropdown selector
-        _buildLabel("Event Subcategory"),
-        CustomSelectorField(
-          value: selectedSubcategory,
-          hintText: "Choose Subcategories",
-          onTap: onSubcategoryTap,
-        ),
-        UIHelper.verticalSpace(16),
+        if (hasSubcategories) ...[
+          // Subcategory dropdown selector
+          _buildLabel("Event Subcategory"),
+          isLoadingSubcategories
+              ? Container(
+                  height: 54.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222B),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      width: 1.w,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: const CircularProgressIndicator(
+                      color: AppColors.primaryColorFirst,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                )
+              : CustomSelectorField(
+                  value: selectedSubcategory,
+                  hintText: "Choose Subcategories",
+                  onTap: onSubcategoryTap,
+                ),
+          UIHelper.verticalSpace(16),
+        ],
 
         // Location text field
         _buildLabel("Location"),

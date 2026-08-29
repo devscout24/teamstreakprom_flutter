@@ -38,6 +38,7 @@ import '../features/settings/presentation/support_options_screen.dart';
 import '../features/settings/presentation/submit_problem_screen.dart';
 import '../features/settings/presentation/support_chat_screen.dart';
 import '../features/settings/presentation/manage_team_screen.dart';
+import '../features/event/presentation/event_details_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -76,6 +77,8 @@ final class Routes {
   static const String productsScreen = '/ProductsScreen';
   //ProductDetailsScreen
   static const String productDetailsScreen = '/ProductDetailsScreen';
+  //EventDetailsScreen
+  static const String eventDetailsScreen = '/EventDetailsScreen';
 
   // Main App Routes
   static const String pickInterestScreen = '/PickInterest';
@@ -118,13 +121,51 @@ final class RouteGenerator {
                 widget: const HostEditProfileScreen(),
                 settings: settings,
               );
-      case Routes.chooseAccountTypeScreen:
+      case Routes.pickInterestScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => const ChooseAccountTypeScreen(),
+                builder: (context) => const PickInterestScreen(),
               )
             : _FadedTransitionRoute(
-                widget: const ChooseAccountTypeScreen(),
+                widget: const PickInterestScreen(),
+                settings: settings,
+              );
+      case Routes.chooseAccountTypeScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final isSignUp = args?['isSignUp'] as bool? ?? false;
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => ChooseAccountTypeScreen(isSignUp: isSignUp),
+              )
+            : _FadedTransitionRoute(
+                widget: ChooseAccountTypeScreen(isSignUp: isSignUp),
+                settings: settings,
+              );
+
+      case Routes.eventDetailsScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => EventDetailsScreen(
+                  title: args?['title'] as String? ?? '',
+                  location: args?['location'] as String? ?? '',
+                  date: args?['date'] as String? ?? '',
+                  price: args?['price'] as String? ?? '',
+                  imageUrl: args?['imageUrl'] as String? ?? '',
+                  description: args?['description'] as String? ?? '',
+                  eventId: args?['eventId'] as String? ?? '',
+                ),
+              )
+            : _FadedTransitionRoute(
+                widget: EventDetailsScreen(
+                  title: args?['title'] as String? ?? '',
+                  location: args?['location'] as String? ?? '',
+                  date: args?['date'] as String? ?? '',
+                  price: args?['price'] as String? ?? '',
+                  imageUrl: args?['imageUrl'] as String? ?? '',
+                  description: args?['description'] as String? ?? '',
+                  eventId: args?['eventId'] as String? ?? '',
+                ),
                 settings: settings,
               );
 
@@ -201,7 +242,8 @@ final class RouteGenerator {
         final email = args?['email'] as String? ?? "jessicawilson@examle.com";
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => OtpVerificationScreen(type: type, email: email),
+                builder: (context) =>
+                    OtpVerificationScreen(type: type, email: email),
               )
             : _FadedTransitionRoute(
                 widget: OtpVerificationScreen(type: type, email: email),
@@ -214,10 +256,16 @@ final class RouteGenerator {
         final resetToken = args?['resetToken'] as String?;
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => CreateNewPasswordScreen(email: email, resetToken: resetToken),
+                builder: (context) => CreateNewPasswordScreen(
+                  email: email,
+                  resetToken: resetToken,
+                ),
               )
             : _FadedTransitionRoute(
-                widget: CreateNewPasswordScreen(email: email, resetToken: resetToken),
+                widget: CreateNewPasswordScreen(
+                  email: email,
+                  resetToken: resetToken,
+                ),
                 settings: settings,
               );
 
@@ -235,6 +283,7 @@ final class RouteGenerator {
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
                 builder: (context) => const BusinessDetailsScreen(),
+                settings: settings,
               )
             : _FadedTransitionRoute(
                 widget: const BusinessDetailsScreen(),
@@ -245,6 +294,7 @@ final class RouteGenerator {
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
                 builder: (context) => const VerifyIdentityScreen(),
+                settings: settings,
               )
             : _FadedTransitionRoute(
                 widget: const VerifyIdentityScreen(),
@@ -255,6 +305,7 @@ final class RouteGenerator {
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
                 builder: (context) => const UploadBusinessDocumentsScreen(),
+                settings: settings,
               )
             : _FadedTransitionRoute(
                 widget: const UploadBusinessDocumentsScreen(),
