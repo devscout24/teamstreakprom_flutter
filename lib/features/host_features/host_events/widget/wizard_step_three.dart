@@ -173,21 +173,37 @@ class WizardStepThree extends StatelessWidget {
                 alignment: Alignment.center,
                 clipBehavior: Clip.hardEdge,
                 child: artist.photoPath != null
-                    ? Image.file(
-                        File(artist.photoPath!),
-                        width: 80.w,
-                        height: 80.w,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 80.w,
-                          height: 80.w,
-                          color: AppColors.c242A34,
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      )
+                    ? (artist.photoPath!.startsWith('http')
+                        ? Image.network(
+                            artist.photoPath!,
+                            width: 80.w,
+                            height: 80.w,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 80.w,
+                              height: 80.w,
+                              color: AppColors.c242A34,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          )
+                        : Image.file(
+                            File(artist.photoPath!),
+                            width: 80.w,
+                            height: 80.w,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 80.w,
+                              height: 80.w,
+                              color: AppColors.c242A34,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ))
                     : Icon(
                         Icons.person,
                         color: AppColors.c242A34,

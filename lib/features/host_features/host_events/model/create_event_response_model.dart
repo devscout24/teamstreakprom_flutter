@@ -69,35 +69,40 @@ class EventData {
       this.iV});
 
   EventData.fromJson(Map<String, dynamic> json) {
-    hostId = json['hostId'];
-    categoryId = json['categoryId'];
-    title = json['title'];
-    latitude = (json['latitude'] != null) ? json['latitude'].toDouble() : null;
-    longitude = (json['longitude'] != null) ? json['longitude'].toDouble() : null;
-    ageRestriction = json['ageRestriction'];
-    placeName = json['placeName'];
-    description = json['description'];
-    startDate = json['startDate'];
-    endDate = json['endDate'];
-    ticketPrice = (json['ticketPrice'] != null) ? json['ticketPrice'].toDouble() : null;
-    stock = json['stock'];
-    images = json['images']?.cast<String>();
-    if (json['artistInfo'] != null) {
-      artistInfo = <ArtistInfo>[];
-      json['artistInfo'].forEach((v) {
-        artistInfo!.add(ArtistInfo.fromJson(v));
-      });
+    try {
+      hostId = json['hostId'] is Map ? json['hostId']['_id'] ?? json['hostId'].toString() : json['hostId'];
+      categoryId = json['categoryId'] is Map ? json['categoryId']['_id'] ?? json['categoryId'].toString() : json['categoryId'];
+      title = json['title'];
+      latitude = (json['latitude'] != null) ? json['latitude'].toDouble() : null;
+      longitude = (json['longitude'] != null) ? json['longitude'].toDouble() : null;
+      ageRestriction = json['ageRestriction'];
+      placeName = json['placeName'];
+      description = json['description'];
+      startDate = json['startDate'];
+      endDate = json['endDate'];
+      ticketPrice = (json['ticketPrice'] != null) ? json['ticketPrice'].toDouble() : null;
+      stock = json['stock'];
+      images = json['images']?.cast<String>();
+      if (json['artistInfo'] != null) {
+        artistInfo = <ArtistInfo>[];
+        json['artistInfo'].forEach((v) {
+          artistInfo!.add(ArtistInfo.fromJson(v));
+        });
+      }
+      if (json['rewards'] != null) {
+        rewards = <Rewards>[];
+        json['rewards'].forEach((v) {
+          rewards!.add(Rewards.fromJson(v));
+        });
+      }
+      sId = json['_id'];
+      createdAt = json['createdAt'];
+      updatedAt = json['updatedAt'];
+      iV = json['__v'];
+    } catch (e, stack) {
+      print('Error parsing EventData.fromJson: $e\n$stack');
+      rethrow;
     }
-    if (json['rewards'] != null) {
-      rewards = <Rewards>[];
-      json['rewards'].forEach((v) {
-        rewards!.add(Rewards.fromJson(v));
-      });
-    }
-    sId = json['_id'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
-    iV = json['__v'];
   }
 
   Map<String, dynamic> toJson() {
@@ -140,7 +145,15 @@ class ArtistInfo {
   ArtistInfo.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     role = json['role'];
-    image = json['image'];
+    
+    if (json['image'] is Map) {
+      image = json['image']['url'] ?? json['image'].toString();
+    } else if (json['image'] is List) {
+      image = (json['image'] as List).isNotEmpty ? json['image'][0].toString() : null;
+    } else {
+      image = json['image'];
+    }
+    
     socialMediaLinks = json['socialMediaLinks'] != null
         ? SocialMediaLinks.fromJson(json['socialMediaLinks'])
         : null;
@@ -208,7 +221,23 @@ class Rewards {
     description = json['description'];
     pointsRequired = json['pointsRequired'];
     stock = json['stock'];
-    image = json['image'];
+    
+    // Safely parse image which might be a String, List, or Map depending on backend
+    if (json['image'] is Map) {
+      image = json['image']['url'] ?? json['image'].toString();
+    } else if (json['image'] is List) {
+      image = (json['image'] as List).isNotEmpty ? json['image'][0].toString() : null;
+    } else {
+      image = json['image'];
+    }
+    
+    // Also try images if image is null
+    if (image == null && json['images'] != null) {
+      if (json['images'] is List && (json['images'] as List).isNotEmpty) {
+        image = json['images'][0].toString();
+      }
+    }
+
     sId = json['_id'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];

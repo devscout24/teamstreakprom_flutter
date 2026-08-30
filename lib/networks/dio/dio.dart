@@ -114,6 +114,14 @@ Future<Response> putHttp(String path, [dynamic data]) async {
   );
 }
 
+Future<Response> patchHttp(String path, [dynamic data]) async {
+  return DioSingleton.instance.dio.patch(
+    path,
+    data: data,
+    cancelToken: DioSingleton.cancelToken,
+  );
+}
+
 Future<Response> getHttp(String path, [dynamic data]) async {
   return DioSingleton.instance.dio.get(
     path,

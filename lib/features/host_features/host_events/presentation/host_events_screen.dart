@@ -155,11 +155,13 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                                   Routes.eventDetailsScreen,
                                   {
                                     'title': event.title ?? "Unknown",
-                                    'location': event.placeName ?? "Unknown Location",
+                                    'location':
+                                        event.placeName ?? "Unknown Location",
                                     'date': formattedDate,
                                     'price': "\$ ${event.ticketPrice ?? 0}",
                                     'imageUrl': imageUrl,
-                                    'description': event.description ??
+                                    'description':
+                                        event.description ??
                                         "Join us for an unforgettable experience at ${event.title}. A spectacular event not to be missed!",
                                     'eventId': event.sId,
                                   },
@@ -174,6 +176,28 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                                 ticketsSold:
                                     0, // Using 0 since api doesn't provide it directly
                                 capacity: event.stock ?? 0,
+                                onEdit: () async {
+                                  if (event.sId != null) {
+                                    try {
+                                      final response =
+                                          await getEventDetailsRxObj
+                                              .getEventDetails(event.sId!);
+                                      if (response?.data != null &&
+                                          context.mounted) {
+                                        NavigationService.navigateToWithArgs(
+                                          Routes.createEventScreen,
+                                          {'eventData': response!.data},
+                                        );
+                                      }
+                                    } catch (e) {
+                                      customToastMessage(
+                                        "Error",
+                                        "Failed to load event details for editing",
+                                        isError: true,
+                                      );
+                                    }
+                                  }
+                                },
                                 onDelete: () async {
                                   if (event.sId != null) {
                                     try {
@@ -205,12 +229,6 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                                       isError: true,
                                     );
                                   }
-                                },
-                                onEdit: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.createEventScreen,
-                                  );
                                 },
                               ),
                             );

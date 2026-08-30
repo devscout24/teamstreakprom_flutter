@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'gen/colors.gen.dart';
 import 'gen/assets.gen.dart';
 import 'features/home/presentation/home_screen.dart';
-import 'features/event/presentation/event_screen.dart';
+import 'features/rewards/presentation/rewards_marketplace_screen.dart';
 import 'features/rewards/presentation/rewards_screen.dart';
 import 'features/my_ticket/presentation/my_ticket_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
@@ -33,7 +33,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
           });
         },
       ),
-      const EventScreen(),
+      const RewardsMarketplaceScreen(),
       const RewardsScreen(),
       const MyTicketScreen(),
       const SettingsScreen(),
@@ -165,8 +165,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 ),
                 _buildNavItem(
                   index: 1,
-                  iconPath: Assets.icons.eventIcon.path,
-                  label: "Event",
+                  iconPath: 'assets/icons/marketplace_icon.png',
+                  label: "Marketplace",
                 ),
                 _buildNavItem(
                   index: 2,

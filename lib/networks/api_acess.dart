@@ -21,6 +21,7 @@ import 'package:teamstreakpromo/features/onboarding/data/rx_get_categories/rx.da
 import 'package:teamstreakpromo/features/onboarding/data/rx_get_subcategories/rx.dart';
 import 'package:teamstreakpromo/features/onboarding/model/intrest_category_model.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_create_event/rx.dart';
+import 'package:teamstreakpromo/features/host_features/host_events/data/rx_update_event/rx.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/create_event_response_model.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_delete_event/rx.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/model/delete_event_response_model.dart';
@@ -110,4 +111,9 @@ final GetEventsByCategoryRx getEventsByCategoryRxObj = GetEventsByCategoryRx(
 final AuthMeRx authMeRxObj = AuthMeRx(
   empty: AuthMeModel(),
   dataFetcher: BehaviorSubject<AuthMeModel>(),
+);
+
+final UpdateEventRx updateEventRxObj = UpdateEventRx(
+  empty: CreateEventResponseModel(),
+  dataFetcher: BehaviorSubject<CreateEventResponseModel>(),
 );

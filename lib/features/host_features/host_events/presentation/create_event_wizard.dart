@@ -16,9 +16,14 @@ import 'package:teamstreakpromo/networks/api_acess.dart';
 import 'package:teamstreakpromo/features/onboarding/model/intrest_category_model.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
+import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart' as hedm;
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class CreateEventWizard extends StatefulWidget {
-  const CreateEventWizard({super.key});
+  final hedm.Data? eventData;
+
+  const CreateEventWizard({super.key, this.eventData});
 
   @override
   State<CreateEventWizard> createState() => _CreateEventWizardState();
@@ -67,26 +72,89 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   void initState() {
     super.initState();
     getCategoriesRxObj.fetchCategories();
-    // Pre-populate mock values for demonstration matching mockup
-    _eventNameController.text = "";
-    _locationController.text = "";
-    _priceController.text = "";
-    _capacityController.text = "";
 
-    _rewardTitleController.text = "";
-    _rewardQuantityController.text = "";
-    _rewardPointController.text = "";
+    if (widget.eventData != null) {
+      final data = widget.eventData!;
+      _eventNameController.text = data.title ?? "";
+      _locationController.text = data.placeName ?? "";
+      _priceController.text = data.ticketPrice?.toString() ?? "";
+      _capacityController.text = data.stock?.toString() ?? "";
+      _eventDescController.text = data.description ?? "";
 
-    // Pre-populate dynamic artist list with 1 complete artist & social links
-    _artistForms.add(
-      ArtistFormModel(
-        defaultName: "",
-        defaultRole: "",
-        defaultSocialLinks: [
-          SocialLinkModel(platform: "Facebook", defaultUrl: ""),
-        ],
-      ),
-    );
+      if (data.startDate != null) {
+        _startDateController.text = DateFormat('yyyy-MM-dd').format(data.startDate!);
+        _startTimeController.text = DateFormat('HH:mm').format(data.startDate!);
+      }
+      if (data.endDate != null) {
+        _endDateController.text = DateFormat('yyyy-MM-dd').format(data.endDate!);
+        _endTimeController.text = DateFormat('HH:mm').format(data.endDate!);
+      }
+
+      if (data.ageRestriction != null) {
+         _selectedAgeRestriction = "${data.ageRestriction}+";
+      }
+
+      if (data.images != null && data.images!.isNotEmpty) {
+          _eventPhotoPaths.addAll(data.images!);
+      }
+
+      if (data.artistInfo != null && data.artistInfo!.isNotEmpty) {
+          for (var artist in data.artistInfo!) {
+              _artistForms.add(
+                ArtistFormModel(
+                  defaultName: artist.name ?? "",
+                  defaultRole: artist.role ?? "",
+                  photoPath: artist.image,
+                  defaultSocialLinks: [], 
+                ),
+              );
+          }
+      } else {
+        _artistForms.add(
+          ArtistFormModel(
+            defaultName: "",
+            defaultRole: "",
+            defaultSocialLinks: [
+              SocialLinkModel(platform: "Facebook", defaultUrl: ""),
+            ],
+          ),
+        );
+      }
+
+      if (data.rewards != null && data.rewards!.isNotEmpty) {
+          for (var reward in data.rewards!) {
+              _rewards.add({
+                  'title': reward.title ?? "",
+                  'desc': reward.description ?? "",
+                  'points': reward.pointsRequired?.toString() ?? "0",
+                  'qty': reward.stock?.toString() ?? "0",
+                  'image': reward.images ?? [],
+              });
+          }
+      }
+
+    } else {
+      // Pre-populate mock values for demonstration matching mockup
+      _eventNameController.text = "";
+      _locationController.text = "";
+      _priceController.text = "";
+      _capacityController.text = "";
+
+      _rewardTitleController.text = "";
+      _rewardQuantityController.text = "";
+      _rewardPointController.text = "";
+
+      // Pre-populate dynamic artist list with 1 complete artist & social links
+      _artistForms.add(
+        ArtistFormModel(
+          defaultName: "",
+          defaultRole: "",
+          defaultSocialLinks: [
+            SocialLinkModel(platform: "Facebook", defaultUrl: ""),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -518,10 +586,14 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   void _handlePostEvent() async {
     setState(() => _isPostingEvent = true);
 
-    List<dio.MultipartFile> eventImages = [];
+    List<dynamic> eventImages = [];
     for (String path in _eventPhotoPaths) {
       if (path.isNotEmpty) {
-        eventImages.add(await dio.MultipartFile.fromFile(path));
+        if (path.startsWith('http')) {
+          eventImages.add(path);
+        } else {
+          eventImages.add(await dio.MultipartFile.fromFile(path));
+        }
       }
     }
 
@@ -550,30 +622,40 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       // Assuming Dio will handle or the backend parses form-data correctly.
     };
 
+    List<Map<String, dynamic>> artistInfoList = [];
     List<dio.MultipartFile> artistImagesList = [];
     
     // Add artists
     for (int i = 0; i < _artistForms.length; i++) {
       final artist = _artistForms[i];
       if (artist.nameController.text.trim().isNotEmpty) {
-        body['artistInfo[$i][name]'] = artist.nameController.text;
-        body['artistInfo[$i][role]'] = artist.designationController.text;
+        Map<String, dynamic> artistData = {
+          "name": artist.nameController.text,
+          "role": artist.designationController.text,
+        };
         
         if (artist.photoPath != null && artist.photoPath!.isNotEmpty) {
-          artistImagesList.add(await dio.MultipartFile.fromFile(
-            artist.photoPath!,
-          ));
+          if (artist.photoPath!.startsWith('http')) {
+            artistData["image"] = artist.photoPath;
+          } else {
+            artistImagesList.add(await dio.MultipartFile.fromFile(artist.photoPath!));
+          }
         }
         
-        int j = 0;
-        for (var link in artist.socialLinks.where(
-          (l) => l.urlController.text.trim().isNotEmpty,
-        )) {
-          body['artistInfo[$i][socialMediaLinks][${link.platform.toLowerCase()}]'] =
-              link.urlController.text.trim();
-          j++;
+        Map<String, String> socialLinksMap = {};
+        for (var link in artist.socialLinks.where((l) => l.urlController.text.trim().isNotEmpty)) {
+          socialLinksMap[link.platform.toLowerCase()] = link.urlController.text.trim();
         }
+        if (socialLinksMap.isNotEmpty) {
+          artistData["socialMediaLinks"] = socialLinksMap;
+        }
+
+        artistInfoList.add(artistData);
       }
+    }
+    
+    if (artistInfoList.isNotEmpty) {
+      body['artistInfo'] = jsonEncode(artistInfoList);
     }
     
     if (artistImagesList.isNotEmpty) {
@@ -588,24 +670,43 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
         )
         .toList();
 
+    List<Map<String, dynamic>> rewardsList = [];
+
     for (int i = 0; i < validRewards.length; i++) {
       final reward = validRewards[i];
-      body['rewards[$i][title]'] = reward['title'];
-      body['rewards[$i][description]'] = reward['desc'];
-      body['rewards[$i][pointsRequired]'] = reward['points'];
-      body['rewards[$i][stock]'] = reward['qty'];
-
+      
       List<String> paths = (reward['image'] is List)
           ? List<String>.from(reward['image'])
           : [reward['image']?.toString() ?? ""];
 
+      List<String> existingUrls = [];
       List<dio.MultipartFile> rewardMultiFiles = [];
+
       for (String path in paths) {
         if (path.isNotEmpty) {
-          rewardMultiFiles.add(await dio.MultipartFile.fromFile(path));
+          if (path.startsWith('http')) {
+            existingUrls.add(path);
+          } else {
+            rewardMultiFiles.add(await dio.MultipartFile.fromFile(path));
+          }
         }
       }
-      body['rewardImages_$i'] = rewardMultiFiles;
+
+      rewardsList.add({
+        "title": reward['title'],
+        "description": reward['desc'],
+        "pointsRequired": reward['points'],
+        "stock": reward['qty'],
+        if (existingUrls.isNotEmpty) "images": existingUrls,
+      });
+
+      if (rewardMultiFiles.isNotEmpty) {
+        body['rewardImages_$i'] = rewardMultiFiles;
+      }
+    }
+
+    if (rewardsList.isNotEmpty) {
+      body['rewards'] = jsonEncode(rewardsList);
     }
 
     dio.FormData formData = dio.FormData.fromMap(body);
@@ -614,7 +715,12 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     print("Sending FormData...");
 
     try {
-      final success = await createEventRxObj.createEvent(formData);
+      bool success;
+      if (widget.eventData != null && widget.eventData!.id != null) {
+        success = await updateEventRxObj.updateEvent(widget.eventData!.id!, formData);
+      } else {
+        success = await createEventRxObj.createEvent(formData);
+      }
 
       if (mounted) {
         setState(() => _isPostingEvent = false);
@@ -627,7 +733,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to create event")),
+            SnackBar(content: Text(widget.eventData != null ? "Failed to update event" : "Failed to create event")),
           );
         }
       }
@@ -686,7 +792,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                   ),
                   UIHelper.verticalSpace(10),
                   Text(
-                    "Your event has been created and is now live on the platform.",
+                    widget.eventData != null ? "Your event has been updated successfully." : "Your event has been created and is now live on the platform.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: "SF Pro",

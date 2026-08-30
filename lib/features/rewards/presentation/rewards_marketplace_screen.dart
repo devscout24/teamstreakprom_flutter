@@ -7,6 +7,8 @@ import '../../../common_widgets/custom_app_bar.dart';
 import '../../home/widgets/filter_bottom_sheet.dart';
 import '../../home/widgets/reward_card.dart';
 import '../../home/model/reward_model.dart';
+import '../../../common_widgets/app_network_image.dart';
+import '../../business_partner/business_partner_rewards/presentation/business_partner_rewards_details_screen.dart';
 
 class RewardsMarketplaceScreen extends StatefulWidget {
   const RewardsMarketplaceScreen({super.key});
@@ -63,155 +65,202 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.c121212,
-      appBar: const CustomAppBar(
-        title: "Rewards Marketplace",
-        showRightIcon: false,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          UIHelper.verticalSpace(12.h),
 
-          // Search Bar
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Container(
-              height: 52.h,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E222B),
-                borderRadius: BorderRadius.circular(100.r),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  width: 1.w,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            UIHelper.verticalSpace(12.h),
+            // Search Bar
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Container(
+                height: 52.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E222B),
+                  borderRadius: BorderRadius.circular(100.r),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1.w,
+                  ),
+                ),
+                padding: EdgeInsets.only(left: 16.w, right: 6.w),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.search,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 24.sp,
+                    ),
+                    UIHelper.horizontalSpace(12.w),
+                    Expanded(
+                      child: TextField(
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Search...",
+                          hintStyle: TextFontStyle
+                              .textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.4),
+                              ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _showFilterBottomSheet,
+                      child: Container(
+                        width: 40.h,
+                        height: 40.h,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF232D26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.tune_rounded,
+                          color: Colors.white,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              padding: EdgeInsets.only(left: 16.w, right: 6.w),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.search,
-                    color: Colors.white.withValues(alpha: 0.5),
-                    size: 24.sp,
-                  ),
-                  UIHelper.horizontalSpace(12.w),
-                  Expanded(
-                    child: TextField(
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Search...",
-                        hintStyle: TextFontStyle
-                            .textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              color: Colors.white.withValues(alpha: 0.4),
-                            ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _showFilterBottomSheet,
-                    child: Container(
-                      width: 40.h,
-                      height: 40.h,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF232D26),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.tune_rounded,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
-          UIHelper.verticalSpace(24.h),
+            UIHelper.verticalSpace(24.h),
 
-          // Categories list
-          SizedBox(
-            height: 38.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final isSelected = _selectedCategoryIndex == index;
-                return Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: GestureDetector(
+            // Grid screen
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 16.h,
+                  childAspectRatio: 0.55,
+                ),
+                itemCount: _rewards.length,
+                itemBuilder: (context, index) {
+                  final reward = _rewards[index];
+                  return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _selectedCategoryIndex = index;
-                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const BusinessPartnerRewardsDetailsScreen(),
+                        ),
+                      );
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      width: double.infinity,
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.cA8FF8E
-                            : const Color(0xFF1E222B),
-                        borderRadius: BorderRadius.circular(100.r),
+                        color: const Color(0xFF1E222B),
+                        borderRadius: BorderRadius.circular(24.r),
                         border: Border.all(
-                          color: isSelected
-                              ? Colors.transparent
-                              : Colors.white.withValues(alpha: 0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           width: 1.w,
                         ),
                       ),
-                      child: Center(
-                        child: Text(
-                          _categories[index],
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: isSelected
-                                    ? Colors.black
-                                    : Colors.white.withValues(alpha: 0.7),
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Product Image Container
+                            Container(
+                              height: 140.h,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color.fromRGBO(
+                                  134,
+                                  134,
+                                  134,
+                                  0.10,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(16.r),
+                                  topRight: Radius.circular(16.r),
+                                ),
                               ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(16.r),
+                                  topRight: Radius.circular(16.r),
+                                ),
+                                child: AppNetworkImage(
+                                  imageUrl: reward.imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            UIHelper.verticalSpace(12.h),
+                            // Product Title
+                            Text(
+                              reward.title,
+                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 12.sp,
+                                    color: AppColors.cFFF9F3,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            UIHelper.verticalSpace(8.h),
+                            // Description
+                            Text(
+                              reward.description,
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: AppColors.cC6C6C6,
+                                    fontSize: 10.sp,
+                                    height: 1.4,
+                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            UIHelper.verticalSpace(20.h),
+                            // Expiry date info line
+                            RichText(
+                              text: TextSpan(
+                                text: "Exp: ",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: const Color(0xFFF28F31),
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'SF Pro',
+                                    ),
+                                children: [
+                                  TextSpan(
+                                    text: reward.expiryDate,
+                                    style: TextStyle(
+                                      color: AppColors.cE9EAE9,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 12.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            UIHelper.verticalSpace(10.h),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-          UIHelper.verticalSpace(24.h),
-
-          // List screen
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemCount: _rewards.length,
-              itemBuilder: (context, index) {
-                final reward = _rewards[index];
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 20.h),
-                  child: RewardCard(
-                    title: reward.title,
-                    description: reward.description,
-                    expiryDate: reward.expiryDate,
-                    points: reward.points,
-                    imageUrl: reward.imageUrl,
-                    brandLogoUrl: reward.brandLogoUrl,
-                    width: double.infinity,
-                    onRedeemPressed: () {
-                      // TODO: Implement redeem action
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
