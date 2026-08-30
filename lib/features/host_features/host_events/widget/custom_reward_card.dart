@@ -22,6 +22,23 @@ class CustomRewardCard extends StatelessWidget {
     required double height,
   }) {
     if (rewardImage is List && rewardImage.isNotEmpty) {
+      if (rewardImage[0].startsWith('http')) {
+        return Image.network(
+          rewardImage[0],
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: width,
+            height: height,
+            color: AppColors.c242A34,
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+        );
+      }
       return Image.file(
         File(rewardImage[0]),
         width: width,

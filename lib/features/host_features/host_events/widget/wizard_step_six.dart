@@ -44,6 +44,23 @@ class WizardStepSix extends StatelessWidget {
     required double height,
   }) {
     if (rewardImage is List && rewardImage.isNotEmpty) {
+      if (rewardImage[0].startsWith('http')) {
+        return Image.network(
+          rewardImage[0],
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: width,
+            height: height,
+            color: AppColors.c242A34,
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+        );
+      }
       return Image.file(
         File(rewardImage[0]),
         width: width,
@@ -78,9 +95,15 @@ class WizardStepSix extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final validRewards = rewards.where((r) => r['title'] != null && r['title'].toString().trim().isNotEmpty).toList();
+    final validRewards = rewards
+        .where(
+          (r) => r['title'] != null && r['title'].toString().trim().isNotEmpty,
+        )
+        .toList();
     final firstReward = validRewards.isNotEmpty ? validRewards.first : null;
-    final validArtists = artistForms.where((a) => a.nameController.text.trim().isNotEmpty).toList();
+    final validArtists = artistForms
+        .where((a) => a.nameController.text.trim().isNotEmpty)
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,9 +232,7 @@ class WizardStepSix extends StatelessWidget {
               UIHelper.verticalSpace(6),
               // Description Value
               Text(
-                eventDesc.isEmpty
-                    ? "No description provided."
-                    : eventDesc,
+                eventDesc.isEmpty ? "No description provided." : eventDesc,
                 style: TextStyle(
                   fontFamily: "SF Pro",
                   fontSize: 12.sp,
@@ -234,97 +255,107 @@ class WizardStepSix extends StatelessWidget {
                 ),
                 UIHelper.verticalSpace(8),
 
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: validArtists.length,
-                separatorBuilder: (context, index) =>
-                    UIHelper.verticalSpace(14),
-                itemBuilder: (context, index) {
-                  final artist = validArtists[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 18.r,
-                            backgroundColor: AppColors.c242A34,
-                            backgroundImage: artist.photoPath != null
-                                ? FileImage(File(artist.photoPath!))
-                                      as ImageProvider
-                                : const NetworkImage(
-                                    "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&auto=format&fit=crop",
-                                  ),
-                          ),
-                          UIHelper.horizontalSpace(10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                artist.nameController.text.isEmpty
-                                    ? "Artist Name"
-                                    : artist.nameController.text,
-                                style: TextStyle(
-                                  fontFamily: "SF Pro Rounded",
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                artist.designationController.text.isEmpty
-                                    ? "Designation"
-                                    : artist.designationController.text,
-                                style: TextStyle(
-                                  fontFamily: "SF Pro",
-                                  fontSize: 11.sp,
-                                  color: Colors.white.withValues(alpha: 0.4),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      UIHelper.verticalSpace(8),
-                      // Media Links for this artist
-                      Text(
-                        "Media Links",
-                        style: TextStyle(
-                          fontFamily: "SF Pro Rounded",
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      UIHelper.verticalSpace(4),
-                      Row(
-                        children: artist.socialLinks.map((social) {
-                          IconData iconData;
-                          if (social.platform == "Facebook") {
-                            iconData = Icons.facebook;
-                          } else if (social.platform == "Instagram") {
-                            iconData = Icons.alternate_email;
-                          } else if (social.platform == "Twitter") {
-                            iconData = Icons.flutter_dash;
-                          } else {
-                            iconData = Icons.link;
-                          }
-                          return Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: Icon(
-                              iconData,
-                              color: AppColors.primaryColorSecond,
-                              size: 16.w,
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: validArtists.length,
+                  separatorBuilder: (context, index) =>
+                      UIHelper.verticalSpace(14),
+                  itemBuilder: (context, index) {
+                    final artist = validArtists[index];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 18.r,
+                              backgroundColor: AppColors.c242A34,
+                              backgroundImage:
+                                  (artist.photoPath != null &&
+                                      artist.photoPath!.isNotEmpty)
+                                  ? (artist.photoPath!.startsWith('http')
+                                            ? NetworkImage(artist.photoPath!)
+                                            : FileImage(
+                                                File(artist.photoPath!),
+                                              ))
+                                        as ImageProvider
+                                  : const NetworkImage(
+                                      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=150&auto=format&fit=crop",
+                                    ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              UIHelper.verticalSpace(14),
+                            UIHelper.horizontalSpace(10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    artist.nameController.text.isEmpty
+                                        ? "Artist Name"
+                                        : artist.nameController.text,
+                                    style: TextStyle(
+                                      fontFamily: "SF Pro Rounded",
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    artist.designationController.text.isEmpty
+                                        ? "Designation"
+                                        : artist.designationController.text,
+                                    style: TextStyle(
+                                      fontFamily: "SF Pro",
+                                      fontSize: 11.sp,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        UIHelper.verticalSpace(8),
+                        // Media Links for this artist
+                        Text(
+                          "Media Links",
+                          style: TextStyle(
+                            fontFamily: "SF Pro Rounded",
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(4),
+                        Row(
+                          children: artist.socialLinks.map((social) {
+                            IconData iconData;
+                            if (social.platform == "Facebook") {
+                              iconData = Icons.facebook;
+                            } else if (social.platform == "Instagram") {
+                              iconData = Icons.alternate_email;
+                            } else if (social.platform == "Twitter") {
+                              iconData = Icons.flutter_dash;
+                            } else {
+                              iconData = Icons.link;
+                            }
+                            return Padding(
+                              padding: EdgeInsets.only(right: 8.w),
+                              child: Icon(
+                                iconData,
+                                color: AppColors.primaryColorSecond,
+                                size: 16.w,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                UIHelper.verticalSpace(14),
               ],
 
               // Dates
@@ -346,7 +377,7 @@ class WizardStepSix extends StatelessWidget {
                 ),
               ),
               UIHelper.verticalSpace(14),
-              
+
               // Price and Capacity
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

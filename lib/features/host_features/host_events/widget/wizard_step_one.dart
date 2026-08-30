@@ -102,6 +102,12 @@ class WizardStepOne extends StatelessWidget {
                 value: selectedCategory,
                 hintText: "Choose Categories",
                 onTap: onCategoryTap,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return "Please select a category";
+                  }
+                  return null;
+                },
               ),
         UIHelper.verticalSpace(16),
 
@@ -133,6 +139,12 @@ class WizardStepOne extends StatelessWidget {
                   value: selectedSubcategory,
                   hintText: "Choose Subcategories",
                   onTap: onSubcategoryTap,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return "Please select a subcategory";
+                    }
+                    return null;
+                  },
                 ),
           UIHelper.verticalSpace(16),
         ],

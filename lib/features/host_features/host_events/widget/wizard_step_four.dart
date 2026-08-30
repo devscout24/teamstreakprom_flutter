@@ -170,20 +170,35 @@ class WizardStepFour extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(11.r),
-                        child: Image.file(
-                          File(path),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: AppColors.c242A34,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.broken_image,
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  size: 20.w,
-                                ),
+                        child: path.startsWith('http')
+                            ? Image.network(
+                                path,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      color: AppColors.c242A34,
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white.withValues(alpha: 0.5),
+                                        size: 20.w,
+                                      ),
+                                    ),
+                              )
+                            : Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      color: AppColors.c242A34,
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white.withValues(alpha: 0.5),
+                                        size: 20.w,
+                                      ),
+                                    ),
                               ),
-                        ),
                       ),
                     ),
                     Positioned(

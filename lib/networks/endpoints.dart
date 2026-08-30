@@ -52,5 +52,6 @@ final class Endpoints {
 
   static String getEventDetails(String id) => "/api/events/$id";
   static String deleteEvent(String id) => "/api/events/$id";
+  static String updateEvent(String id) => "/api/events/$id";
   static String authMe() => "/api/auth/me";
 }

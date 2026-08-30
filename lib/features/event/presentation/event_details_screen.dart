@@ -347,7 +347,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               onBuyTicket: _showBookingSuccessDialog,
               onRedeemReward: _redeemRewardDirectly,
               onEditEvent: () {
-                NavigationService.navigateTo(Routes.createEventScreen);
+                NavigationService.navigateToWithArgs(
+                  Routes.createEventScreen,
+                  {'eventData': _eventDetails?.data},
+                );
               },
               onDeleteEvent: () async {
                 if (widget.eventId != null) {
