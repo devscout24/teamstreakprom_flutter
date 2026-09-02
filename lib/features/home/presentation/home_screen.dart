@@ -12,7 +12,9 @@ import '../../../helpers/navigation_service.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../common_widgets/app_network_image.dart';
 import '../../../networks/api_acess.dart';
+import '../../../networks/endpoints.dart';
 import '../../onboarding/model/intrest_category_model.dart';
+import '../../settings/model/user_profile_model.dart';
 import 'package:shimmer/shimmer.dart';
 
 
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    userProfileRxObj.fetchUserProfile();
     getCategoriesRxObj.fetchCategories();
     _initEvents();
   }
@@ -55,129 +58,242 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
-      color: AppColors.c121212,
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              NavigationService.navigateTo(Routes.editProfileScreen);
-            },
-            child: Container(
-              width: 44.w,
-              height: 44.w,
-              decoration: const BoxDecoration(shape: BoxShape.circle),
-              child: const AppNetworkImage(
-                imageUrl:
-                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-                borderRadius: BorderRadius.all(Radius.circular(100)),
-              ),
-            ),
-          ),
-          UIHelper.horizontalSpace(12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    NavigationService.navigateTo(Routes.editProfileScreen);
-                  },
-                  child: Text(
-                    "Wilson Culhane",
-                    style: TextFontStyle.textStyle16cFFFFFFSFPro590,
-                  ),
-                ),
-                UIHelper.verticalSpace(4.h),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      size: 16.sp,
-                      color: AppColors.primaryColorSecond,
-                    ),
-                    UIHelper.horizontalSpace(4.w),
-                    Flexible(
-                      child: Text(
-                        "Divine Art Festival",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
-                            .copyWith(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white.withValues(alpha: 0.6),
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          UIHelper.horizontalSpace(12.w),
-          GestureDetector(
-            onTap: () {
-              NavigationService.navigateTo(Routes.rewardsPointDetailsScreen);
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E222B),
-                borderRadius: BorderRadius.circular(20.r),
-              ),
+    return StreamBuilder<UserProfileModel>(
+      stream: userProfileRxObj.userProfileData,
+      builder: (context, snapshot) {
+        final hasData = snapshot.hasData ||
+            userProfileRxObj.userProfileData.valueOrNull?.data != null;
+        if (!hasData && snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+            color: AppColors.c121212,
+            child: Shimmer.fromColors(
+              baseColor: const Color(0xFF1E222B),
+              highlightColor: Colors.white.withValues(alpha: 0.05),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [
-                        AppColors.primaryColorFirst,
-                        AppColors.primaryColorSecond,
-                      ],
-                    ).createShader(bounds),
-                    blendMode: BlendMode.srcIn,
-                    child: Image.asset(
-                      Assets.icons.pointIcon.path,
-                      width: 18.w,
-                      height: 18.w,
-                      color: Colors.white,
+                  Container(
+                    width: 44.w,
+                    height: 44.w,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E222B),
+                      shape: BoxShape.circle,
                     ),
                   ),
-                  UIHelper.horizontalSpace(6.w),
-                  RichText(
-                    text: TextSpan(
-                      text: "95 ",
-                      style: TextFontStyle.textStyle14cFFFFFFSFPro590.copyWith(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryColorSecond,
-                      ),
+                  UIHelper.horizontalSpace(12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextSpan(
-                          text: "pts",
-                          style: TextFontStyle.textStyle14cFFFFFFSFPro590
-                              .copyWith(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.primaryColorSecond.withValues(
-                                  alpha: 0.8,
-                                ),
-                              ),
+                        Container(
+                          width: 120.w,
+                          height: 16.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E222B),
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(6.h),
+                        Container(
+                          width: 80.w,
+                          height: 12.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E222B),
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
                         ),
                       ],
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(12.w),
+                  Container(
+                    width: 65.w,
+                    height: 32.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E222B),
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(12.w),
+                  Container(
+                    width: 24.w,
+                    height: 24.w,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E222B),
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          UIHelper.horizontalSpace(12.w),
-          GestureDetector(
-            onTap: () {
-              NavigationService.navigateTo(Routes.notificationScreen);
-            },
+          );
+        }
+
+        final profile = snapshot.data?.data ??
+            userProfileRxObj.userProfileData.valueOrNull?.data;
+        final name = (profile?.name != null && profile!.name!.isNotEmpty)
+            ? profile.name!
+            : "User";
+        final points = profile?.totalPoints ?? 0;
+        final location = (profile?.businessProfile?.location != null &&
+                profile!.businessProfile!.location!.isNotEmpty)
+            ? profile.businessProfile!.location!
+            : "Divine Art Festival";
+        String? profileImageUrl = profile?.profileImage;
+        if (profileImageUrl != null &&
+            profileImageUrl.isNotEmpty &&
+            !profileImageUrl.startsWith('http')) {
+          profileImageUrl = url + profileImageUrl;
+        }
+
+        return Container(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+          color: AppColors.c121212,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await NavigationService.navigateTo(Routes.editProfileScreen);
+                  userProfileRxObj.fetchUserProfile();
+                },
+                child: Container(
+                  width: 44.w,
+                  height: 44.w,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: ClipOval(
+                    child: (profileImageUrl != null &&
+                            profileImageUrl.isNotEmpty)
+                        ? AppNetworkImage(
+                            imageUrl: profileImageUrl,
+                            height: 44.w,
+                            width: 44.w,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            Assets.images.placeholderImage.path,
+                            height: 44.w,
+                            width: 44.w,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+              ),
+              UIHelper.horizontalSpace(12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        await NavigationService.navigateTo(
+                          Routes.editProfileScreen,
+                        );
+                        userProfileRxObj.fetchUserProfile();
+                      },
+                      child: Text(
+                        name,
+                        style: TextFontStyle.textStyle16cFFFFFFSFPro590,
+                      ),
+                    ),
+                    UIHelper.verticalSpace(4.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 16.sp,
+                          color: AppColors.primaryColorSecond,
+                        ),
+                        UIHelper.horizontalSpace(4.w),
+                        Flexible(
+                          child: Text(
+                            location,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                                .copyWith(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              UIHelper.horizontalSpace(12.w),
+              GestureDetector(
+                onTap: () {
+                  if (widget.onNavigateToRewards != null) {
+                    widget.onNavigateToRewards!();
+                  } else {
+                    NavigationService.navigateTo(
+                      Routes.rewardsPointDetailsScreen,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 8.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222B),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [
+                            AppColors.primaryColorFirst,
+                            AppColors.primaryColorSecond,
+                          ],
+                        ).createShader(bounds),
+                        blendMode: BlendMode.srcIn,
+                        child: Image.asset(
+                          Assets.icons.pointIcon.path,
+                          width: 18.w,
+                          height: 18.w,
+                          color: Colors.white,
+                        ),
+                      ),
+                      UIHelper.horizontalSpace(6.w),
+                      RichText(
+                        text: TextSpan(
+                          text: "$points ",
+                          style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryColorSecond,
+                              ),
+                          children: [
+                            TextSpan(
+                              text: "pts",
+                              style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 11.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.primaryColorSecond
+                                        .withValues(alpha: 0.8),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              UIHelper.horizontalSpace(12.w),
+              GestureDetector(
+                onTap: () {
+                  NavigationService.navigateTo(Routes.notificationScreen);
+                },
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -217,6 +333,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

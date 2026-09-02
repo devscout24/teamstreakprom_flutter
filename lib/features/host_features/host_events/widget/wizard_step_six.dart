@@ -612,7 +612,7 @@ class WizardStepSix extends StatelessWidget {
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
-                  color: Colors.black,
+                  color: Colors.white,
                   strokeWidth: 2,
                 ),
               )

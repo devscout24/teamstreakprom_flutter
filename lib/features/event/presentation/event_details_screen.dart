@@ -347,10 +347,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               onBuyTicket: _showBookingSuccessDialog,
               onRedeemReward: _redeemRewardDirectly,
               onEditEvent: () {
-                NavigationService.navigateToWithArgs(
-                  Routes.createEventScreen,
-                  {'eventData': _eventDetails?.data},
-                );
+                NavigationService.navigateToWithArgs(Routes.createEventScreen, {
+                  'eventData': _eventDetails?.data,
+                });
               },
               onDeleteEvent: () async {
                 if (widget.eventId != null) {
@@ -499,35 +498,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     ),
                               ),
                             ),
-                            UIHelper.horizontalSpace(12.w),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 8.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColorSecond.withValues(
-                                  alpha: 0.1,
-                                ),
-                                borderRadius: BorderRadius.circular(100.r),
-                                border: Border.all(
-                                  color: AppColors.primaryColorSecond
-                                      .withValues(alpha: 0.3),
-                                  width: 1.w,
-                                ),
-                              ),
-                              child: Text(
-                                _eventDetails?.data?.categoryId?.name ??
-                                    "Event",
-                                style: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
-                                    .copyWith(
-                                      color: AppColors.primaryColorSecond,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ),
                           ],
                         ),
                         UIHelper.verticalSpace(8.h),
@@ -553,6 +523,35 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ],
                         ),
                         UIHelper.verticalSpace(24.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColorSecond.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(100.r),
+                            border: Border.all(
+                              color: AppColors.primaryColorSecond.withValues(
+                                alpha: 0.3,
+                              ),
+                              width: 1.w,
+                            ),
+                          ),
+                          child: Text(
+                            _eventDetails?.data?.categoryId?.name ?? "Event",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: AppColors.primaryColorSecond,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                        UIHelper.verticalSpace(8.h),
 
                         // Info toggle buttons (Event Info vs Reward Info)
                         ClipRRect(

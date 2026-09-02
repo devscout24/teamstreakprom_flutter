@@ -11,6 +11,7 @@ import '../../../helpers/ui_helpers.dart';
 import '../widgets/settings_item.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
+import '../../../networks/api_acess.dart';
 import '../../host_features/profile/presentation/host_edit_profile_screen.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
@@ -18,38 +19,49 @@ class AccountSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accountType = appData.read(kAccountType)?.toString();
+    final profileRole =
+        userProfileRxObj.userProfileData.valueOrNull?.data?.role?.toUpperCase();
+
+    final isHostOrBP =
+        accountType == "AccountType.host" ||
+        accountType == "AccountType.businessPartner" ||
+        accountType == "HOST" ||
+        accountType == "BUSINESS" ||
+        accountType == "host" ||
+        accountType == "business" ||
+        profileRole == "HOST" ||
+        profileRole == "BUSINESS";
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Padding(
-          padding: EdgeInsets.all(8.r),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: const CustomBackButton(),
+            centerTitle: true,
             title: Text(
-              "Account Settings",
+              "Account & Settings",
               style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
               ),
             ),
-            centerTitle: true,
           ),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
         child: Column(
           children: [
             SettingsItem(
               iconPath: Assets.icons.profileIcon.path,
               title: "Personal Info",
               onTap: () {
-                final accountTypeStr = appData.read(kAccountType);
-                if (accountTypeStr == "AccountType.host" ||
-                    accountTypeStr == "AccountType.businessPartner") {
+                if (isHostOrBP) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
