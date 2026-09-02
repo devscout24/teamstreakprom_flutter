@@ -29,6 +29,7 @@ final class Endpoints {
 
   ///profile
   static String profile() => "/api/user/profile";
+  static String updateProfile() => "/api/auth/profile";
 
   // static String getShopByCategories(String slug) =>
   //     "/api/shop-categories/$slug/";

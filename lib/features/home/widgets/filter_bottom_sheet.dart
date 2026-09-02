@@ -19,20 +19,17 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   String _selectedContentType = 'Events';
   String _selectedCategory = '';
   String _selectedSubCategory = '';
-  String _selectedEventDate = 'This Week';
+  String _selectedEventDate = '';
   RangeValues _priceRange = const RangeValues(10, 95);
-  String _selectedDistance = '20 miles';
-  String _selectedAvailability = 'Sold Out';
-  String _selectedEventStatus = 'Live';
-  String _selectedRewardsAvailable = 'No Rewards';
-  String _selectedSortBy = 'Nearest';
+  String _selectedDistance = '';
+  String _selectedAvailability = '';
+  String _selectedRewardsAvailable = '';
 
   // Constants lists
   static const List<String> _contentTypes = ['Events', 'Business Rewards'];
   static const List<String> _eventDates = [
     'Today',
     'Tomorrow',
-    'This Weekend',
     'This Week',
     'Custom',
   ];
@@ -48,26 +45,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     'Sold Out',
     'Few Left',
   ];
-  static const List<String> _eventStatuses = [
-    'Upcoming',
-    'Ending Soon',
-    'Live',
-  ];
   static const List<String> _rewardsAvailableOptions = [
     'Has Rewards',
     'No Rewards',
   ];
-  static const List<String> _sortByOptions = [
-    'Recommended',
-    'Soonest',
-    'Nearest',
-    'Lowest Price',
-    'Most Popular',
-  ];
 
-  String _selectedCompany = 'Nike';
-  String _selectedRewardType = 'Drop Shoulder';
-  String _selectedPoint = '25 pts';
+  String _selectedCompany = '';
+  String _selectedRewardType = '';
+  String _selectedPoint = '';
   RangeValues _pointRange = const RangeValues(10, 95);
   DateTime? _fromDate;
   DateTime? _toDate;
@@ -101,17 +86,15 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       _selectedContentType = 'Events';
       _selectedCategory = '';
       _selectedSubCategory = '';
-      _selectedEventDate = 'This Week';
+      _selectedEventDate = '';
       _priceRange = const RangeValues(10, 95);
-      _selectedDistance = '20 miles';
-      _selectedAvailability = 'Sold Out';
-      _selectedEventStatus = 'Live';
-      _selectedRewardsAvailable = 'No Rewards';
-      _selectedSortBy = 'Nearest';
+      _selectedDistance = '';
+      _selectedAvailability = '';
+      _selectedRewardsAvailable = '';
 
-      _selectedCompany = 'Nike';
-      _selectedRewardType = 'Drop Shoulder';
-      _selectedPoint = '25 pts';
+      _selectedCompany = '';
+      _selectedRewardType = '';
+      _selectedPoint = '';
       _pointRange = const RangeValues(10, 95);
       _fromDate = null;
       _toDate = null;
@@ -427,9 +410,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             _selectedCategory = val;
                             _selectedSubCategory = '';
                           });
-                          final selectedCat = categories.firstWhere((e) => e.name == val);
+                          final selectedCat = categories.firstWhere(
+                            (e) => e.name == val,
+                          );
                           if (selectedCat.id != null) {
-                            getSubCategoriesRxObj.fetchSubCategories(selectedCat.id!);
+                            getSubCategoriesRxObj.fetchSubCategories(
+                              selectedCat.id!,
+                            );
                           }
                         },
                       );
@@ -447,7 +434,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             .where((e) => e.isNotEmpty)
                             .toList();
 
-                        if (snapshot.connectionState == ConnectionState.waiting && options.isEmpty) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting &&
+                            options.isEmpty) {
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                             child: CircularProgressIndicator(
@@ -459,9 +448,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                         if (options.isEmpty) {
                           return Text(
                             "No subcategories available",
-                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                              color: Colors.white.withValues(alpha: 0.5),
-                            ),
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                ),
                           );
                         }
 
@@ -486,6 +477,36 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       onSelected: (val) =>
                           setState(() => _selectedEventDate = val),
                     ),
+
+                    if (_selectedEventDate == 'Custom') ...[
+                      UIHelper.verticalSpace(12.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          _buildDatePickerField(
+                            "From",
+                            _fromDate,
+                            () => _selectDate(context, isFromDate: true),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 12.h,
+                            ),
+                            child: Icon(
+                              Icons.swap_horiz,
+                              color: Colors.white,
+                              size: 24.sp,
+                            ),
+                          ),
+                          _buildDatePickerField(
+                            "To",
+                            _toDate,
+                            () => _selectDate(context, isFromDate: false),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     _buildSectionTitle("Price Range"),
                     SliderTheme(
@@ -555,28 +576,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                           setState(() => _selectedAvailability = val),
                     ),
 
-                    _buildSectionTitle("Event Status"),
-                    _buildPillWrap(
-                      options: _eventStatuses,
-                      selectedValue: _selectedEventStatus,
-                      onSelected: (val) =>
-                          setState(() => _selectedEventStatus = val),
-                    ),
-
                     _buildSectionTitle("Rewards Available"),
                     _buildPillWrap(
                       options: _rewardsAvailableOptions,
                       selectedValue: _selectedRewardsAvailable,
                       onSelected: (val) =>
                           setState(() => _selectedRewardsAvailable = val),
-                    ),
-
-                    _buildSectionTitle("Sort By"),
-                    _buildPillWrap(
-                      options: _sortByOptions,
-                      selectedValue: _selectedSortBy,
-                      onSelected: (val) =>
-                          setState(() => _selectedSortBy = val),
                     ),
                   ] else ...[
                     _buildSectionTitle("Company"),
@@ -732,6 +737,98 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 Expanded(
                   child: CustomGradientButton(
                     onPressed: () {
+                      String? categoryId;
+                      String? subCategoryId;
+
+                      if (_selectedCategory.isNotEmpty) {
+                        final categories =
+                            getCategoriesRxObj
+                                .getCategoriesData
+                                .valueOrNull
+                                ?.data ??
+                            [];
+                        try {
+                          final cat = categories.firstWhere(
+                            (e) => e.name == _selectedCategory,
+                          );
+                          categoryId = cat.id;
+                        } catch (_) {}
+                      }
+
+                      if (_selectedSubCategory.isNotEmpty) {
+                        final subcategories =
+                            getSubCategoriesRxObj
+                                .getSubCategoriesData
+                                .valueOrNull
+                                ?.data ??
+                            [];
+                        try {
+                          final subcat = subcategories.firstWhere(
+                            (e) => e.name == _selectedSubCategory,
+                          );
+                          subCategoryId = subcat.id;
+                        } catch (_) {}
+                      }
+
+                      if (_selectedContentType == 'Events') {
+                        String? apiTicketAvailability;
+                        switch (_selectedAvailability) {
+                          case 'Available':
+                            apiTicketAvailability = 'AVAILABLE';
+                            break;
+                          case 'Sold Out':
+                            apiTicketAvailability = 'SOLD_OUT';
+                            break;
+                          case 'Few Left':
+                            apiTicketAvailability = 'FEW_LEFT';
+                            break;
+                        }
+
+                        String? getFormattedDateString() {
+                          if (_selectedEventDate.isEmpty) return null;
+                          final now = DateTime.now();
+                          String formatDate(DateTime date) {
+                            return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+                          }
+
+                          if (_selectedEventDate == 'Today') {
+                            return formatDate(now);
+                          } else if (_selectedEventDate == 'Tomorrow') {
+                            return formatDate(now.add(const Duration(days: 1)));
+                          } else if (_selectedEventDate == 'This Week') {
+                            final int daysToSunday =
+                                DateTime.sunday - now.weekday;
+                            final endOfWeek = now.add(
+                              Duration(
+                                days: daysToSunday >= 0 ? daysToSunday : 0,
+                              ),
+                            );
+                            return "${formatDate(now)} to ${formatDate(endOfWeek)}";
+                          } else if (_selectedEventDate == 'Custom') {
+                            if (_fromDate != null && _toDate != null) {
+                              return "${formatDate(_fromDate!)} to ${formatDate(_toDate!)}";
+                            } else if (_fromDate != null) {
+                              return formatDate(_fromDate!);
+                            } else if (_toDate != null) {
+                              return formatDate(_toDate!);
+                            }
+                          }
+                          return null;
+                        }
+
+                        getEventsByCategoryRxObj.fetchEvents(
+                          categoryId: categoryId,
+                          subCategoryId: subCategoryId,
+                          minPrice: _priceRange.start,
+                          maxPrice: _priceRange.end,
+                          ticketAvailability: apiTicketAvailability,
+                          rewardsAvailable: _selectedRewardsAvailable.isEmpty
+                              ? null
+                              : _selectedRewardsAvailable == 'Has Rewards',
+                          date: getFormattedDateString(),
+                        );
+                      }
+
                       Navigator.pop(context);
                     },
                     title: "Apply",

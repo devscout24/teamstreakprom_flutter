@@ -31,6 +31,13 @@ import 'package:teamstreakpromo/features/home/data/rx_get_events/rx.dart';
 import 'package:teamstreakpromo/features/home/model/event_fetch_by_category_model.dart';
 import 'package:teamstreakpromo/features/auth/data/rx_auth_me/rx.dart';
 import 'package:teamstreakpromo/features/auth/model/auth_me_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_user_profile/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/user_profile_model.dart';
+
+final UserProfileRx userProfileRxObj = UserProfileRx(
+  empty: UserProfileModel(),
+  dataFetcher: BehaviorSubject<UserProfileModel>(),
+);
 
 final SignUpRx signUpRxObj = SignUpRx(
   empty: UserSignupModel(),

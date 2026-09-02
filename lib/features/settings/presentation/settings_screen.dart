@@ -17,231 +17,370 @@ import '../../host_features/profile/presentation/host_edit_profile_screen.dart';
 import '../../../networks/api_acess.dart';
 import '../../../networks/dio/dio.dart';
 
-class SettingsScreen extends StatelessWidget {
+import '../../../networks/endpoints.dart';
+import '../model/user_profile_model.dart';
+import 'package:shimmer/shimmer.dart';
+
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    try {
+      await userProfileRxObj.fetchUserProfile();
+    } catch (e) {
+      debugPrint("Failed to fetch profile: $e");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final accountType = appData.read(kAccountType);
+    final accountType = appData.read(kAccountType)?.toString();
+    final profileRole =
+        userProfileRxObj.userProfileData.valueOrNull?.data?.role?.toUpperCase();
+
     final isHostOrBP =
         accountType == "AccountType.host" ||
-        accountType == "AccountType.businessPartner";
+        accountType == "AccountType.businessPartner" ||
+        accountType == "HOST" ||
+        accountType == "BUSINESS" ||
+        accountType == "host" ||
+        accountType == "business" ||
+        profileRole == "HOST" ||
+        profileRole == "BUSINESS";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (accountType == "AccountType.user") ...[
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RewardsPointDetailsScreen(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(20.w),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      image: DecorationImage(
-                        image: AssetImage(Assets.images.pointBackground.path),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Assets.icons.pointIcon.image(
-                              color: AppColors.cFFFFFF,
-                              height: 24.sp,
-                              width: 24.sp,
+        child: StreamBuilder<UserProfileModel>(
+          stream: userProfileRxObj.userProfileData,
+          builder: (context, snapshot) {
+            final hasData = snapshot.hasData ||
+                userProfileRxObj.userProfileData.valueOrNull?.data != null;
+            final isWaiting = !hasData &&
+                snapshot.connectionState == ConnectionState.waiting;
+
+            final profile = snapshot.data?.data ??
+                userProfileRxObj.userProfileData.valueOrNull?.data;
+            final name = profile?.name ?? "User";
+            final email = profile?.email ?? "";
+            final points = profile?.totalPoints ?? 0;
+            String? profileImageUrl = profile?.profileImage;
+            if (profileImageUrl != null &&
+                profileImageUrl.isNotEmpty &&
+                !profileImageUrl.startsWith('http')) {
+              profileImageUrl = url + profileImageUrl;
+            }
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!isHostOrBP) ...[
+                    if (isWaiting)
+                      Shimmer.fromColors(
+                        baseColor: const Color(0xFF1E222B),
+                        highlightColor: Colors.white.withValues(alpha: 0.05),
+                        child: Container(
+                          height: 110.h,
+                          padding: EdgeInsets.all(20.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E222B),
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RewardsPointDetailsScreen(),
                             ),
-                            UIHelper.horizontalSpace(8.w),
-                            Text(
-                              "My Point",
-                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                                  .copyWith(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: "SF Pro Rounded",
-                                    color: AppColors.cE8E8E8,
-                                  ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(20.w),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.r),
+                            image: DecorationImage(
+                              image: AssetImage(
+                                  Assets.images.pointBackground.path),
+                              fit: BoxFit.cover,
                             ),
-                            const Spacer(),
-                            Text(
-                              "95",
-                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                                  .copyWith(
-                                    fontSize: 32.sp,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "SF Pro Rounded",
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Assets.icons.pointIcon.image(
                                     color: AppColors.cFFFFFF,
+                                    height: 24.sp,
+                                    width: 24.sp,
                                   ),
+                                  UIHelper.horizontalSpace(8.w),
+                                  Text(
+                                    "My Point",
+                                    style: TextFontStyle
+                                        .textStyle24cFFFFFFSFPro590
+                                        .copyWith(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: "SF Pro Rounded",
+                                          color: AppColors.cE8E8E8,
+                                        ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "$points",
+                                    style: TextFontStyle
+                                        .textStyle24cFFFFFFSFPro590
+                                        .copyWith(
+                                          fontSize: 32.sp,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: "SF Pro Rounded",
+                                          color: AppColors.cFFFFFF,
+                                        ),
+                                  ),
+                                  Text(
+                                    " pts",
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(fontSize: 14.sp),
+                                  ),
+                                ],
+                              ),
+                              UIHelper.verticalSpace(16.h),
+                              Text(
+                                "Earn 325 more points to unlock more rewards.",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      fontSize: 13.sp,
+                                      fontFamily: "SF Pro Rounded",
+                                      color: AppColors.cE8E8E8,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    UIHelper.verticalSpace(16.h),
+                  ],
+
+                  // Profile Card
+                  if (isWaiting)
+                    Shimmer.fromColors(
+                      baseColor: const Color(0xFF1E222B),
+                      highlightColor: Colors.white.withValues(alpha: 0.05),
+                      child: Container(
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E222B),
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 56.w,
+                              height: 56.w,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF1E222B),
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                            Text(
-                              " pts",
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(fontSize: 14.sp),
+                            UIHelper.horizontalSpace(16.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 120.w,
+                                    height: 18.h,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E222B),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                  ),
+                                  UIHelper.verticalSpace(8.h),
+                                  Container(
+                                    width: 160.w,
+                                    height: 14.h,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E222B),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        UIHelper.verticalSpace(16.h),
-                        Text(
-                          "Earn 325 more points to unlock more rewards.",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                fontSize: 13.sp,
-                                fontFamily: "SF Pro Rounded",
-                                color: AppColors.cE8E8E8,
+                      ),
+                    )
+                  else
+                  GradientContainer(
+                    onTap: () async {
+                      if (isHostOrBP) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const HostEditProfileScreen(),
+                          ),
+                        );
+                      } else {
+                        await NavigationService.navigateTo(
+                          Routes.editProfileScreen,
+                        );
+                      }
+                      _fetchProfile();
+                    },
+                    padding: EdgeInsets.all(16.w),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56.w,
+                          height: 56.w,
+                          decoration:
+                              const BoxDecoration(shape: BoxShape.circle),
+                          child: ClipOval(
+                            child: (profileImageUrl != null &&
+                                    profileImageUrl.isNotEmpty)
+                                ? AppNetworkImage(
+                                    imageUrl: profileImageUrl,
+                                    height: 56.w,
+                                    width: 56.w,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    Assets.images.placeholderImage.path,
+                                    height: 56.w,
+                                    width: 56.w,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                        UIHelper.horizontalSpace(16.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
+                                style: TextFontStyle
+                                    .textStyle24cFFFFFFSFPro590
+                                    .copyWith(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
+                              if (email.isNotEmpty) ...[
+                                UIHelper.verticalSpace(4.h),
+                                Text(
+                                  email,
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.6),
+                                        fontSize: 13.sp,
+                                      ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                UIHelper.verticalSpace(16.h),
-              ],
 
-              // Profile Card
-              GradientContainer(
-                onTap: () {
-                  final accountTypeStr = appData.read(kAccountType);
-                  if (accountTypeStr == "AccountType.host" ||
-                      accountTypeStr == "AccountType.businessPartner") {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HostEditProfileScreen(),
-                      ),
-                    );
-                  } else {
-                    NavigationService.navigateTo(Routes.editProfileScreen);
-                  }
-                },
-                padding: EdgeInsets.all(16.w),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56.w,
-                      height: 56.w,
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      child: const AppNetworkImage(
-                        imageUrl:
-                            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-                        borderRadius: BorderRadius.all(Radius.circular(100)),
-                      ),
-                    ),
-                    UIHelper.horizontalSpace(16.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Lila Rose",
-                            style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                                .copyWith(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          UIHelper.verticalSpace(4.h),
-                          Text(
-                            "lilarose@example.com",
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  fontSize: 13.sp,
-                                ),
-                          ),
-                        ],
-                      ),
+                  _buildSectionHeader("Profile & Security"),
+                  SettingsItem(
+                    iconPath: Assets.icons.profileIcon.path,
+                    title: "Account Settings",
+                    onTap: () async {
+                      await NavigationService.navigateTo(
+                        Routes.accountSettingsScreen,
+                      );
+                      _fetchProfile();
+                    },
+                  ),
+
+                  _buildSectionHeader("App Preferences"),
+                  if (isHostOrBP) ...[
+                    SettingsItem(
+                      iconPath: 'assets/icons/team_icon.png',
+                      title: "Manage Team",
+                      onTap: () {
+                        NavigationService.navigateTo(Routes.manageTeamScreen);
+                      },
                     ),
                   ],
-                ),
-              ),
+                  if (!isHostOrBP) ...[
+                    SettingsItem(
+                      iconPath: Assets.icons.inviteIcon.path,
+                      title: "Invite friend",
+                      onTap: () {
+                        NavigationService.navigateTo(Routes.inviteFriendScreen);
+                      },
+                    ),
+                  ],
+                  SettingsItem(
+                    iconPath: Assets.icons.notificationIcon.path,
+                    title: "Notification Preferences",
+                    onTap: () {
+                      NavigationService.navigateTo(
+                        Routes.notificationSettingsScreen,
+                      );
+                    },
+                  ),
 
-              _buildSectionHeader("Profile & Security"),
-              SettingsItem(
-                iconPath: Assets.icons.profileIcon.path,
-                title: "Account Settings",
-                onTap: () {
-                  NavigationService.navigateTo(Routes.accountSettingsScreen);
-                },
-              ),
+                  _buildSectionHeader("Support"),
+                  SettingsItem(
+                    iconPath: Assets.icons.helpandsupportIcon.path,
+                    title: "Help & Support",
+                    onTap: () {
+                      NavigationService.navigateTo(Routes.helpSupportScreen);
+                    },
+                  ),
+                  SettingsItem(
+                    iconPath: Assets.icons.termsConditionIcon.path,
+                    title: "Terms & Condition",
+                    onTap: () {
+                      NavigationService.navigateTo(
+                        Routes.termsConditionScreen,
+                      );
+                    },
+                  ),
 
-              _buildSectionHeader("App Preferences"),
-              if (isHostOrBP) ...[
-                SettingsItem(
-                  iconPath: 'assets/icons/team_icon.png',
-                  title: "Manage Team",
-                  onTap: () {
-                    NavigationService.navigateTo(Routes.manageTeamScreen);
-                  },
-                ),
-                // SettingsItem(
-                //   iconPath: 'assets/icons/subscription_icon.png',
-                //   title: "Subscription Plan",
-                //   onTap: () {
-                //     NavigationService.navigateTo(Routes.subscriptionScreen);
-                //   },
-                // ),
-              ],
-              if (!isHostOrBP) ...[
-                SettingsItem(
-                  iconPath: Assets.icons.inviteIcon.path,
-                  title: "Invite friend",
-                  onTap: () {
-                    NavigationService.navigateTo(Routes.inviteFriendScreen);
-                  },
-                ),
-              ],
-              SettingsItem(
-                iconPath: Assets.icons.notificationIcon.path,
-                title: "Notification Preferences",
-                onTap: () {
-                  NavigationService.navigateTo(
-                    Routes.notificationSettingsScreen,
-                  );
-                },
-              ),
+                  UIHelper.verticalSpace(32.h),
 
-              _buildSectionHeader("Support"),
-              SettingsItem(
-                iconPath: Assets.icons.helpandsupportIcon.path,
-                title: "Help & Support",
-                onTap: () {
-                  NavigationService.navigateTo(Routes.helpSupportScreen);
-                },
+                  // Log Out Button
+                  CustomGradientButton(
+                    onPressed: () => _showLogOutBottomSheet(context),
+                    title: "Log Out",
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                  UIHelper.verticalSpace(32.h),
+                ],
               ),
-              SettingsItem(
-                iconPath: Assets.icons.termsConditionIcon.path,
-                title: "Terms & Condition",
-                onTap: () {
-                  NavigationService.navigateTo(Routes.termsConditionScreen);
-                },
-              ),
-
-              UIHelper.verticalSpace(32.h),
-
-              // Log Out Button
-              CustomGradientButton(
-                onPressed: () => _showLogOutBottomSheet(context),
-                title: "Log Out",
-                borderRadius: BorderRadius.circular(100.r),
-              ),
-              UIHelper.verticalSpace(32.h),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -349,10 +488,9 @@ class SettingsScreen extends StatelessWidget {
                                     appData.remove(kKeyAccessToken);
                                     DioSingleton.instance.update("");
 
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.pop(
-                                      context,
-                                    ); // Close bottom sheet
+                                    if (context.mounted) {
+                                      Navigator.pop(context); // Close bottom sheet
+                                    }
                                     NavigationService.navigateToReplacement(
                                       Routes.signInScreen,
                                     );

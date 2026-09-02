@@ -6,8 +6,12 @@ import '../../../../common_widgets/app_network_image.dart';
 import '../../../../common_widgets/custom_app_bar.dart';
 import '../../../../common_widgets/gradient_container.dart';
 import '../../../../constants/text_font_style.dart';
+import '../../../../gen/assets.gen.dart';
 import '../../../../gen/colors.gen.dart';
 import '../../../../helpers/ui_helpers.dart';
+import '../../../../networks/api_acess.dart';
+import '../../../../networks/endpoints.dart';
+import '../../../settings/model/user_profile_model.dart';
 
 class HostEditProfileScreen extends StatelessWidget {
   const HostEditProfileScreen({super.key});
@@ -16,185 +20,226 @@ class HostEditProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: CustomAppBar(title: "Profile", customAction: _buildEditAction()),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Profile Image
-            Container(
-              width: 100.w,
-              height: 100.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 2.w,
-                ),
-              ),
-              child: const AppNetworkImage(
-                imageUrl:
-                    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300&auto=format&fit=crop",
-                borderRadius: BorderRadius.all(Radius.circular(100)),
-              ),
-            ),
-            UIHelper.verticalSpace(16.h),
+      appBar: CustomAppBar(
+        title: "Profile",
+        customAction: _buildEditAction(context),
+      ),
+      body: StreamBuilder<UserProfileModel>(
+        stream: userProfileRxObj.userProfileData,
+        builder: (context, snapshot) {
+          final profile = snapshot.data?.data ??
+              userProfileRxObj.userProfileData.valueOrNull?.data;
 
-            // Name
-            Text(
-              "Kimberly Gilbert",
-              style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            UIHelper.verticalSpace(12.h),
+          final name = profile?.name ?? "Host";
+          final email = profile?.email ?? "";
+          final phone = profile?.phoneNumber ?? "";
+          final businessName =
+              profile?.businessProfile?.businessName ?? "Business Name";
+          final businessDescription =
+              profile?.businessProfile?.businessDescription ??
+                  "No description provided.";
+          final location =
+              profile?.businessProfile?.location ?? "Location";
 
-            // Email
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          String? profileImageUrl = profile?.profileImage;
+          if (profileImageUrl != null &&
+              profileImageUrl.isNotEmpty &&
+              !profileImageUrl.startsWith('http')) {
+            profileImageUrl = url + profileImageUrl;
+          }
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/icons/gmail_icon.png',
-                  height: 16.w,
-                  width: 16.w,
-                  color: AppColors.cBCBCBB,
+                // Profile Image
+                Container(
+                  width: 100.w,
+                  height: 100.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 2.w,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: (profileImageUrl != null &&
+                            profileImageUrl.isNotEmpty)
+                        ? AppNetworkImage(
+                            imageUrl: profileImageUrl,
+                            height: 100.w,
+                            width: 100.w,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            Assets.images.placeholderImage.path,
+                            height: 100.w,
+                            width: 100.w,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
                 ),
-                UIHelper.horizontalSpace(8.w),
+                UIHelper.verticalSpace(16.h),
+
+                // Name
                 Text(
-                  "kimberlygil052@gmail.com",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(
+                  name,
+                  style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (email.isNotEmpty) ...[
+                  UIHelper.verticalSpace(12.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/icons/gmail_icon.png',
+                        height: 16.w,
+                        width: 16.w,
                         color: AppColors.cBCBCBB,
-                        fontSize: 13.w,
-                        fontFamily: "SF Pro",
                       ),
-                ),
-              ],
-            ),
-            UIHelper.verticalSpace(8.h),
-
-            // Phone
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.phone_outlined,
-                  color: AppColors.cBCBCBB,
-                  size: 16.w,
-                ),
-                UIHelper.horizontalSpace(8.w),
-                Text(
-                  "+88014788582852895",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(
-                        color: AppColors.cBCBCBB,
-                        fontSize: 13.w,
-                        fontFamily: "SF Pro",
+                      UIHelper.horizontalSpace(8.w),
+                      Text(
+                        email,
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cBCBCBB,
+                              fontSize: 13.w,
+                              fontFamily: "SF Pro",
+                            ),
                       ),
-                ),
-              ],
-            ),
-            UIHelper.verticalSpace(24.h),
-
-            // Stats Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatCard(
-                  icon: Image.asset(
-                    'assets/icons/calender_icon.png',
-                    width: 16.w,
-                    height: 16.w,
-                    color: Colors.white,
+                    ],
                   ),
-                  value: "12",
-                  label: "Event",
-                ),
-                _buildStatCard(
-                  icon: Image.asset(
-                    'assets/icons/point_icon.png',
-                    width: 16.w,
-                    height: 16.w,
-                    color: Colors.orange,
-                  ),
-                  value: "4.9",
-                  label: "Rating",
-                ),
-                _buildStatCard(
-                  icon: Icon(
-                    Icons.attach_money_rounded,
-                    color: AppColors.c59B53E,
-                    size: 16.w,
-                  ),
-                  value: "12.4K",
-                  valueColor: AppColors.c59B53E,
-                  label: "Revenue",
-                ),
-              ],
-            ),
-            UIHelper.verticalSpace(32.h),
-
-            // Form Fields
-            _buildTextField(label: "Business Name", value: "Kimberly Gilbert"),
-            UIHelper.verticalSpace(24.h),
-
-            _buildTextField(
-              label: "Business Descriptions",
-              value:
-                  "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.",
-              maxLines: null,
-            ),
-            UIHelper.verticalSpace(24.h),
-
-            _buildTextField(label: "Location", value: "Bali Arts Center"),
-            UIHelper.verticalSpace(24.h),
-
-            // Event Category
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Event Category",
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: Colors.white.withValues(alpha: 0.6),
-                ),
-              ),
-            ),
-            UIHelper.verticalSpace(12.h),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              child: Wrap(
-                spacing: 8.w,
-                runSpacing: 12.h,
-                children: [
-                  _buildChip("Music & Nightlife"),
-                  _buildChip("Arts & Culture"),
-                  _buildChip("Food Festival"),
-                  _buildChip("Health & Wellness"),
-                  _buildChip("Education"),
-                  _buildChip("Sports"),
-                  _buildChip("Fashion"),
                 ],
-              ),
+                if (phone.isNotEmpty) ...[
+                  UIHelper.verticalSpace(8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.phone_outlined,
+                        color: AppColors.cBCBCBB,
+                        size: 16.w,
+                      ),
+                      UIHelper.horizontalSpace(8.w),
+                      Text(
+                        phone,
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cBCBCBB,
+                              fontSize: 13.w,
+                              fontFamily: "SF Pro",
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+                UIHelper.verticalSpace(24.h),
+
+                // Stats Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatCard(
+                      icon: Image.asset(
+                        'assets/icons/calender_icon.png',
+                        width: 16.w,
+                        height: 16.w,
+                        color: Colors.white,
+                      ),
+                      value: "12",
+                      label: "Event",
+                    ),
+                    _buildStatCard(
+                      icon: Image.asset(
+                        'assets/icons/point_icon.png',
+                        width: 16.w,
+                        height: 16.w,
+                        color: Colors.orange,
+                      ),
+                      value: "4.9",
+                      label: "Rating",
+                    ),
+                    _buildStatCard(
+                      icon: Icon(
+                        Icons.attach_money_rounded,
+                        color: AppColors.c59B53E,
+                        size: 16.w,
+                      ),
+                      value: "12.4K",
+                      valueColor: AppColors.c59B53E,
+                      label: "Revenue",
+                    ),
+                  ],
+                ),
+                UIHelper.verticalSpace(32.h),
+
+                // Form Fields
+                _buildTextField(label: "Business Name", value: businessName),
+                UIHelper.verticalSpace(24.h),
+
+                _buildTextField(
+                  label: "Business Descriptions",
+                  value: businessDescription,
+                  maxLines: null,
+                ),
+                UIHelper.verticalSpace(24.h),
+
+                _buildTextField(label: "Location", value: location),
+                UIHelper.verticalSpace(24.h),
+
+                // Event Category
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Event Category",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(color: Colors.white.withValues(alpha: 0.6)),
+                  ),
+                ),
+                UIHelper.verticalSpace(12.h),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Wrap(
+                    spacing: 8.w,
+                    runSpacing: 12.h,
+                    children: [
+                      _buildChip("Music & Nightlife"),
+                      _buildChip("Arts & Culture"),
+                      _buildChip("Food Festival"),
+                      _buildChip("Health & Wellness"),
+                      _buildChip("Education"),
+                      _buildChip("Sports"),
+                      _buildChip("Fashion"),
+                    ],
+                  ),
+                ),
+                UIHelper.verticalSpace(40.h),
+              ],
             ),
-            UIHelper.verticalSpace(40.h),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildEditAction() {
+  Widget _buildEditAction(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        NavigationService.navigateTo(Routes.editProfileScreen);
+      onTap: () async {
+        await NavigationService.navigateTo(Routes.editProfileScreen);
+        userProfileRxObj.fetchUserProfile();
       },
       child: Container(
         width: 24.w,

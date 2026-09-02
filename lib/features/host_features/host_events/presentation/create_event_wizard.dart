@@ -16,7 +16,8 @@ import 'package:teamstreakpromo/networks/api_acess.dart';
 import 'package:teamstreakpromo/features/onboarding/model/intrest_category_model.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
-import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart' as hedm;
+import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart'
+    as hedm;
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
@@ -82,33 +83,37 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       _eventDescController.text = data.description ?? "";
 
       if (data.startDate != null) {
-        _startDateController.text = DateFormat('yyyy-MM-dd').format(data.startDate!);
+        _startDateController.text = DateFormat(
+          'yyyy-MM-dd',
+        ).format(data.startDate!);
         _startTimeController.text = DateFormat('HH:mm').format(data.startDate!);
       }
       if (data.endDate != null) {
-        _endDateController.text = DateFormat('yyyy-MM-dd').format(data.endDate!);
+        _endDateController.text = DateFormat(
+          'yyyy-MM-dd',
+        ).format(data.endDate!);
         _endTimeController.text = DateFormat('HH:mm').format(data.endDate!);
       }
 
       if (data.ageRestriction != null) {
-         _selectedAgeRestriction = "${data.ageRestriction}+";
+        _selectedAgeRestriction = "${data.ageRestriction}+";
       }
 
       if (data.images != null && data.images!.isNotEmpty) {
-          _eventPhotoPaths.addAll(data.images!);
+        _eventPhotoPaths.addAll(data.images!);
       }
 
       if (data.artistInfo != null && data.artistInfo!.isNotEmpty) {
-          for (var artist in data.artistInfo!) {
-              _artistForms.add(
-                ArtistFormModel(
-                  defaultName: artist.name ?? "",
-                  defaultRole: artist.role ?? "",
-                  photoPath: artist.image,
-                  defaultSocialLinks: [], 
-                ),
-              );
-          }
+        for (var artist in data.artistInfo!) {
+          _artistForms.add(
+            ArtistFormModel(
+              defaultName: artist.name ?? "",
+              defaultRole: artist.role ?? "",
+              photoPath: artist.image,
+              defaultSocialLinks: [],
+            ),
+          );
+        }
       } else {
         _artistForms.add(
           ArtistFormModel(
@@ -122,17 +127,16 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       }
 
       if (data.rewards != null && data.rewards!.isNotEmpty) {
-          for (var reward in data.rewards!) {
-              _rewards.add({
-                  'title': reward.title ?? "",
-                  'desc': reward.description ?? "",
-                  'points': reward.pointsRequired?.toString() ?? "0",
-                  'qty': reward.stock?.toString() ?? "0",
-                  'image': reward.images ?? [],
-              });
-          }
+        for (var reward in data.rewards!) {
+          _rewards.add({
+            'title': reward.title ?? "",
+            'desc': reward.description ?? "",
+            'points': reward.pointsRequired?.toString() ?? "0",
+            'qty': reward.stock?.toString() ?? "0",
+            'image': reward.images ?? [],
+          });
+        }
       }
-
     } else {
       // Pre-populate mock values for demonstration matching mockup
       _eventNameController.text = "";
@@ -624,7 +628,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
     List<Map<String, dynamic>> artistInfoList = [];
     List<dio.MultipartFile> artistImagesList = [];
-    
+
     // Add artists
     for (int i = 0; i < _artistForms.length; i++) {
       final artist = _artistForms[i];
@@ -633,18 +637,23 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           "name": artist.nameController.text,
           "role": artist.designationController.text,
         };
-        
+
         if (artist.photoPath != null && artist.photoPath!.isNotEmpty) {
           if (artist.photoPath!.startsWith('http')) {
             artistData["image"] = artist.photoPath;
           } else {
-            artistImagesList.add(await dio.MultipartFile.fromFile(artist.photoPath!));
+            artistImagesList.add(
+              await dio.MultipartFile.fromFile(artist.photoPath!),
+            );
           }
         }
-        
+
         Map<String, String> socialLinksMap = {};
-        for (var link in artist.socialLinks.where((l) => l.urlController.text.trim().isNotEmpty)) {
-          socialLinksMap[link.platform.toLowerCase()] = link.urlController.text.trim();
+        for (var link in artist.socialLinks.where(
+          (l) => l.urlController.text.trim().isNotEmpty,
+        )) {
+          socialLinksMap[link.platform.toLowerCase()] = link.urlController.text
+              .trim();
         }
         if (socialLinksMap.isNotEmpty) {
           artistData["socialMediaLinks"] = socialLinksMap;
@@ -653,11 +662,11 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
         artistInfoList.add(artistData);
       }
     }
-    
+
     if (artistInfoList.isNotEmpty) {
       body['artistInfo'] = jsonEncode(artistInfoList);
     }
-    
+
     if (artistImagesList.isNotEmpty) {
       body['artistImages'] = artistImagesList;
     }
@@ -674,7 +683,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
     for (int i = 0; i < validRewards.length; i++) {
       final reward = validRewards[i];
-      
+
       List<String> paths = (reward['image'] is List)
           ? List<String>.from(reward['image'])
           : [reward['image']?.toString() ?? ""];
@@ -717,7 +726,10 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     try {
       bool success;
       if (widget.eventData != null && widget.eventData!.id != null) {
-        success = await updateEventRxObj.updateEvent(widget.eventData!.id!, formData);
+        success = await updateEventRxObj.updateEvent(
+          widget.eventData!.id!,
+          formData,
+        );
       } else {
         success = await createEventRxObj.createEvent(formData);
       }
@@ -733,7 +745,13 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(widget.eventData != null ? "Failed to update event" : "Failed to create event")),
+            SnackBar(
+              content: Text(
+                widget.eventData != null
+                    ? "Failed to update event"
+                    : "Failed to create event",
+              ),
+            ),
           );
         }
       }
@@ -792,7 +810,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                   ),
                   UIHelper.verticalSpace(10),
                   Text(
-                    widget.eventData != null ? "Your event has been updated successfully." : "Your event has been created and is now live on the platform.",
+                    widget.eventData != null
+                        ? "Your event has been updated successfully."
+                        : "Your event has been created and is now live on the platform.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: "SF Pro",
