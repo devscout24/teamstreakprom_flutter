@@ -8,6 +8,7 @@ import 'event_card.dart';
 import '../presentation/popular_events_screen.dart';
 import '../../../networks/api_acess.dart';
 import '../../home/model/event_fetch_by_category_model.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 
 class PopularEventsList extends StatefulWidget {
@@ -18,28 +19,7 @@ class PopularEventsList extends StatefulWidget {
 }
 
 class _PopularEventsListState extends State<PopularEventsList> {
-  final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 50 &&
-        !_isLoadingMore) {
-      _loadMore();
-    }
-  }
 
   Future<void> _loadMore() async {
     final meta = getEventsByCategoryRxObj.getEventsData.valueOrNull?.meta;
@@ -107,7 +87,7 @@ class _PopularEventsListState extends State<PopularEventsList> {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: 425.h,
+          height: 500.h,
           child: StreamBuilder<EventFetchByCategoryModel>(
             stream: getEventsByCategoryRxObj.getEventsData,
             builder: (context, snapshot) {
@@ -133,23 +113,24 @@ class _PopularEventsListState extends State<PopularEventsList> {
                 );
               }
 
-              return ListView.builder(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                itemCount: eventsList.length + (_isLoadingMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == eventsList.length) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primaryColorFirst,
-                        ),
-                      ),
-                    );
-                  }
-
+              return CarouselSlider.builder(
+                itemCount: eventsList.length,
+                options: CarouselOptions(
+                  height: 500.h,
+                  viewportFraction: 0.76,
+                  enlargeCenterPage: true,
+                  enlargeFactor: 0.2,
+                  enlargeStrategy: CenterPageEnlargeStrategy.zoom,
+                  enableInfiniteScroll: false,
+                  autoPlay: false,
+                  padEnds: true,
+                  onPageChanged: (index, reason) {
+                    if (index >= eventsList.length - 2 && !_isLoadingMore) {
+                      _loadMore();
+                    }
+                  },
+                ),
+                itemBuilder: (context, index, realIndex) {
                   final event = eventsList[index];
                   String formattedDate = '';
                   if (event.startDate != null) {
@@ -165,8 +146,9 @@ class _PopularEventsListState extends State<PopularEventsList> {
                   }
 
                   return Padding(
-                    padding: EdgeInsets.only(right: 16.w),
+                    padding: EdgeInsets.symmetric(horizontal: 6.w),
                     child: EventCard(
+                      width: double.infinity,
                       title: event.title ?? 'No Title',
                       location: event.placeName ?? 'No Location',
                       date: formattedDate,

@@ -18,6 +18,7 @@ class EventCard extends StatelessWidget {
   final bool isOverlayStyle;
   final double? width;
   final double? height;
+  final double? imageHeight;
   final VoidCallback? onTap;
   final String? eventId;
 
@@ -32,6 +33,7 @@ class EventCard extends StatelessWidget {
     this.isOverlayStyle = true,
     this.width,
     this.height,
+    this.imageHeight,
     this.onTap,
     this.eventId,
   });
@@ -213,7 +215,7 @@ class EventCard extends StatelessWidget {
             children: [
               // Cover Image
               Container(
-                height: 310.h,
+                height: imageHeight ?? 360.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 134, 134, 0.10),
