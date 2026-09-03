@@ -37,21 +37,7 @@ class _BusinessPartnerNavbarScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: _currentIndex == 0
-          ? PreferredSize(
-              preferredSize: Size.fromHeight(80.h),
-              child: Container(
-                color: AppColors.scaffoldColor,
-                child: const SafeArea(
-                  bottom: false,
-                  child: HostAppBar(
-                    name: "Wilson Culhane",
-                    location: "Divine Art Festival",
-                  ),
-                ),
-              ),
-            )
-          : null,
+
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomAppBar(
         color: const Color(0xFF2A313C),

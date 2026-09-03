@@ -46,18 +46,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final accountType = appData.read(kAccountType)?.toString();
-    final profileRole =
-        userProfileRxObj.userProfileData.valueOrNull?.data?.role?.toUpperCase();
-
-    final isHostOrBP =
-        accountType == "AccountType.host" ||
-        accountType == "AccountType.businessPartner" ||
-        accountType == "HOST" ||
-        accountType == "BUSINESS" ||
-        accountType == "host" ||
-        accountType == "business" ||
-        profileRole == "HOST" ||
-        profileRole == "BUSINESS";
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -72,6 +60,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             final profile = snapshot.data?.data ??
                 userProfileRxObj.userProfileData.valueOrNull?.data;
+
+            // Derive role from live snapshot data, NOT stale valueOrNull cache
+            final profileRole = profile?.role?.toUpperCase();
+            final isHostOrBP =
+                accountType == "AccountType.host" ||
+                accountType == "AccountType.businessPartner" ||
+                accountType == "HOST" ||
+                accountType == "BUSINESS" ||
+                accountType == "host" ||
+                accountType == "business" ||
+                profileRole == "HOST" ||
+                profileRole == "BUSINESS";
+
             final name = profile?.name ?? "User";
             final email = profile?.email ?? "";
             final points = profile?.totalPoints ?? 0;

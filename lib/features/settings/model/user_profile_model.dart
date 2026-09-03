@@ -4,20 +4,29 @@ class UserProfileModel {
   bool? success;
   int? statusCode;
   String? message;
+  Meta? meta;
   Data? data;
 
-  UserProfileModel({this.success, this.statusCode, this.message, this.data});
+  UserProfileModel({
+    this.success,
+    this.statusCode,
+    this.message,
+    this.meta,
+    this.data,
+  });
 
   UserProfileModel copyWith({
     bool? success,
     int? statusCode,
     String? message,
+    Meta? meta,
     Data? data,
   }) =>
       UserProfileModel(
         success: success ?? this.success,
         statusCode: statusCode ?? this.statusCode,
         message: message ?? this.message,
+        meta: meta ?? this.meta,
         data: data ?? this.data,
       );
 
@@ -31,6 +40,7 @@ class UserProfileModel {
         success: json["success"],
         statusCode: json["statusCode"],
         message: json["message"],
+        meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
         data: json["data"] == null ? null : Data.fromJson(json["data"]),
       );
 
@@ -38,7 +48,47 @@ class UserProfileModel {
     "success": success,
     "statusCode": statusCode,
     "message": message,
+    "meta": meta?.toJson(),
     "data": data?.toJson(),
+  };
+}
+
+class Meta {
+  int? totalEvents;
+  int? totalRating;
+  int? totalRevenue;
+
+  Meta({
+    this.totalEvents,
+    this.totalRating,
+    this.totalRevenue,
+  });
+
+  Meta copyWith({
+    int? totalEvents,
+    int? totalRating,
+    int? totalRevenue,
+  }) =>
+      Meta(
+        totalEvents: totalEvents ?? this.totalEvents,
+        totalRating: totalRating ?? this.totalRating,
+        totalRevenue: totalRevenue ?? this.totalRevenue,
+      );
+
+  factory Meta.fromRawJson(String str) => Meta.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Meta.fromJson(Map<String, dynamic> json) => Meta(
+        totalEvents: json["totalEvents"],
+        totalRating: json["totalRating"],
+        totalRevenue: json["totalRevenue"],
+      );
+
+  Map<String, dynamic> toJson() => {
+    "totalEvents": totalEvents,
+    "totalRating": totalRating,
+    "totalRevenue": totalRevenue,
   };
 }
 

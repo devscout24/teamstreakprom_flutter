@@ -8,9 +8,9 @@ import '../widget/revenue_chart_card.dart';
 import '../widget/ticket_sales_chart_card.dart';
 import '../widget/host_event_card.dart';
 import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
-import 'package:teamstreakpromo/networks/dio/dio.dart';
 import 'package:teamstreakpromo/networks/endpoints.dart';
-import 'package:teamstreakpromo/features/host_features/host_home/model/profile_information_model.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/features/settings/model/user_profile_model.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
 
@@ -57,14 +57,11 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
 
   Future<void> _fetchProfileAndEvents() async {
     try {
-      final response = await getHttp(Endpoints.authMe());
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final profile = ProfileInformationModel.fromJson(response.data);
-        final id = profile.data?.id;
-        if (id != null) {
-          appData.write('id', id);
-          locator<GetEventsRx>().fetchEvents(hostId: id);
-        }
+      await userProfileRxObj.fetchUserProfile();
+      final id = userProfileRxObj.userProfileData.valueOrNull?.data?.id;
+      if (id != null) {
+        appData.write('id', id);
+        locator<GetEventsRx>().fetchEvents(hostId: id);
       }
     } catch (e) {
       debugPrint("Error fetching profile: $e");
@@ -76,120 +73,146 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const HostAppBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    UIHelper.verticalSpace(16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+        child: StreamBuilder<UserProfileModel>(
+          stream: userProfileRxObj.userProfileData,
+          builder: (context, snapshot) {
+            final profile = snapshot.data?.data ??
+                userProfileRxObj.userProfileData.valueOrNull?.data;
+
+            final name = profile?.name ?? "Host";
+            final location = profile?.businessProfile?.location ??
+                profile?.businessProfile?.businessName ??
+                "Location";
+            String? profileImageUrl = profile?.profileImage;
+            if (profileImageUrl != null &&
+                profileImageUrl.isNotEmpty &&
+                !profileImageUrl.startsWith('http')) {
+              profileImageUrl = url + profileImageUrl;
+            }
+
+            final isLoading = profile == null;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HostAppBar(
+                  isLoading: isLoading,
+                  name: name,
+                  location: location,
+                  avatarUrl: profileImageUrl,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                Routes.earningOverviewScreen,
-                              );
-                            },
-                            child: HostStatCard(
-                              title: "Total Revenue",
-                              value: "\$12,450",
-                              icon: Icons.access_time_rounded,
-                              iconColor: Colors.greenAccent,
-                              circleBgColor: Colors.greenAccent.withValues(
-                                alpha: 0.15,
+                        UIHelper.verticalSpace(16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes.earningOverviewScreen,
+                                  );
+                                },
+                                child: HostStatCard(
+                                  title: "Total Revenue",
+                                  value: "\$12,450",
+                                  icon: Icons.access_time_rounded,
+                                  iconColor: Colors.greenAccent,
+                                  circleBgColor: Colors.greenAccent.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(16),
-                        Expanded(
-                          child: HostStatCard(
-                            title: "Ticket Sold",
-                            value: "12,450",
-                            icon: Icons.north_east_rounded,
-                            iconColor: Colors.blueAccent,
-                            circleBgColor: Colors.blueAccent.withValues(
-                              alpha: 0.15,
+                            UIHelper.horizontalSpace(16),
+                            Expanded(
+                              child: HostStatCard(
+                                title: "Ticket Sold",
+                                value: "12,450",
+                                icon: Icons.north_east_rounded,
+                                iconColor: Colors.blueAccent,
+                                circleBgColor: Colors.blueAccent.withValues(
+                                  alpha: 0.15,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                    UIHelper.verticalSpace(24),
-                    const RevenueChartCard(),
-                    UIHelper.verticalSpace(24),
-                    const TicketSalesChartCard(),
-                    UIHelper.verticalSpace(24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Upcoming Events",
-                          style: TextStyle(
-                            fontFamily: "SF Pro Rounded",
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
+                        UIHelper.verticalSpace(24),
+                        const RevenueChartCard(),
+                        UIHelper.verticalSpace(24),
+                        const TicketSalesChartCard(),
+                        UIHelper.verticalSpace(24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Upcoming Events",
+                              style: TextStyle(
+                                fontFamily: "SF Pro Rounded",
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.allEventsScreen,
+                                );
+                              },
+                              behavior: HitTestBehavior.opaque,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 4.h,
+                                ),
+                                child: Text(
+                                  "See All",
+                                  style: TextStyle(
+                                    fontFamily: "SF Pro",
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primaryColorFirst,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              Routes.allEventsScreen,
+                        UIHelper.verticalSpace(16),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _homeEvents.length,
+                          separatorBuilder: (context, index) =>
+                              UIHelper.verticalSpace(16),
+                          itemBuilder: (context, index) {
+                            final event = _homeEvents[index];
+                            return HostEventCard(
+                              imageUrl: event["imageUrl"]!,
+                              title: event["title"]!,
+                              location: event["location"]!,
+                              revenue: event["revenue"]!,
+                              going: event["going"]!,
                             );
                           },
-                          behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8.w,
-                              vertical: 4.h,
-                            ),
-                            child: Text(
-                              "See All",
-                              style: TextStyle(
-                                fontFamily: "SF Pro",
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primaryColorFirst,
-                              ),
-                            ),
-                          ),
                         ),
+                        UIHelper.verticalSpace(24),
                       ],
                     ),
-                    UIHelper.verticalSpace(16),
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _homeEvents.length,
-                      separatorBuilder: (context, index) =>
-                          UIHelper.verticalSpace(16),
-                      itemBuilder: (context, index) {
-                        final event = _homeEvents[index];
-                        return HostEventCard(
-                          imageUrl: event["imageUrl"]!,
-                          title: event["title"]!,
-                          location: event["location"]!,
-                          revenue: event["revenue"]!,
-                          going: event["going"]!,
-                        );
-                      },
-                    ),
-                    UIHelper.verticalSpace(24),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
