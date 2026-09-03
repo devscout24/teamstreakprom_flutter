@@ -27,8 +27,12 @@ class HostEditProfileScreen extends StatelessWidget {
       body: StreamBuilder<UserProfileModel>(
         stream: userProfileRxObj.userProfileData,
         builder: (context, snapshot) {
-          final profile = snapshot.data?.data ??
+          final profile =
+              snapshot.data?.data ??
               userProfileRxObj.userProfileData.valueOrNull?.data;
+          final meta =
+              snapshot.data?.meta ??
+              userProfileRxObj.userProfileData.valueOrNull?.meta;
 
           final name = profile?.name ?? "Host";
           final email = profile?.email ?? "";
@@ -37,9 +41,16 @@ class HostEditProfileScreen extends StatelessWidget {
               profile?.businessProfile?.businessName ?? "Business Name";
           final businessDescription =
               profile?.businessProfile?.businessDescription ??
-                  "No description provided.";
-          final location =
-              profile?.businessProfile?.location ?? "Location";
+              "No description provided.";
+          final location = profile?.businessProfile?.location ?? "Location";
+
+          // Meta stats
+          final totalEvents = meta?.totalEvents ?? 0;
+          final totalRating = meta?.totalRating ?? 0;
+          final totalRevenue = meta?.totalRevenue ?? 0;
+          final revenueDisplay = totalRevenue >= 1000
+              ? "\$${(totalRevenue / 1000).toStringAsFixed(1)}K"
+              : "\$$totalRevenue";
 
           String? profileImageUrl = profile?.profileImage;
           if (profileImageUrl != null &&
@@ -65,8 +76,8 @@ class HostEditProfileScreen extends StatelessWidget {
                     ),
                   ),
                   child: ClipOval(
-                    child: (profileImageUrl != null &&
-                            profileImageUrl.isNotEmpty)
+                    child:
+                        (profileImageUrl != null && profileImageUrl.isNotEmpty)
                         ? AppNetworkImage(
                             imageUrl: profileImageUrl,
                             height: 100.w,
@@ -140,43 +151,45 @@ class HostEditProfileScreen extends StatelessWidget {
                 ],
                 UIHelper.verticalSpace(24.h),
 
-                // Stats Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildStatCard(
-                      icon: Image.asset(
-                        'assets/icons/calender_icon.png',
-                        width: 16.w,
-                        height: 16.w,
-                        color: Colors.white,
+                if (profile?.role?.toUpperCase() != "BUSINESS") ...[
+                  // Stats Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildStatCard(
+                        icon: Image.asset(
+                          'assets/icons/calender_icon.png',
+                          width: 16.w,
+                          height: 16.w,
+                          color: Colors.white,
+                        ),
+                        value: "$totalEvents",
+                        label: "Event",
                       ),
-                      value: "12",
-                      label: "Event",
-                    ),
-                    _buildStatCard(
-                      icon: Image.asset(
-                        'assets/icons/point_icon.png',
-                        width: 16.w,
-                        height: 16.w,
-                        color: Colors.orange,
+                      _buildStatCard(
+                        icon: Image.asset(
+                          'assets/icons/point_icon.png',
+                          width: 16.w,
+                          height: 16.w,
+                          color: Colors.orange,
+                        ),
+                        value: "$totalRating",
+                        label: "Rating",
                       ),
-                      value: "4.9",
-                      label: "Rating",
-                    ),
-                    _buildStatCard(
-                      icon: Icon(
-                        Icons.attach_money_rounded,
-                        color: AppColors.c59B53E,
-                        size: 16.w,
+                      _buildStatCard(
+                        icon: Icon(
+                          Icons.attach_money_rounded,
+                          color: AppColors.c59B53E,
+                          size: 16.w,
+                        ),
+                        value: revenueDisplay,
+                        valueColor: AppColors.c59B53E,
+                        label: "Revenue",
                       ),
-                      value: "12.4K",
-                      valueColor: AppColors.c59B53E,
-                      label: "Revenue",
-                    ),
-                  ],
-                ),
-                UIHelper.verticalSpace(32.h),
+                    ],
+                  ),
+                  UIHelper.verticalSpace(32.h),
+                ],
 
                 // Form Fields
                 _buildTextField(label: "Business Name", value: businessName),
@@ -193,39 +206,39 @@ class HostEditProfileScreen extends StatelessWidget {
                 UIHelper.verticalSpace(24.h),
 
                 // Event Category
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Event Category",
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(color: Colors.white.withValues(alpha: 0.6)),
-                  ),
-                ),
-                UIHelper.verticalSpace(12.h),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
-                    ),
-                  ),
-                  child: Wrap(
-                    spacing: 8.w,
-                    runSpacing: 12.h,
-                    children: [
-                      _buildChip("Music & Nightlife"),
-                      _buildChip("Arts & Culture"),
-                      _buildChip("Food Festival"),
-                      _buildChip("Health & Wellness"),
-                      _buildChip("Education"),
-                      _buildChip("Sports"),
-                      _buildChip("Fashion"),
-                    ],
-                  ),
-                ),
+                // Align(
+                //   alignment: Alignment.centerLeft,
+                //   child: Text(
+                //     "Event Category",
+                //     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                //         .copyWith(color: Colors.white.withValues(alpha: 0.6)),
+                //   ),
+                // ),
+                // UIHelper.verticalSpace(12.h),
+                // Container(
+                //   width: double.infinity,
+                //   padding: EdgeInsets.all(16.w),
+                //   decoration: BoxDecoration(
+                //     color: Colors.white.withValues(alpha: 0.05),
+                //     borderRadius: BorderRadius.circular(12.r),
+                //     border: Border.all(
+                //       color: Colors.white.withValues(alpha: 0.1),
+                //     ),
+                //   ),
+                //   child: Wrap(
+                //     spacing: 8.w,
+                //     runSpacing: 12.h,
+                //     children: [
+                //       _buildChip("Music & Nightlife"),
+                //       _buildChip("Arts & Culture"),
+                //       _buildChip("Food Festival"),
+                //       _buildChip("Health & Wellness"),
+                //       _buildChip("Education"),
+                //       _buildChip("Sports"),
+                //       _buildChip("Fashion"),
+                //     ],
+                //   ),
+                // ),
                 UIHelper.verticalSpace(40.h),
               ],
             ),

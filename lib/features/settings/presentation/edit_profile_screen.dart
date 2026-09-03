@@ -40,7 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _locationController = TextEditingController();
 
   String? _selectedCategory;
-  
+
   @override
   void initState() {
     super.initState();
@@ -57,15 +57,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _emailController.text = profile.data!.email ?? "";
           _phoneController.text = profile.data!.phoneNumber ?? "";
           String? pImage = profile.data!.profileImage;
-          if (pImage != null && pImage.isNotEmpty && !pImage.startsWith('http')) {
+          if (pImage != null &&
+              pImage.isNotEmpty &&
+              !pImage.startsWith('http')) {
             _profileImageUrl = url + pImage;
           } else {
             _profileImageUrl = pImage;
           }
           if (profile.data!.businessProfile != null) {
-            _businessNameController.text = profile.data!.businessProfile!.businessName ?? "";
-            _businessDescriptionController.text = profile.data!.businessProfile!.businessDescription ?? "";
-            _locationController.text = profile.data!.businessProfile!.location ?? "";
+            _businessNameController.text =
+                profile.data!.businessProfile!.businessName ?? "";
+            _businessDescriptionController.text =
+                profile.data!.businessProfile!.businessDescription ?? "";
+            _locationController.text =
+                profile.data!.businessProfile!.location ?? "";
           }
         });
       }
@@ -79,6 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
   }
+
   final List<String> _categories = [
     "Music",
     "Comedy",
@@ -296,8 +302,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final accountType = appData.read(kAccountType)?.toString();
-    final profileRole =
-        userProfileRxObj.userProfileData.valueOrNull?.data?.role?.toUpperCase();
+    final profileRole = userProfileRxObj.userProfileData.valueOrNull?.data?.role
+        ?.toUpperCase();
 
     final isHostOrBP =
         accountType == "AccountType.host" ||
@@ -318,7 +324,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: const CustomAppBar(title: "Personal Info"),
-      body: _isLoading 
+      body: _isLoading
           ? _buildShimmerLoading()
           : SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
@@ -326,132 +332,134 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Profile Image
-            Center(
-              child: SizedBox(
-                width: 100.w,
-                height: 100.w,
-                child: Stack(
-                  children: [
-                    Container(
+                  Center(
+                    child: SizedBox(
                       width: 100.w,
                       height: 100.w,
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      child: ClipOval(
-                        child: _imageFile != null
-                            ? Image.file(
-                                _imageFile!,
-                                height: 100.w,
-                                width: 100.w,
-                                fit: BoxFit.cover,
-                              )
-                            : (_profileImageUrl != null &&
-                                    _profileImageUrl!.isNotEmpty)
-                                ? AppNetworkImage(
-                                    imageUrl: _profileImageUrl!,
-                                    height: 100.w,
-                                    width: 100.w,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    Assets.images.placeholderImage.path,
-                                    height: 100.w,
-                                    width: 100.w,
-                                    fit: BoxFit.cover,
-                                  ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 100.w,
+                            height: 100.w,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: _imageFile != null
+                                  ? Image.file(
+                                      _imageFile!,
+                                      height: 100.w,
+                                      width: 100.w,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : (_profileImageUrl != null &&
+                                        _profileImageUrl!.isNotEmpty)
+                                  ? AppNetworkImage(
+                                      imageUrl: _profileImageUrl!,
+                                      height: 100.w,
+                                      width: 100.w,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      Assets.images.placeholderImage.path,
+                                      height: 100.w,
+                                      width: 100.w,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickImage,
+                              child: Container(
+                                padding: EdgeInsets.all(6.w),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.black,
+                                  size: 16.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          padding: EdgeInsets.all(6.w),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            color: Colors.black,
-                            size: 16.sp,
-                          ),
-                        ),
-                      ),
+                  ),
+                  UIHelper.verticalSpace(32.h),
+
+                  // Full Name
+                  CustomTextFormField(
+                    controller: _nameController,
+                    hintText: "Full Name",
+                    labelText: "Full Name",
+                  ),
+                  UIHelper.verticalSpace(16.h),
+
+                  // Email (disabled)
+                  CustomTextFormField(
+                    controller: _emailController,
+                    hintText: "Email",
+                    labelText: "Email",
+                    enabled: false,
+                  ),
+                  UIHelper.verticalSpace(16.h),
+
+                  // Phone
+                  CustomTextFormField(
+                    controller: _phoneController,
+                    hintText: "Phone Number",
+                    labelText: "Phone Number",
+                    keyboardType: TextInputType.phone,
+                  ),
+                  UIHelper.verticalSpace(16.h),
+
+                  // Host Specific Fields
+                  if (isHostOrBP) ...[
+                    CustomTextFormField(
+                      controller: _businessNameController,
+                      hintText: "Business Name",
+                      labelText: "Business Name",
                     ),
+                    UIHelper.verticalSpace(16.h),
+
+                    CustomTextFormField(
+                      controller: _businessDescriptionController,
+                      hintText: "Business Description",
+                      labelText: "Business Description",
+                      maxLines: 4,
+                      borderRadius: BorderRadius.circular(24.r),
+                    ),
+                    UIHelper.verticalSpace(16.h),
+
+                    CustomTextFormField(
+                      controller: _locationController,
+                      hintText: "Location",
+                      labelText: "Location",
+                    ),
+                    UIHelper.verticalSpace(16.h),
+
+                    // if (isHost) ...[
+                    //   CustomSelectorField(
+                    //     value: _selectedCategory,
+                    //     hintText: "Event Category",
+                    //     labelText: "Event Category",
+                    //     onTap: _showCategoryBottomSheet,
+                    //     validator: (value) => null,
+                    //   ),
+                    //   UIHelper.verticalSpace(16.h),
+                    // ],
                   ],
-                ),
+
+                  UIHelper.verticalSpace(32.h),
+                ],
               ),
             ),
-            UIHelper.verticalSpace(32.h),
-
-            // Full Name
-            CustomTextFormField(
-              controller: _nameController,
-              hintText: "Full Name",
-              labelText: "Full Name",
-            ),
-            UIHelper.verticalSpace(16.h),
-
-            // Email (read-only)
-            CustomTextFormField(
-              controller: _emailController,
-              hintText: "Email",
-              labelText: "Email",
-              readOnly: true,
-            ),
-            UIHelper.verticalSpace(16.h),
-
-            // Phone
-            CustomTextFormField(
-              controller: _phoneController,
-              hintText: "Phone Number",
-              labelText: "Phone Number",
-              keyboardType: TextInputType.phone,
-            ),
-            UIHelper.verticalSpace(16.h),
-
-            // Host Specific Fields
-            if (isHostOrBP) ...[
-              CustomTextFormField(
-                controller: _businessNameController,
-                hintText: "Business Name",
-                labelText: "Business Name",
-              ),
-              UIHelper.verticalSpace(16.h),
-
-              CustomTextFormField(
-                controller: _businessDescriptionController,
-                hintText: "Business Description",
-                labelText: "Business Description",
-                maxLines: 4,
-                borderRadius: BorderRadius.circular(24.r),
-              ),
-              UIHelper.verticalSpace(16.h),
-
-              CustomTextFormField(
-                controller: _locationController,
-                hintText: "Location",
-                labelText: "Location",
-              ),
-              UIHelper.verticalSpace(16.h),
-
-              if (isHost) ...[
-                CustomSelectorField(
-                  value: _selectedCategory,
-                  hintText: "Event Category",
-                  labelText: "Event Category",
-                  onTap: _showCategoryBottomSheet,
-                  validator: (value) => null,
-                ),
-                UIHelper.verticalSpace(16.h),
-              ],
-            ],
-
-            UIHelper.verticalSpace(32.h),
-          ],
-        ),
-      ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(16.w),
         child: CustomGradientButton(

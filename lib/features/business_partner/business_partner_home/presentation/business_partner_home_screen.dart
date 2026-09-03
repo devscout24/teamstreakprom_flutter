@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/features/settings/model/user_profile_model.dart';
+import 'package:teamstreakpromo/networks/endpoints.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/constants/text_font_style.dart';
@@ -8,8 +12,28 @@ import 'package:teamstreakpromo/features/business_partner/business_partner_home/
 import 'package:teamstreakpromo/features/business_partner/business_partner_home/widget/business_partner_active_reward_card.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_home/presentation/business_partner_active_rewards_screen.dart';
 
-class BusinessPartnerHomeScreen extends StatelessWidget {
+class BusinessPartnerHomeScreen extends StatefulWidget {
   const BusinessPartnerHomeScreen({super.key});
+
+  @override
+  State<BusinessPartnerHomeScreen> createState() =>
+      _BusinessPartnerHomeScreenState();
+}
+
+class _BusinessPartnerHomeScreenState extends State<BusinessPartnerHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    try {
+      await userProfileRxObj.fetchUserProfile();
+    } catch (e) {
+      debugPrint("Error fetching profile: $e");
+    }
+  }
 
   final List<Map<String, dynamic>> _activeRewards = const [
     {
@@ -41,11 +65,41 @@ class BusinessPartnerHomeScreen extends StatelessWidget {
           FocusScope.of(context).unfocus();
         },
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: StreamBuilder<UserProfileModel>(
+            stream: userProfileRxObj.userProfileData,
+            builder: (context, snapshot) {
+              final profile = snapshot.data?.data ??
+                  userProfileRxObj.userProfileData.valueOrNull?.data;
+
+              final name = profile?.name ?? "Business Partner";
+              final location = profile?.businessProfile?.location ??
+                  profile?.businessProfile?.businessName ??
+                  "Location";
+              String? profileImageUrl = profile?.profileImage;
+              if (profileImageUrl != null &&
+                  profileImageUrl.isNotEmpty &&
+                  !profileImageUrl.startsWith('http')) {
+                profileImageUrl = url + profileImageUrl;
+              }
+
+              final isLoading = profile == null;
+
+              return Column(
+                children: [
+                  HostAppBar(
+                    isLoading: isLoading,
+                    name: name,
+                    location: location,
+                    avatarUrl: profileImageUrl,
+                    points: profile?.totalPoints ?? 0,
+                    notificationCount: 0,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                 // Search Bar
                 Container(
                   height: 52.h,
@@ -180,7 +234,12 @@ class BusinessPartnerHomeScreen extends StatelessWidget {
                 ),
                 UIHelper.verticalSpace(24),
               ],
-            ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

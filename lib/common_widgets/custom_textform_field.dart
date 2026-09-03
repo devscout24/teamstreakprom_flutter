@@ -17,6 +17,7 @@ class CustomTextFormField extends StatefulWidget {
     this.minLines,
     this.borderRadius,
     this.readOnly = false,
+    this.enabled = true,
     this.onTap,
     this.suffixIcon,
   });
@@ -30,6 +31,7 @@ class CustomTextFormField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final TextInputType? keyboardType;
   final bool readOnly;
+  final bool enabled;
   final VoidCallback? onTap;
   final Widget? suffixIcon;
 
@@ -63,6 +65,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       textInputAction: widget.textInputAction,
       keyboardType: widget.keyboardType,
       readOnly: widget.readOnly,
+      enabled: widget.enabled,
       onTap: widget.onTap,
       maxLines: widget.isPassword ? 1 : widget.maxLines,
       minLines: widget.isPassword ? 1 : widget.minLines,
@@ -70,7 +73,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         fontFamily: "SF Pro",
         fontSize: 12.sp,
         fontWeight: FontWeight.w600,
-        color: AppColors.cFFFFFF,
+        color: widget.enabled
+            ? AppColors.cFFFFFF
+            : Colors.white.withValues(alpha: 0.35),
       ),
       cursorColor: Colors.white,
       decoration: InputDecoration(
@@ -79,15 +84,21 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           fontFamily: "SF Pro",
           fontSize: 12.sp,
           fontWeight: FontWeight.w600,
-          color: AppColors.cFFFFFF,
+          color: widget.enabled
+              ? AppColors.cFFFFFF
+              : Colors.white.withValues(alpha: 0.25),
         ),
         filled: true,
-        fillColor: AppColors.c242A34,
+        fillColor: widget.enabled
+            ? AppColors.c242A34
+            : AppColors.c242A34.withValues(alpha: 0.45),
         contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
         prefixIcon: widget.prefixIcon != null
             ? Icon(
                 widget.prefixIcon,
-                color: Colors.white.withValues(alpha: 0.4),
+                color: widget.enabled
+                    ? Colors.white.withValues(alpha: 0.4)
+                    : Colors.white.withValues(alpha: 0.2),
               )
             : null,
         suffixIcon: widget.isPassword
@@ -103,7 +114,14 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                   size: 20.w,
                 ),
               )
-            : widget.suffixIcon,
+            : (!widget.enabled
+                ? (widget.suffixIcon ??
+                    Icon(
+                      Icons.lock_outline_rounded,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      size: 18.sp,
+                    ))
+                : widget.suffixIcon),
         border: OutlineInputBorder(
           borderRadius: borderRadius,
           borderSide: BorderSide.none,
@@ -111,6 +129,13 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         enabledBorder: OutlineInputBorder(
           borderRadius: borderRadius,
           borderSide: BorderSide.none,
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: borderRadius,
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1.w,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
@@ -141,7 +166,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
               fontFamily: "SF Pro Rounded",
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: AppColors.cFFFFFF,
+              color: widget.enabled
+                  ? AppColors.cFFFFFF
+                  : Colors.white.withValues(alpha: 0.5),
             ),
           ),
           SizedBox(height: 8.h),
