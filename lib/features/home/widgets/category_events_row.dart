@@ -8,6 +8,7 @@ import '../../event/widgets/event_card.dart';
 import '../../home/data/rx_get_events/api.dart';
 import '../../home/model/event_fetch_by_category_model.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class CategoryEventsRow extends StatefulWidget {
   final String categoryId;
@@ -26,7 +27,6 @@ class CategoryEventsRow extends StatefulWidget {
 }
 
 class _CategoryEventsRowState extends State<CategoryEventsRow> {
-  final ScrollController _scrollController = ScrollController();
   final List<Datum> _events = [];
   bool _isLoading = false;
   bool _hasMore = true;
@@ -36,7 +36,6 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
   void initState() {
     super.initState();
     _fetchEvents();
-    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -47,15 +46,6 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
       _currentPage = 1;
       _events.clear();
       _hasMore = true;
-      _fetchEvents();
-    }
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
-        !_isLoading &&
-        _hasMore) {
       _fetchEvents();
     }
   }
@@ -96,11 +86,6 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
     }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +126,7 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
         ),
         UIHelper.verticalSpace(16.h),
         SizedBox(
-          height: _events.isEmpty && !_isLoading ? 100.h : 425.h,
+          height: _events.isEmpty && !_isLoading ? 100.h : 500.h,
           child: _events.isEmpty && _isLoading
               ? const Center(
                   child: CircularProgressIndicator(
@@ -157,50 +142,58 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
                         ),
                       ),
                     )
-                  : ListView.builder(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  itemCount: _events.length + (_isLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index >= _events.length) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    final event = _events[index];
-                    String formattedDate = '';
-                    if (event.startDate != null) {
-                      formattedDate = DateFormat(
-                        'MMM d · h:mm a',
-                      ).format(event.startDate!).toUpperCase();
-                    }
-
-                    String imgUrl =
-                        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"; // fallback
-                    if (event.images != null && event.images!.isNotEmpty) {
-                      imgUrl = event.images!.first;
-                    }
-
-                    return Padding(
-                      padding: EdgeInsets.only(right: 16.w),
-                      child: EventCard(
-                        title: event.title ?? 'No Title',
-                        location: event.placeName ?? 'No Location',
-                        date: formattedDate,
-                        price: event.ticketPrice != null
-                            ? "\$${event.ticketPrice!.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}"
-                            : "Free",
-                        imageUrl: imgUrl,
-                        isOverlayStyle: false,
-                        eventId: event.id,
-                        onBuyPressed: () {},
+                  : CarouselSlider.builder(
+                      itemCount: _events.length,
+                      options: CarouselOptions(
+                        height: 500.h,
+                        viewportFraction: 0.76,
+                        enlargeCenterPage: true,
+                        enlargeFactor: 0.2,
+                        enlargeStrategy: CenterPageEnlargeStrategy.zoom,
+                        enableInfiniteScroll: false,
+                        autoPlay: false,
+                        padEnds: true,
+                        onPageChanged: (index, reason) {
+                          if (index >= _events.length - 2 &&
+                              !_isLoading &&
+                              _hasMore) {
+                            _fetchEvents();
+                          }
+                        },
                       ),
-                    );
-                  },
-                ),
+                      itemBuilder: (context, index, realIndex) {
+                        final event = _events[index];
+                        String formattedDate = '';
+                        if (event.startDate != null) {
+                          formattedDate = DateFormat(
+                            'MMM d · h:mm a',
+                          ).format(event.startDate!).toUpperCase();
+                        }
+
+                        String imgUrl =
+                            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"; // fallback
+                        if (event.images != null && event.images!.isNotEmpty) {
+                          imgUrl = event.images!.first;
+                        }
+
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w),
+                          child: EventCard(
+                            width: double.infinity,
+                            title: event.title ?? 'No Title',
+                            location: event.placeName ?? 'No Location',
+                            date: formattedDate,
+                            price: event.ticketPrice != null
+                                ? "\$${event.ticketPrice!.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}"
+                                : "Free",
+                            imageUrl: imgUrl,
+                            isOverlayStyle: false,
+                            eventId: event.id,
+                            onBuyPressed: () {},
+                          ),
+                        );
+                      },
+                    ),
         ),
       ],
     );
