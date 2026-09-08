@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_get_reward_categories/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/reward_category_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_get_reward_subcategories/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/reward_subcategory_model.dart';
 import '../../../../../gen/colors.gen.dart';
 import '../../../../../helpers/ui_helpers.dart';
 import '../../../../../constants/text_font_style.dart';
 import '../../../../../common_widgets/custom_textform_field.dart';
 import '../../../../../common_widgets/custom_gradient_button.dart';
+import 'package:shimmer/shimmer.dart';
 
-class RewardWizardStepOne extends StatelessWidget {
+class RewardWizardStepOne extends StatefulWidget {
   final TextEditingController titleController;
   final TextEditingController descriptionController;
   final TextEditingController locationController;
@@ -19,6 +24,14 @@ class RewardWizardStepOne extends StatelessWidget {
     required this.locationController,
     required this.onNextStep,
   });
+
+  @override
+  State<RewardWizardStepOne> createState() => _RewardWizardStepOneState();
+}
+
+class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
+  bool _isCategorySelected = false;
+  String? _selectedSubcategory;
 
   Widget _buildLabel(String text) {
     return Padding(
@@ -58,7 +71,7 @@ class RewardWizardStepOne extends StatelessWidget {
         // Reward Title
         _buildLabel("Reward Title"),
         CustomTextFormField(
-          controller: titleController,
+          controller: widget.titleController,
           hintText: "Kimberly Gilbert",
         ),
         UIHelper.verticalSpace(20.h),
@@ -66,7 +79,7 @@ class RewardWizardStepOne extends StatelessWidget {
         // Reward Description
         _buildLabel("Reward Description"),
         CustomTextFormField(
-          controller: descriptionController,
+          controller: widget.descriptionController,
           hintText: "Tell attendees about this event ...",
           borderRadius: BorderRadius.circular(20.r),
           maxLines: 5,
@@ -75,116 +88,183 @@ class RewardWizardStepOne extends StatelessWidget {
 
         // Reward Category
         _buildLabel("Reward Category"),
-        DropdownButtonFormField<String>(
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.white.withValues(alpha: 0.4),
-            size: 20.sp,
-          ),
-          dropdownColor: AppColors.c242A34,
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: AppColors.cE9EAE9,
-          ),
-          hint: Text(
-            "Choose Categories",
-            style: TextStyle(
-              fontFamily: "SF Pro",
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
-              color: AppColors.cB7B8BA,
-            ),
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.c242A34,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 20.w,
-              vertical: 18.h,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide(
-                color: Colors.white.withValues(alpha: .2),
-                width: 1.w,
+        StreamBuilder<RewardCategoryResponse>(
+          stream: getRewardCategoriesRx.getRewardCategoriesData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return Shimmer.fromColors(
+                baseColor: const Color(0xFF1E222B),
+                highlightColor: Colors.white.withValues(alpha: 0.05),
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222B),
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                ),
+              );
+            }
+            List<RewardCategoryModel> categories = [];
+            if (snapshot.hasData && snapshot.data?.data != null) {
+              categories = snapshot.data!.data!;
+            }
+            return DropdownButtonFormField<String>(
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white.withValues(alpha: 0.4),
+                size: 20.sp,
               ),
-            ),
-          ),
-          items: ["Category 1", "Category 2"].map((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
-          onChanged: (newValue) {},
+              dropdownColor: AppColors.c242A34,
+              style: TextStyle(
+                fontFamily: "SF Pro",
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: AppColors.cE9EAE9,
+              ),
+              hint: Text(
+                "Choose Categories",
+                style: TextStyle(
+                  fontFamily: "SF Pro",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.cB7B8BA,
+                ),
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.c242A34,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                  vertical: 18.h,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide(
+                    color: Colors.white.withValues(alpha: .2),
+                    width: 1.w,
+                  ),
+                ),
+              ),
+              items: categories.map((RewardCategoryModel category) {
+                return DropdownMenuItem<String>(
+                  value: category.id,
+                  child: Text(category.name ?? ""),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _isCategorySelected = true;
+                    _selectedSubcategory = null;
+                  });
+                  getRewardSubcategoriesRx.getRewardSubcategories(newValue);
+                }
+              },
+            );
+          },
         ),
         UIHelper.verticalSpace(20.h),
 
-        // Reward Subcategory
-        _buildLabel("Reward Subcategory"),
-        DropdownButtonFormField<String>(
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.white.withValues(alpha: 0.4),
-            size: 20.sp,
-          ),
-          dropdownColor: AppColors.c242A34,
-          style: TextStyle(
-            fontFamily: "SF Pro",
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: AppColors.cE9EAE9,
-          ),
-          hint: Text(
-            "Choose Subcategories",
-            style: TextStyle(
-              fontFamily: "SF Pro",
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
-              color: AppColors.cB7B8BA,
-            ),
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.c242A34,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 20.w,
-              vertical: 18.h,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100.r),
-              borderSide: BorderSide(
-                color: Colors.white.withValues(alpha: .2),
-                width: 1.w,
+        if (_isCategorySelected) ...[
+          // Reward Subcategory
+          _buildLabel("Reward Subcategory"),
+          StreamBuilder<RewardSubcategoryResponse>(
+          stream: getRewardSubcategoriesRx.getRewardSubcategoriesData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return Shimmer.fromColors(
+                baseColor: const Color(0xFF1E222B),
+                highlightColor: Colors.white.withValues(alpha: 0.05),
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222B),
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                ),
+              );
+            }
+            List<RewardSubcategoryModel> subcategories = [];
+            if (snapshot.hasData && snapshot.data?.data != null) {
+              subcategories = snapshot.data!.data!;
+            }
+            return DropdownButtonFormField<String>(
+              value: _selectedSubcategory,
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white.withValues(alpha: 0.4),
+                size: 20.sp,
               ),
-            ),
-          ),
-          items: ["Subcategory 1", "Subcategory 2"].map((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
-          onChanged: (newValue) {},
+              dropdownColor: AppColors.c242A34,
+              style: TextStyle(
+                fontFamily: "SF Pro",
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: AppColors.cE9EAE9,
+              ),
+              hint: Text(
+                "Choose Subcategories",
+                style: TextStyle(
+                  fontFamily: "SF Pro",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.cB7B8BA,
+                ),
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.c242A34,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                  vertical: 18.h,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(100.r),
+                  borderSide: BorderSide(
+                    color: Colors.white.withValues(alpha: .2),
+                    width: 1.w,
+                  ),
+                ),
+              ),
+              items: subcategories.map((RewardSubcategoryModel subcategory) {
+                return DropdownMenuItem<String>(
+                  value: subcategory.id,
+                  child: Text(subcategory.name ?? ""),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedSubcategory = newValue;
+                });
+              },
+            );
+          },
         ),
         UIHelper.verticalSpace(20.h),
+        ],
 
         // Location
         _buildLabel("Location"),
         CustomTextFormField(
-          controller: locationController,
+          controller: widget.locationController,
           hintText: "New York, US",
           prefixIcon: Icons.location_on_outlined,
         ),
@@ -192,7 +272,7 @@ class RewardWizardStepOne extends StatelessWidget {
 
         // Continue Button
         CustomGradientButton(
-          onPressed: onNextStep,
+          onPressed: widget.onNextStep,
           title: "Continue",
           height: 50.h,
           textStyle: TextFontStyle.textStyle16c000000SFPro590.copyWith(
