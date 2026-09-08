@@ -44,6 +44,7 @@ final class Endpoints {
   static String rewardCategories() => "/api/reward-categories";
   static String rewardSubcategories(String categoryId) => 
       "/api/reward-subcategories?rewardCategory=$categoryId";
+  static String marketplaces() => "/api/marketplaces";
   static String subcategories(String parentId) =>
       "/api/categories?parentCategory=$parentId";
   static String createEvent() => "/api/events";

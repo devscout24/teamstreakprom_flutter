@@ -16,6 +16,10 @@ class RewardWizardStepOne extends StatefulWidget {
   final TextEditingController descriptionController;
   final TextEditingController locationController;
   final VoidCallback onNextStep;
+  final ValueChanged<String?> onCategoryChanged;
+  final ValueChanged<String?> onSubcategoryChanged;
+  final void Function(String? id, String? name)? onCategorySelected;
+  final void Function(String? id, String? name)? onSubcategorySelected;
 
   const RewardWizardStepOne({
     super.key,
@@ -23,6 +27,10 @@ class RewardWizardStepOne extends StatefulWidget {
     required this.descriptionController,
     required this.locationController,
     required this.onNextStep,
+    required this.onCategoryChanged,
+    required this.onSubcategoryChanged,
+    this.onCategorySelected,
+    this.onSubcategorySelected,
   });
 
   @override
@@ -73,6 +81,7 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
         CustomTextFormField(
           controller: widget.titleController,
           hintText: "Kimberly Gilbert",
+          validator: (value) => value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(20.h),
 
@@ -83,6 +92,7 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
           hintText: "Tell attendees about this event ...",
           borderRadius: BorderRadius.circular(20.r),
           maxLines: 5,
+          validator: (value) => value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(20.h),
 
@@ -167,8 +177,15 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
                     _selectedSubcategory = null;
                   });
                   getRewardSubcategoriesRx.getRewardSubcategories(newValue);
+                  final selectedCategory =
+                      categories.where((c) => c.id == newValue).firstOrNull;
+                  widget.onCategoryChanged(newValue);
+                  widget.onCategorySelected?.call(newValue, selectedCategory?.name);
+                  widget.onSubcategoryChanged(null);
+                  widget.onSubcategorySelected?.call(null, null);
                 }
               },
+              validator: (value) => value == null || value.isEmpty ? "Required" : null,
             );
           },
         ),
@@ -254,7 +271,12 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
                 setState(() {
                   _selectedSubcategory = newValue;
                 });
+                final selectedSub =
+                    subcategories.where((s) => s.id == newValue).firstOrNull;
+                widget.onSubcategoryChanged(newValue);
+                widget.onSubcategorySelected?.call(newValue, selectedSub?.name);
               },
+              // Subcategory is optional, so no validator required
             );
           },
         ),
@@ -267,6 +289,7 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
           controller: widget.locationController,
           hintText: "New York, US",
           prefixIcon: Icons.location_on_outlined,
+          validator: (value) => value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(32.h),
 

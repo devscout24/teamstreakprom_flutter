@@ -33,6 +33,13 @@ import 'package:teamstreakpromo/features/auth/data/rx_auth_me/rx.dart';
 import 'package:teamstreakpromo/features/auth/model/auth_me_model.dart';
 import 'package:teamstreakpromo/features/settings/data/rx_user_profile/rx.dart';
 import 'package:teamstreakpromo/features/settings/model/user_profile_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_post_marketplace/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/marketplace_response_model.dart';
+
+final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
+  empty: MarketplaceResponseModel(),
+  dataFetcher: BehaviorSubject<MarketplaceResponseModel>(),
+);
 
 final UserProfileRx userProfileRxObj = UserProfileRx(
   empty: UserProfileModel(),

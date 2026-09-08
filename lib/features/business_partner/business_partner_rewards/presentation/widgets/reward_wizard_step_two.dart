@@ -57,6 +57,7 @@ class RewardWizardStepTwo extends StatelessWidget {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      validator: (value) => value == null || value.isEmpty ? "Required" : null,
       style: TextStyle(
         fontFamily: "SF Pro",
         fontSize: 14.sp,
@@ -122,6 +123,7 @@ class RewardWizardStepTwo extends StatelessWidget {
             controller.text = "${date.day}/${date.month}/${date.year}";
           }
         },
+        validator: (value) => value == null || value.isEmpty ? "Required" : null,
         style: TextStyle(
           fontFamily: "SF Pro",
           fontSize: 14.sp,
@@ -166,6 +168,7 @@ class RewardWizardStepTwo extends StatelessWidget {
             controller.text = time.format(context);
           }
         },
+        validator: (value) => value == null || value.isEmpty ? "Required" : null,
         style: TextStyle(
           fontFamily: "SF Pro",
           fontSize: 14.sp,
