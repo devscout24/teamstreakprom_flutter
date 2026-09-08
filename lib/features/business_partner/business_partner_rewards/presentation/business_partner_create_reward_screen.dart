@@ -10,8 +10,7 @@ import 'widgets/reward_wizard_step_two.dart';
 import 'widgets/reward_wizard_step_three.dart';
 import '../../../../../helpers/navigation_service.dart';
 import '../../../../helpers/all_routes.dart';
-
-
+import '../data/rx_get_reward_categories/rx.dart';
 class BusinessPartnerCreateRewardScreen extends StatefulWidget {
   final bool isEdit;
   const BusinessPartnerCreateRewardScreen({super.key, this.isEdit = false});
@@ -41,6 +40,12 @@ class _BusinessPartnerCreateRewardScreenState
 
   // State for Step 3
   bool _agreedToTerms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getRewardCategoriesRx.getRewardCategories();
+  }
 
   @override
   void dispose() {

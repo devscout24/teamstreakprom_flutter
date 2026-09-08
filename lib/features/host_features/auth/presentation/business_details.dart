@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:teamstreakpromo/common_widgets/custom_textform_field.dart';
 import 'package:teamstreakpromo/common_widgets/custom_back_button.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
@@ -45,6 +47,155 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   String? _businessPermitFileName;
   bool _showEinField = false;
   bool _isHost = false;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickDocument({required bool isLicense}) async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.scaffoldColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isLicense
+                    ? "Upload Business License"
+                    : "Upload Business Permit",
+                style: TextStyle(
+                  fontFamily: "SF Pro Rounded",
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              UIHelper.verticalSpace(16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E222B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                title: const Text(
+                  "Take Photo",
+                  style: TextStyle(color: Colors.white, fontFamily: "SF Pro"),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  try {
+                    final XFile? photo = await _picker.pickImage(
+                      source: ImageSource.camera,
+                    );
+                    if (photo != null) {
+                      setState(() {
+                        if (isLicense) {
+                          _businessLicenseFileName = photo.name;
+                        } else {
+                          _businessPermitFileName = photo.name;
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint("Error picking image from camera: $e");
+                  }
+                },
+              ),
+              Divider(color: Colors.white.withValues(alpha: 0.1)),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E222B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.photo_library_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                title: const Text(
+                  "Choose from Gallery",
+                  style: TextStyle(color: Colors.white, fontFamily: "SF Pro"),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  try {
+                    final XFile? image = await _picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (image != null) {
+                      setState(() {
+                        if (isLicense) {
+                          _businessLicenseFileName = image.name;
+                        } else {
+                          _businessPermitFileName = image.name;
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint("Error picking image from gallery: $e");
+                  }
+                },
+              ),
+              Divider(color: Colors.white.withValues(alpha: 0.1)),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E222B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.folder_open_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                title: const Text(
+                  "Browse Files",
+                  style: TextStyle(color: Colors.white, fontFamily: "SF Pro"),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  try {
+                    final FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+                        );
+                    if (result != null && result.files.single.name.isNotEmpty) {
+                      setState(() {
+                        if (isLicense) {
+                          _businessLicenseFileName = result.files.single.name;
+                        } else {
+                          _businessPermitFileName = result.files.single.name;
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint("Error picking file: $e");
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -256,6 +407,12 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
       _args["businessName"] = _businessNameController.text;
       if (_showEinField) {
         _args["einNumber"] = _einNumberController.text;
+        if (_businessLicenseFileName != null) {
+          _args["businessLicenseFrontImage"] = _businessLicenseFileName;
+        }
+        if (_businessPermitFileName != null) {
+          _args["businessPermitImage"] = _businessPermitFileName;
+        }
       }
       _args["businessDescription"] = _businessDescController.text;
       _args["location"] = _locationController.text;
@@ -364,9 +521,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                         DocumentUploadWidget(
                           label: "Business license photo (Optional)",
                           fileName: _businessLicenseFileName,
-                          onTap: () {
-                            // TODO: Implement file picker
-                          },
+                          onTap: () => _pickDocument(isLicense: true),
                           onRemove: () {
                             setState(() {
                               _businessLicenseFileName = null;
@@ -378,9 +533,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                         DocumentUploadWidget(
                           label: "Business Permit photo (Optional)",
                           fileName: _businessPermitFileName,
-                          onTap: () {
-                            // TODO: Implement file picker
-                          },
+                          onTap: () => _pickDocument(isLicense: false),
                           onRemove: () {
                             setState(() {
                               _businessPermitFileName = null;
