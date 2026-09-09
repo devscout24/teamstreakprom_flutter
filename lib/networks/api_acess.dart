@@ -35,6 +35,10 @@ import 'package:teamstreakpromo/features/settings/data/rx_user_profile/rx.dart';
 import 'package:teamstreakpromo/features/settings/model/user_profile_model.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_post_marketplace/rx.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/marketplace_response_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_get_marketplace_details/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/get_marketplace_details_model.dart';
+import 'package:teamstreakpromo/features/rewards/data/rx_get_marketplaces/rx.dart';
+import 'package:teamstreakpromo/features/rewards/model/get_marketplaces_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -130,4 +134,15 @@ final AuthMeRx authMeRxObj = AuthMeRx(
 final UpdateEventRx updateEventRxObj = UpdateEventRx(
   empty: CreateEventResponseModel(),
   dataFetcher: BehaviorSubject<CreateEventResponseModel>(),
+);
+
+final GetMarketplacesRx getMarketplacesRxObj = GetMarketplacesRx(
+  empty: GetMarketplacesModel(),
+  dataFetcher: BehaviorSubject<GetMarketplacesModel>(),
+);
+
+final GetMarketplaceDetailsRx getMarketplaceDetailsRxObj =
+    GetMarketplaceDetailsRx(
+  empty: GetMarketplaceDetailsModel(),
+  dataFetcher: BehaviorSubject<GetMarketplaceDetailsModel>(),
 );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -7,21 +8,24 @@ import '../../../common_widgets/gradient_container.dart';
 import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/swipe_to_action_button.dart';
 import '../widgets/confirm_redeem_bottom_sheet.dart';
+import '../model/get_marketplaces_model.dart';
 
 class MarketplaceRewardDetailsScreen extends StatefulWidget {
-  final String rewardName;
-  final String rewardLocation;
-  final String dateTime;
-  final String rewardOrganizer;
-  final String rewardId;
+  final String? rewardName;
+  final String? rewardLocation;
+  final String? dateTime;
+  final String? rewardOrganizer;
+  final String? rewardId;
+  final MarketplaceItem? item;
 
   const MarketplaceRewardDetailsScreen({
     super.key,
-    required this.rewardName,
-    required this.rewardLocation,
-    required this.dateTime,
-    required this.rewardOrganizer,
-    required this.rewardId,
+    this.rewardName,
+    this.rewardLocation,
+    this.dateTime,
+    this.rewardOrganizer,
+    this.rewardId,
+    this.item,
   });
 
   @override
@@ -39,6 +43,46 @@ class _MarketplaceRewardDetailsScreenState
       builder: (context) => const ConfirmRedeemBottomSheet(),
     );
   }
+
+  String get _rewardName =>
+      widget.item?.title ?? widget.rewardName ?? "N/A";
+
+  String get _rewardLocation =>
+      widget.item?.location ?? widget.rewardLocation ?? "N/A";
+
+  String get _dateTime {
+    if (widget.item?.endDateTime != null) {
+      return DateFormat("MMM dd, yyyy • hh:mm a")
+          .format(widget.item!.endDateTime!);
+    }
+    if (widget.item?.startDateTime != null) {
+      return DateFormat("MMM dd, yyyy • hh:mm a")
+          .format(widget.item!.startDateTime!);
+    }
+    if (widget.dateTime != null && widget.dateTime!.isNotEmpty) {
+      return widget.dateTime!;
+    }
+    return "N/A";
+  }
+
+  String get _rewardOrganizer {
+    if (widget.item?.category?.name != null &&
+        widget.item!.category!.name!.isNotEmpty) {
+      return widget.item!.category!.name!;
+    }
+    if (widget.item?.subCategory?.name != null &&
+        widget.item!.subCategory!.name!.isNotEmpty) {
+      return widget.item!.subCategory!.name!;
+    }
+    if (widget.rewardOrganizer != null &&
+        widget.rewardOrganizer!.isNotEmpty) {
+      return widget.rewardOrganizer!;
+    }
+    return "N/A";
+  }
+
+  String get _rewardId =>
+      widget.item?.id ?? widget.rewardId ?? "N/A";
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +118,15 @@ class _MarketplaceRewardDetailsScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDetailRow("Reward", widget.rewardName),
+                  _buildDetailRow("Reward", _rewardName),
                   UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward Location", widget.rewardLocation),
+                  _buildDetailRow("Reward Location", _rewardLocation),
                   UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Date & Time", widget.dateTime),
+                  _buildDetailRow("Date & Time", _dateTime),
                   UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward Organizer", widget.rewardOrganizer),
+                  _buildDetailRow("Reward Organizer", _rewardOrganizer),
                   UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward ID", widget.rewardId),
+                  _buildDetailRow("Reward ID", _rewardId),
                 ],
               ),
             ),
@@ -112,7 +156,6 @@ class _MarketplaceRewardDetailsScreenState
                 ],
               ),
             ),
-            // Removed Spacer to fix unbounded height exception
             UIHelper.verticalSpace(24.h),
           ],
         ),
@@ -174,19 +217,17 @@ class _MarketplaceRewardDetailsScreenState
 // ── Custom Painters ────────────────────────────────────────────────────
 class _DashedLinePainter extends CustomPainter {
   final Color color;
-  final double strokeWidth;
-  final double dashWidth;
-  final double dashSpace;
 
-  _DashedLinePainter({
+  const _DashedLinePainter({
     required this.color,
-    this.strokeWidth = 1.0,
-    this.dashWidth = 4.0,
-    this.dashSpace = 4.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    const double strokeWidth = 1.0;
+    const double dashWidth = 4.0;
+    const double dashSpace = 4.0;
+
     final paint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth
@@ -201,9 +242,6 @@ class _DashedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DashedLinePainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.dashWidth != dashWidth ||
-        oldDelegate.dashSpace != dashSpace;
+    return oldDelegate.color != color;
   }
 }
