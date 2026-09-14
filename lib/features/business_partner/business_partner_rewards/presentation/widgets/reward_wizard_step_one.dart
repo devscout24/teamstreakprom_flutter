@@ -20,6 +20,8 @@ class RewardWizardStepOne extends StatefulWidget {
   final ValueChanged<String?> onSubcategoryChanged;
   final void Function(String? id, String? name)? onCategorySelected;
   final void Function(String? id, String? name)? onSubcategorySelected;
+  final String? initialCategoryId;
+  final String? initialSubcategoryId;
 
   const RewardWizardStepOne({
     super.key,
@@ -31,6 +33,8 @@ class RewardWizardStepOne extends StatefulWidget {
     required this.onSubcategoryChanged,
     this.onCategorySelected,
     this.onSubcategorySelected,
+    this.initialCategoryId,
+    this.initialSubcategoryId,
   });
 
   @override
@@ -38,8 +42,39 @@ class RewardWizardStepOne extends StatefulWidget {
 }
 
 class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
-  bool _isCategorySelected = false;
+  String? _selectedCategory;
   String? _selectedSubcategory;
+  bool _isCategorySelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategoryId;
+    _selectedSubcategory = widget.initialSubcategoryId;
+    _isCategorySelected =
+        widget.initialCategoryId != null && widget.initialCategoryId!.isNotEmpty;
+    if (_isCategorySelected && widget.initialCategoryId != null) {
+      getRewardSubcategoriesRx
+          .getRewardSubcategories(widget.initialCategoryId!);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RewardWizardStepOne oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialCategoryId != oldWidget.initialCategoryId) {
+      _selectedCategory = widget.initialCategoryId;
+      _isCategorySelected = widget.initialCategoryId != null &&
+          widget.initialCategoryId!.isNotEmpty;
+      if (_isCategorySelected && widget.initialCategoryId != null) {
+        getRewardSubcategoriesRx
+            .getRewardSubcategories(widget.initialCategoryId!);
+      }
+    }
+    if (widget.initialSubcategoryId != oldWidget.initialSubcategoryId) {
+      _selectedSubcategory = widget.initialSubcategoryId;
+    }
+  }
 
   Widget _buildLabel(String text) {
     return Padding(
@@ -120,6 +155,9 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
               categories = snapshot.data!.data!;
             }
             return DropdownButtonFormField<String>(
+              initialValue: categories.any((c) => c.id == _selectedCategory)
+                  ? _selectedCategory
+                  : null,
               icon: Icon(
                 Icons.keyboard_arrow_down,
                 color: Colors.white.withValues(alpha: 0.4),
@@ -173,6 +211,7 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
               onChanged: (newValue) {
                 if (newValue != null) {
                   setState(() {
+                    _selectedCategory = newValue;
                     _isCategorySelected = true;
                     _selectedSubcategory = null;
                   });
@@ -216,7 +255,9 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
               subcategories = snapshot.data!.data!;
             }
             return DropdownButtonFormField<String>(
-              value: _selectedSubcategory,
+              initialValue: subcategories.any((s) => s.id == _selectedSubcategory)
+                  ? _selectedSubcategory
+                  : null,
               icon: Icon(
                 Icons.keyboard_arrow_down,
                 color: Colors.white.withValues(alpha: 0.4),

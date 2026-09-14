@@ -8,6 +8,8 @@ import '../../../../helpers/ui_helpers.dart';
 import 'business_partner_rewards_details_screen.dart';
 import 'business_partner_create_reward_screen.dart';
 import '../widgets/reward_card.dart';
+import '../../../../networks/api_acess.dart';
+import '../model/my_marketplaces_response_model.dart';
 
 class BusinessPartnerRewardsScreen extends StatefulWidget {
   const BusinessPartnerRewardsScreen({super.key});
@@ -20,6 +22,16 @@ class BusinessPartnerRewardsScreen extends StatefulWidget {
 class _BusinessPartnerRewardsScreenState
     extends State<BusinessPartnerRewardsScreen> {
   bool _isActiveTab = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMarketplaces();
+  }
+
+  void _fetchMarketplaces() {
+    getMyMarketplacesRxObj.fetchMyMarketplaces();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,22 +103,79 @@ class _BusinessPartnerRewardsScreenState
 
               // List of Rewards
               Expanded(
-                child: ListView.builder(
-                  itemCount: 2, // Sample count
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const BusinessPartnerRewardsDetailsScreen(
-                                  type: 'businessPartner',
-                                ),
-                          ),
+                child: StreamBuilder<MyMarketplacesResponseModel>(
+                  stream: getMyMarketplacesRxObj.getMyMarketplacesData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        !snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.orange),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Failed to load data.",
+                          style:
+                              TextFontStyle.textStyle14cFFFFFFSFProRounded400,
+                        ),
+                      );
+                    }
+                    if (!snapshot.hasData ||
+                        snapshot.data?.data == null ||
+                        snapshot.data!.data!.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No rewards found.",
+                          style:
+                              TextFontStyle.textStyle14cFFFFFFSFProRounded400,
+                        ),
+                      );
+                    }
+
+                    // Filter by active/expired
+                    final allItems = snapshot.data!.data!;
+                    final filteredItems = allItems.where((item) {
+                      final isActive = item.isActive ?? false;
+                      if (_isActiveTab) {
+                        return isActive;
+                      } else {
+                        return !isActive;
+                      }
+                    }).toList();
+
+                    if (filteredItems.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No ${_isActiveTab ? 'active' : 'expired'} rewards found.",
+                          style:
+                              TextFontStyle.textStyle14cFFFFFFSFProRounded400,
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: filteredItems.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredItems[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BusinessPartnerRewardsDetailsScreen(
+                                      type: 'businessPartner',
+                                      id: item.id,
+                                    ),
+                              ),
+                            ).then((_) {
+                              getMyMarketplacesRxObj.fetchMyMarketplaces();
+                            });
+                          },
+                          child: RewardCard(data: item),
                         );
                       },
-                      child: const RewardCard(),
                     );
                   },
                 ),

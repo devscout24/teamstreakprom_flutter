@@ -5,6 +5,7 @@ import '../../../../../gen/colors.gen.dart';
 import '../../../../../helpers/ui_helpers.dart';
 import '../../../../../constants/text_font_style.dart';
 import '../../../../../common_widgets/custom_gradient_button.dart';
+import '../../../../../common_widgets/app_network_image.dart';
 import 'package:teamstreakpromo/features/host_features/auth/widget/document_upload_widget.dart';
 
 class RewardWizardStepTwo extends StatelessWidget {
@@ -164,7 +165,7 @@ class RewardWizardStepTwo extends StatelessWidget {
             context: context,
             initialTime: TimeOfDay.now(),
           );
-          if (time != null) {
+          if (time != null && context.mounted) {
             controller.text = time.format(context);
           }
         },
@@ -380,22 +381,27 @@ class RewardWizardStepTwo extends StatelessWidget {
                     child: hasPhoto && path != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(7.r),
-                            child: Image.file(
-                              File(path),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    color: AppColors.c242A34,
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.white.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                      size: 20.w,
-                                    ),
+                            child: path.startsWith('http')
+                                ? AppNetworkImage(
+                                    imageUrl: path,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.file(
+                                    File(path),
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              color: AppColors.c242A34,
+                                              alignment: Alignment.center,
+                                              child: Icon(
+                                                Icons.broken_image,
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.5),
+                                                size: 20.w,
+                                              ),
+                                            ),
                                   ),
-                            ),
                           )
                         : null,
                   ),

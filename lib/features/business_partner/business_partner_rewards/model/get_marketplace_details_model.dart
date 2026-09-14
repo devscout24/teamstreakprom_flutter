@@ -46,11 +46,13 @@ class MarketplaceDetailsData {
   DateTime? endDateTime;
   int? points;
   int? quantity;
+  int? claimQuantity;
   List<String>? photos;
   bool? isActive;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
+  MarketplaceBusinessProfileItem? businessProfile;
 
   MarketplaceDetailsData({
     this.id,
@@ -65,11 +67,13 @@ class MarketplaceDetailsData {
     this.endDateTime,
     this.points,
     this.quantity,
+    this.claimQuantity,
     this.photos,
     this.isActive,
     this.createdAt,
     this.updatedAt,
     this.v,
+    this.businessProfile,
   });
 
   factory MarketplaceDetailsData.fromJson(Map<String, dynamic> json) {
@@ -101,6 +105,9 @@ class MarketplaceDetailsData {
       quantity: json['quantity'] is num
           ? (json['quantity'] as num).toInt()
           : int.tryParse(json['quantity']?.toString() ?? ''),
+      claimQuantity: json['claimQuantity'] is num
+          ? (json['claimQuantity'] as num).toInt()
+          : int.tryParse(json['claimQuantity']?.toString() ?? ''),
       photos: json['photos'] != null && json['photos'] is List
           ? (json['photos'] as List).map((e) => e.toString()).toList()
           : null,
@@ -112,6 +119,11 @@ class MarketplaceDetailsData {
           ? DateTime.tryParse(json['updatedAt'].toString())
           : null,
       v: json['__v'] as int?,
+      businessProfile: json['businessProfile'] != null &&
+              json['businessProfile'] is Map<String, dynamic>
+          ? MarketplaceBusinessProfileItem.fromJson(
+              json['businessProfile'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -129,11 +141,13 @@ class MarketplaceDetailsData {
       'endDateTime': endDateTime?.toIso8601String(),
       'points': points,
       'quantity': quantity,
+      'claimQuantity': claimQuantity,
       'photos': photos,
       'isActive': isActive,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       '__v': v,
+      'businessProfile': businessProfile?.toJson(),
     };
   }
 }
@@ -190,6 +204,46 @@ class MarketplaceSubCategoryItem {
       '_id': id,
       'name': name,
       'description': description,
+    };
+  }
+}
+
+class MarketplaceBusinessProfileItem {
+  int? rating;
+  int? sold;
+  String? businessName;
+  String? businessDescription;
+  String? location;
+  String? profileImage;
+
+  MarketplaceBusinessProfileItem({
+    this.rating,
+    this.sold,
+    this.businessName,
+    this.businessDescription,
+    this.location,
+    this.profileImage,
+  });
+
+  factory MarketplaceBusinessProfileItem.fromJson(Map<String, dynamic> json) {
+    return MarketplaceBusinessProfileItem(
+      rating: json['rating'] as int?,
+      sold: json['sold'] as int?,
+      businessName: json['businessName'] as String?,
+      businessDescription: json['businessDescription'] as String?,
+      location: json['location'] as String?,
+      profileImage: json['profileImage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rating': rating,
+      'sold': sold,
+      'businessName': businessName,
+      'businessDescription': businessDescription,
+      'location': location,
+      'profileImage': profileImage,
     };
   }
 }

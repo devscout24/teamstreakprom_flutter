@@ -12,11 +12,25 @@ import '../../../../../helpers/navigation_service.dart';
 import '../../../../helpers/all_routes.dart';
 import '../../../../common_widgets/custom_toast.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:intl/intl.dart';
+import '../../../../networks/api_acess.dart';
 import '../data/rx_get_reward_categories/rx.dart';
+import '../data/rx_get_reward_subcategories/rx.dart';
 import '../data/rx_post_marketplace/rx.dart';
+import '../data/rx_update_marketplace/rx.dart';
+import '../model/get_marketplace_details_model.dart';
+
 class BusinessPartnerCreateRewardScreen extends StatefulWidget {
   final bool isEdit;
-  const BusinessPartnerCreateRewardScreen({super.key, this.isEdit = false});
+  final MarketplaceDetailsData? rewardData;
+  final String? rewardId;
+
+  const BusinessPartnerCreateRewardScreen({
+    super.key,
+    this.isEdit = false,
+    this.rewardData,
+    this.rewardId,
+  });
 
   @override
   State<BusinessPartnerCreateRewardScreen> createState() =>
@@ -57,6 +71,55 @@ class _BusinessPartnerCreateRewardScreenState
   void initState() {
     super.initState();
     getRewardCategoriesRx.getRewardCategories();
+    _populateEditData();
+  }
+
+  void _populateEditData() {
+    if (widget.isEdit && widget.rewardData != null) {
+      final data = widget.rewardData!;
+      _titleController.text = data.title ?? "";
+      _descriptionController.text = data.description ?? "";
+      _locationController.text = data.location ?? "";
+
+      if (data.category != null) {
+        _selectedCategoryId = data.category!.id;
+        _selectedCategoryName = data.category!.name;
+        if (_selectedCategoryId != null && _selectedCategoryId!.isNotEmpty) {
+          getRewardSubcategoriesRx.getRewardSubcategories(_selectedCategoryId!);
+        }
+      }
+
+      if (data.subCategory != null) {
+        _selectedSubcategoryId = data.subCategory!.id;
+        _selectedSubcategoryName = data.subCategory!.name;
+      }
+
+      if (data.startDateTime != null) {
+        final startDt = data.startDateTime!.toLocal();
+        _startDateController.text =
+            "${startDt.day.toString().padLeft(2, '0')}/${startDt.month.toString().padLeft(2, '0')}/${startDt.year}";
+        _startTimeController.text = DateFormat("hh:mm a").format(startDt);
+      }
+
+      if (data.endDateTime != null) {
+        final endDt = data.endDateTime!.toLocal();
+        _endDateController.text =
+            "${endDt.day.toString().padLeft(2, '0')}/${endDt.month.toString().padLeft(2, '0')}/${endDt.year}";
+        _endTimeController.text = DateFormat("hh:mm a").format(endDt);
+      }
+
+      if (data.points != null) {
+        _pointsController.text = data.points.toString();
+      }
+
+      if (data.quantity != null) {
+        _quantityController.text = data.quantity.toString();
+      }
+
+      if (data.photos != null && data.photos!.isNotEmpty) {
+        _rewardPhotoPaths.addAll(data.photos!);
+      }
+    }
   }
 
   @override
@@ -186,61 +249,112 @@ class _BusinessPartnerCreateRewardScreenState
       }
 
       List<dio.MultipartFile> photoFiles = [];
+      List<String> existingPhotos = [];
       for (String path in _rewardPhotoPaths) {
         if (path.isNotEmpty) {
-          photoFiles.add(await dio.MultipartFile.fromFile(
-            path,
-            filename: path.split('/').last.split('\\').last,
-          ));
+          if (path.startsWith('http')) {
+            existingPhotos.add(path);
+          } else {
+            photoFiles.add(await dio.MultipartFile.fromFile(
+              path,
+              filename: path.split('/').last.split('\\').last,
+            ));
+          }
         }
       }
 
-      final Map<String, dynamic> dataMap = {
-        "title": _titleController.text.trim(),
-        "description": _descriptionController.text.trim(),
-        "categoryId": _selectedCategoryId ?? "",
-        "location": _locationController.text.trim(),
-        "latitude": 40.7128,
-        "longitude": -74.006,
-        "startDateTime": _formatToIsoDateTime(
+      final formData = dio.FormData();
+
+      formData.fields.add(MapEntry("title", _titleController.text.trim()));
+      formData.fields.add(MapEntry("description", _descriptionController.text.trim()));
+      formData.fields.add(MapEntry("categoryId", _selectedCategoryId ?? ""));
+      formData.fields.add(MapEntry("location", _locationController.text.trim()));
+      formData.fields.add(const MapEntry("latitude", "40.7128"));
+      formData.fields.add(const MapEntry("longitude", "-74.006"));
+      formData.fields.add(MapEntry(
+        "startDateTime",
+        _formatToIsoDateTime(
           _startDateController.text.trim(),
           _startTimeController.text.trim(),
         ),
-        "endDateTime": _formatToIsoDateTime(
+      ));
+      formData.fields.add(MapEntry(
+        "endDateTime",
+        _formatToIsoDateTime(
           _endDateController.text.trim(),
           _endTimeController.text.trim(),
         ),
-        "points": int.tryParse(_pointsController.text.trim()) ?? 0,
-        "quantity": int.tryParse(_quantityController.text.trim()) ?? 0,
-      };
+      ));
+      formData.fields.add(MapEntry(
+        "points",
+        (int.tryParse(_pointsController.text.trim()) ?? 0).toString(),
+      ));
+      formData.fields.add(MapEntry(
+        "quantity",
+        (int.tryParse(_quantityController.text.trim()) ?? 0).toString(),
+      ));
 
       if (_selectedSubcategoryId != null &&
           _selectedSubcategoryId!.isNotEmpty) {
-        dataMap["subCategoryId"] = _selectedSubcategoryId;
+        formData.fields.add(MapEntry("subCategoryId", _selectedSubcategoryId!));
       }
 
-      if (photoFiles.isNotEmpty) {
-        dataMap["photos"] = photoFiles;
+      // Handle photos as per backend PATCH /api/marketplaces/{id} documentation:
+      // - To keep existing photos: Send existing image URL string(s) in form-data text fields ('photos')
+      // - To add new image files: Attach binary image file(s) to form-data field 'photos'
+      // - To delete ALL images: Send an empty JSON array string "[]" to the 'photos' field
+      if (widget.isEdit) {
+        if (existingPhotos.isEmpty && photoFiles.isEmpty) {
+          formData.fields.add(const MapEntry("photos", "[]"));
+        } else {
+          for (String url in existingPhotos) {
+            formData.fields.add(MapEntry("photos", url));
+          }
+          for (var file in photoFiles) {
+            formData.files.add(MapEntry("photos", file));
+          }
+        }
+      } else {
+        for (var file in photoFiles) {
+          formData.files.add(MapEntry("photos", file));
+        }
       }
 
-      final formData = dio.FormData.fromMap(dataMap);
-
-      final response = await postMarketplaceRx.postMarketplace(formData);
+      final dynamic response;
+      final String? targetId = widget.rewardId ?? widget.rewardData?.id;
+      if (widget.isEdit && targetId != null && targetId.isNotEmpty) {
+        response = await updateMarketplaceRx.updateMarketplace(targetId, formData);
+      } else {
+        response = await postMarketplaceRx.postMarketplace(formData);
+      }
 
       if (response.success == true ||
           response.statusCode == 200 ||
           response.statusCode == 201) {
         customToastMessage(
           "Success",
-          response.message ?? "Marketplace item created successfully",
+          response.message ??
+              (widget.isEdit
+                  ? "Marketplace item updated successfully"
+                  : "Marketplace item created successfully"),
         );
-        NavigationService.navigateToUntilReplacement(
-          Routes.businessPartnerNavbarScreen,
-        );
+        getMyMarketplacesRxObj.fetchMyMarketplaces();
+        if (widget.isEdit && targetId != null) {
+          getMarketplaceDetailsRxObj.fetchMarketplaceDetails(targetId);
+        }
+        if (widget.isEdit) {
+          if (mounted) {
+            Navigator.of(context).pop(true);
+          }
+        } else {
+          NavigationService.navigateToUntilReplacement(
+            Routes.businessPartnerNavbarScreen,
+          );
+        }
       } else {
         customToastMessage(
           "Error",
-          response.message ?? "Failed to create marketplace item",
+          response.message ?? "Failed to save marketplace item",
           isError: true,
         );
       }
@@ -321,6 +435,8 @@ class _BusinessPartnerCreateRewardScreenState
                     titleController: _titleController,
                     descriptionController: _descriptionController,
                     locationController: _locationController,
+                    initialCategoryId: _selectedCategoryId,
+                    initialSubcategoryId: _selectedSubcategoryId,
                     onNextStep: _nextStep,
                     onCategoryChanged: (val) {
                       _selectedCategoryId = val;
@@ -370,6 +486,7 @@ class _BusinessPartnerCreateRewardScreenState
                   rewardPhotoPaths: _rewardPhotoPaths,
                   agreedToTerms: _agreedToTerms,
                   isLoading: _isLoading,
+                  isEdit: widget.isEdit,
                   onAgreedToTermsChanged: (value) {
                     setState(() {
                       _agreedToTerms = value;

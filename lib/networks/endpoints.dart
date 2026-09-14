@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-const String url = "https://teamstreakpromo-mern-express-indol.vercel.app";
+const String url = "https://teamstreakpromo-mern-express.vercel.app";
 
 final class NetworkConstants {
   NetworkConstants._();
@@ -42,9 +42,10 @@ final class Endpoints {
 
   static String categories() => "/api/categories";
   static String rewardCategories() => "/api/reward-categories";
-  static String rewardSubcategories(String categoryId) => 
+  static String rewardSubcategories(String categoryId) =>
       "/api/reward-subcategories?rewardCategory=$categoryId";
   static String marketplaces() => "/api/marketplaces";
+  static String myMarketplaces() => "/api/marketplaces/my-marketplaces";
   static String subcategories(String parentId) =>
       "/api/categories?parentCategory=$parentId";
   static String createEvent() => "/api/events";
