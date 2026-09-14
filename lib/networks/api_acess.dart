@@ -39,6 +39,11 @@ import 'package:teamstreakpromo/features/business_partner/business_partner_rewar
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/get_marketplace_details_model.dart';
 import 'package:teamstreakpromo/features/rewards/data/rx_get_marketplaces/rx.dart';
 import 'package:teamstreakpromo/features/rewards/model/get_marketplaces_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_get_my_marketplaces/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/my_marketplaces_response_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_delete_marketplace/rx.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/delete_marketplace_response_model.dart';
+import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_update_marketplace/rx.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -146,3 +151,19 @@ final GetMarketplaceDetailsRx getMarketplaceDetailsRxObj =
   empty: GetMarketplaceDetailsModel(),
   dataFetcher: BehaviorSubject<GetMarketplaceDetailsModel>(),
 );
+
+final GetMyMarketplacesRx getMyMarketplacesRxObj = GetMyMarketplacesRx(
+  empty: MyMarketplacesResponseModel(),
+  dataFetcher: BehaviorSubject<MyMarketplacesResponseModel>(),
+);
+
+final DeleteMarketplaceRx deleteMarketplaceRxObj = DeleteMarketplaceRx(
+  empty: DeleteMarketplaceResponseModel(),
+  dataFetcher: BehaviorSubject<DeleteMarketplaceResponseModel>(),
+);
+
+final UpdateMarketplaceRx updateMarketplaceRxObj = UpdateMarketplaceRx(
+  empty: MarketplaceResponseModel(),
+  dataFetcher: BehaviorSubject<MarketplaceResponseModel>(),
+);
+

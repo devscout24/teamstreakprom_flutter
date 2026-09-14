@@ -146,7 +146,7 @@ class _BusinessPartnerRewardsDetailsScreenState
     final String description = data?.description ??
         "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.";
     final String storeName =
-        data?.category?.name ?? "Nike Official Store";
+        data?.businessProfile?.businessName ?? data?.category?.name ?? "Nike Official Store";
 
     String endDateStr = "Aug 28, 2026";
     String timeLeftStr = "7h 32m left";
@@ -349,12 +349,23 @@ class _BusinessPartnerRewardsDetailsScreenState
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.storefront,
-                          color: Colors.black,
-                          size: 24.sp,
-                        ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100.r),
+                        child: data?.businessProfile?.profileImage != null &&
+                                data!.businessProfile!.profileImage!.isNotEmpty
+                            ? AppNetworkImage(
+                                imageUrl: data.businessProfile!.profileImage!,
+                                width: 44.w,
+                                height: 44.w,
+                                fit: BoxFit.cover,
+                              )
+                            : Center(
+                                child: Icon(
+                                  Icons.storefront,
+                                  color: Colors.black,
+                                  size: 24.sp,
+                                ),
+                              ),
                       ),
                     ),
                     UIHelper.horizontalSpace(12.w),
@@ -381,26 +392,26 @@ class _BusinessPartnerRewardsDetailsScreenState
                                 size: 14.sp,
                               ),
                               UIHelper.horizontalSpace(4.w),
-                              Text(
-                                "4.9",
-                                style: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
-                                    .copyWith(
-                                      color: const Color(0xFFFCA311),
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
+                                Text(
+                                  "${data?.businessProfile?.rating ?? 4.9}",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: const Color(0xFFFCA311),
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
                               UIHelper.horizontalSpace(8.w),
-                              Text(
-                                "|  7932 sold",
-                                style: TextFontStyle
-                                    .textStyle14cFFFFFFSFProRounded400
-                                    .copyWith(
-                                      color: AppColors.cBCBCBB,
-                                      fontSize: 12.sp,
-                                    ),
-                              ),
+                                Text(
+                                  "|  ${data?.businessProfile?.sold ?? 7932} sold",
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: AppColors.cBCBCBB,
+                                        fontSize: 12.sp,
+                                      ),
+                                ),
                             ],
                           ),
                         ],
@@ -537,11 +548,17 @@ class _BusinessPartnerRewardsDetailsScreenState
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const BusinessPartnerCreateRewardScreen(
+                                    BusinessPartnerCreateRewardScreen(
                                       isEdit: true,
+                                      rewardData: data,
+                                      rewardId: widget.id ?? data?.id,
                                     ),
                               ),
-                            );
+                            ).then((result) {
+                              if (result == true) {
+                                _fetchDetails();
+                              }
+                            });
                           },
                           title: "Edit Info",
                           height: 48.h,
@@ -684,85 +701,114 @@ class _BusinessPartnerRewardsDetailsScreenState
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          decoration: BoxDecoration(
-            color: AppColors.scaffoldColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32.r),
-              topRight: Radius.circular(32.r),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Delete Reward",
-                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32.r),
+                  topRight: Radius.circular(32.r),
                 ),
               ),
-              UIHelper.verticalSpace(16.h),
-              Text(
-                "Are you sure you want to delete this reward? This action cannot be undone.",
-                textAlign: TextAlign.center,
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 13.sp,
-                  height: 1.5,
-                ),
-              ),
-              UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.1),
-                thickness: 1.h,
-                height: 1.h,
-              ),
-              UIHelper.verticalSpace(24.h),
-              Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: CustomButton(
-                      onPressed: () => Navigator.pop(context),
-                      title: "Cancel",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.c262824,
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
+                  Text(
+                    "Delete Reward",
+                    style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  UIHelper.horizontalSpace(16.w),
-                  Expanded(
-                    child: CustomGradientButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      title: "Delete",
-                      height: 48.h,
-                      borderRadius: BorderRadius.circular(100.r),
-                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c262824,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
-                          ),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                  UIHelper.verticalSpace(16.h),
+                  Text(
+                    "Are you sure you want to delete this reward? This action cannot be undone.",
+                    textAlign: TextAlign.center,
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 13.sp,
+                      height: 1.5,
+                    ),
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Divider(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    thickness: 1.h,
+                    height: 1.h,
+                  ),
+                  UIHelper.verticalSpace(24.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          onPressed: isLoading ? null : () => Navigator.pop(context),
+                          title: "Cancel",
+                          height: 48.h,
+                          borderRadius: BorderRadius.circular(100.r),
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.c262824,
+                          textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: AppColors.c262824,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14.sp,
+                              ),
+                        ),
                       ),
-                    ),
+                      UIHelper.horizontalSpace(16.w),
+                      Expanded(
+                        child: CustomGradientButton(
+                          onPressed: isLoading
+                              ? null
+                              : () async {
+                                  if (widget.id == null) return;
+                                  setState(() => isLoading = true);
+                                  try {
+                                    await deleteMarketplaceRxObj.deleteMarketplace(widget.id!);
+                                    getMyMarketplacesRxObj.fetchMyMarketplaces();
+                                    if (context.mounted) {
+                                      Navigator.pop(context); // Pop bottom sheet
+                                      Navigator.pop(context); // Pop details screen
+                                    }
+                                  } catch (e) {
+                                    setState(() => isLoading = false);
+                                  }
+                                },
+                          height: 48.h,
+                          borderRadius: BorderRadius.circular(100.r),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  "Delete",
+                                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                                      .copyWith(
+                                        color: AppColors.c262824,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14.sp,
+                                      ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
+                  UIHelper.verticalSpace(8.h),
                 ],
               ),
-              UIHelper.verticalSpace(8.h),
-            ],
-          ),
+            );
+          },
         );
       },
     );

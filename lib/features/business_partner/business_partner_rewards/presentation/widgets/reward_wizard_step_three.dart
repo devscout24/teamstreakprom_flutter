@@ -25,6 +25,7 @@ class RewardWizardStepThree extends StatelessWidget {
   final List<String> rewardPhotoPaths;
   final bool agreedToTerms;
   final bool isLoading;
+  final bool isEdit;
   final Function(bool) onAgreedToTermsChanged;
   final VoidCallback onEdit;
   final VoidCallback onPost;
@@ -45,6 +46,7 @@ class RewardWizardStepThree extends StatelessWidget {
     required this.rewardPhotoPaths,
     required this.agreedToTerms,
     this.isLoading = false,
+    this.isEdit = false,
     required this.onAgreedToTermsChanged,
     required this.onEdit,
     required this.onPost,
@@ -358,14 +360,22 @@ class RewardWizardStepThree extends StatelessWidget {
                     itemCount: rewardPhotoPaths.length,
                     separatorBuilder: (_, __) => UIHelper.horizontalSpace(10.w),
                     itemBuilder: (context, index) {
+                      final photo = rewardPhotoPaths[index];
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(12.r),
-                        child: Image.file(
-                          File(rewardPhotoPaths[index]),
-                          height: 120.h,
-                          width: 140.w,
-                          fit: BoxFit.cover,
-                        ),
+                        child: photo.startsWith('http')
+                            ? AppNetworkImage(
+                                imageUrl: photo,
+                                height: 120.h,
+                                width: 140.w,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(photo),
+                                height: 120.h,
+                                width: 140.w,
+                                fit: BoxFit.cover,
+                              ),
                       );
                     },
                   ),
@@ -374,12 +384,19 @@ class RewardWizardStepThree extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12.r),
                   child: rewardPhotoPaths.isNotEmpty
-                      ? Image.file(
-                          File(rewardPhotoPaths.first),
-                          height: 160.h,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
+                      ? (rewardPhotoPaths.first.startsWith('http')
+                          ? AppNetworkImage(
+                              imageUrl: rewardPhotoPaths.first,
+                              height: 160.h,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(
+                              File(rewardPhotoPaths.first),
+                              height: 160.h,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ))
                       : AppNetworkImage(
                           imageUrl:
                               "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800",
@@ -533,7 +550,7 @@ class RewardWizardStepThree extends StatelessWidget {
                   ),
                 )
               : Text(
-                  "Post Reward",
+                  isEdit ? "Update Reward" : "Post Reward",
                   style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
                     fontWeight: FontWeight.w700,
                     color: agreedToTerms
