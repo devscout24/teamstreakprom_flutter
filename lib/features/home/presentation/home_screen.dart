@@ -17,8 +17,6 @@ import '../../onboarding/model/intrest_category_model.dart';
 import '../../settings/model/user_profile_model.dart';
 import 'package:shimmer/shimmer.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToRewards;
   const HomeScreen({super.key, this.onNavigateToRewards});
@@ -48,6 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    userProfileRxObj.fetchUserProfile();
+    getCategoriesRxObj.fetchCategories();
+    await _initEvents();
+  }
+
   void _showFilterBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -61,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<UserProfileModel>(
       stream: userProfileRxObj.userProfileData,
       builder: (context, snapshot) {
-        final hasData = snapshot.hasData ||
+        final hasData =
+            snapshot.hasData ||
             userProfileRxObj.userProfileData.valueOrNull?.data != null;
         if (!hasData && snapshot.connectionState == ConnectionState.waiting) {
           return Container(
@@ -130,13 +135,15 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
 
-        final profile = snapshot.data?.data ??
+        final profile =
+            snapshot.data?.data ??
             userProfileRxObj.userProfileData.valueOrNull?.data;
         final name = (profile?.name != null && profile!.name!.isNotEmpty)
             ? profile.name!
             : "User";
         final points = profile?.totalPoints ?? 0;
-        final location = (profile?.businessProfile?.location != null &&
+        final location =
+            (profile?.businessProfile?.location != null &&
                 profile!.businessProfile!.location!.isNotEmpty)
             ? profile.businessProfile!.location!
             : "Divine Art Festival";
@@ -162,8 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 44.w,
                   decoration: const BoxDecoration(shape: BoxShape.circle),
                   child: ClipOval(
-                    child: (profileImageUrl != null &&
-                            profileImageUrl.isNotEmpty)
+                    child:
+                        (profileImageUrl != null && profileImageUrl.isNotEmpty)
                         ? AppNetworkImage(
                             imageUrl: profileImageUrl,
                             height: 44.w,
@@ -294,46 +301,46 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   NavigationService.navigateTo(Routes.notificationScreen);
                 },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Image.asset(
-                  Assets.icons.notificationIcon.path,
-                  width: 24.w,
-                  height: 24.w,
-                  color: Colors.white,
-                ),
-                Positioned(
-                  top: -2.h,
-                  right: -2.w,
-                  child: Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF28F31),
-                      shape: BoxShape.circle,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Image.asset(
+                      Assets.icons.notificationIcon.path,
+                      width: 24.w,
+                      height: 24.w,
+                      color: Colors.white,
                     ),
-                    constraints: BoxConstraints(
-                      minWidth: 14.w,
-                      minHeight: 14.w,
-                    ),
-                    child: Center(
-                      child: Text(
-                        "3",
-                        style: TextFontStyle.textStyle14cFFFFFFSFPro590
-                            .copyWith(
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
+                    Positioned(
+                      top: -2.h,
+                      right: -2.w,
+                      child: Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF28F31),
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 14.w,
+                          minHeight: 14.w,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "3",
+                            style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                                .copyWith(
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -347,204 +354,237 @@ class _HomeScreenState extends State<HomeScreen> {
           FocusScope.of(context).unfocus();
         },
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                UIHelper.verticalSpace(16.h),
-                // ── Search & Filter Row ──────────────────
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Container(
-                    height: 52.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E222B),
-                      borderRadius: BorderRadius.circular(100.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        width: 1.w,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  color: const Color(0xFFF28F31),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        UIHelper.verticalSpace(16.h),
+                        // ── Search & Filter Row ──────────────────
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Container(
+                      height: 52.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E222B),
+                        borderRadius: BorderRadius.circular(100.r),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          width: 1.w,
+                        ),
+                      ),
+                      padding: EdgeInsets.only(left: 16.w, right: 6.w),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.search,
+                            color: Colors.white.withValues(alpha: 0.5),
+                            size: 24.sp,
+                          ),
+                          UIHelper.horizontalSpace(12.w),
+                          Expanded(
+                            child: TextField(
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: "Search...",
+                                hintStyle: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                    ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _showFilterBottomSheet,
+                            child: Container(
+                              width: 40.h,
+                              height: 40.h,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF232D26),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.tune_rounded,
+                                color: Colors.white,
+                                size: 18.sp,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    padding: EdgeInsets.only(left: 16.w, right: 6.w),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.search,
-                          color: Colors.white.withValues(alpha: 0.5),
-                          size: 24.sp,
-                        ),
-                        UIHelper.horizontalSpace(12.w),
-                        Expanded(
-                          child: TextField(
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: "Search...",
-                              hintStyle: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white.withValues(alpha: 0.4),
-                                  ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _showFilterBottomSheet,
-                          child: Container(
-                            width: 40.h,
-                            height: 40.h,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF232D26),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.tune_rounded,
-                              color: Colors.white,
-                              size: 18.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-                ),
-                UIHelper.verticalSpace(24.h),
+                  UIHelper.verticalSpace(24.h),
 
-                // ── Categories Horizontal List ──────────
-                SizedBox(
-                  height: 38.h,
-                  child: StreamBuilder<IntrestCategoryModel>(
-                    stream: getCategoriesRxObj.getCategoriesData,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                  // ── Categories Horizontal List ──────────
+                  SizedBox(
+                    height: 38.h,
+                    child: StreamBuilder<IntrestCategoryModel>(
+                      stream: getCategoriesRxObj.getCategoriesData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting &&
+                            !snapshot.hasData) {
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: EdgeInsets.only(right: 8.w),
+                                child: Shimmer.fromColors(
+                                  baseColor: const Color(0xFF1E222B),
+                                  highlightColor: Colors.white.withValues(
+                                    alpha: 0.05,
+                                  ),
+                                  child: Container(
+                                    width: 80.w,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E222B),
+                                      borderRadius: BorderRadius.circular(
+                                        100.r,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+
+                        final dataList = snapshot.data?.data ?? [];
+
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          itemCount: 5,
+                          itemCount: dataList.length + 1, // +1 for 'All'
                           itemBuilder: (context, index) {
+                            final isSelected = _selectedCategoryIndex == index;
+                            final categoryName = index == 0
+                                ? 'All'
+                                : (dataList[index - 1].name ?? 'Unknown');
                             return Padding(
                               padding: EdgeInsets.only(right: 8.w),
-                              child: Shimmer.fromColors(
-                                baseColor: const Color(0xFF1E222B),
-                                highlightColor: Colors.white.withValues(alpha: 0.05),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedCategoryIndex = index;
+                                  });
+                                  final categoryId = index == 0
+                                      ? null
+                                      : dataList[index - 1].id;
+                                  final authMeData =
+                                      authMeRxObj.authMeData.valueOrNull?.data;
+                                  getEventsByCategoryRxObj.fetchEvents(
+                                    categoryId: categoryId,
+                                    seed: authMeData?.id,
+                                  );
+                                },
                                 child: Container(
-                                  width: 80.w,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1E222B),
+                                    color: isSelected
+                                        ? AppColors.cA8FF8E
+                                        : const Color(0xFF1E222B),
                                     borderRadius: BorderRadius.circular(100.r),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? Colors.transparent
+                                          : Colors.white.withValues(
+                                              alpha: 0.05,
+                                            ),
+                                      width: 1.w,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      categoryName,
+                                      style: TextFontStyle
+                                          .textStyle14cFFFFFFSFProRounded400
+                                          .copyWith(
+                                            color: isSelected
+                                                ? Colors.black
+                                                : Colors.white.withValues(
+                                                    alpha: 0.7,
+                                                  ),
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w400,
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
                             );
                           },
                         );
-                      }
+                      },
+                    ),
+                  ),
+                  UIHelper.verticalSpace(24.h),
 
+                  // ── Popular Events List ─────────────────
+                  const PopularEventsList(),
+                  UIHelper.verticalSpace(24.h),
+
+                  // ── Dynamic Category Lists ──────────────
+                  StreamBuilder<IntrestCategoryModel>(
+                    stream: getCategoriesRxObj.getCategoriesData,
+                    builder: (context, snapshot) {
                       final dataList = snapshot.data?.data ?? [];
-                      
+                      final authMeData =
+                          authMeRxObj.authMeData.valueOrNull?.data;
+
                       return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.symmetric(horizontal: 12.w),
-                        itemCount: dataList.length + 1, // +1 for 'All'
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: dataList.length,
                         itemBuilder: (context, index) {
-                          final isSelected = _selectedCategoryIndex == index;
-                          final categoryName = index == 0 ? 'All' : (dataList[index - 1].name ?? 'Unknown');
+                          final category = dataList[index];
+                          if (category.id == null)
+                            return const SizedBox.shrink();
+
                           return Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedCategoryIndex = index;
-                                });
-                                final categoryId = index == 0 ? null : dataList[index - 1].id;
-                                final authMeData = authMeRxObj.authMeData.valueOrNull?.data;
-                                getEventsByCategoryRxObj.fetchEvents(
-                                  categoryId: categoryId, 
-                                  seed: authMeData?.id,
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.cA8FF8E
-                                      : const Color(0xFF1E222B),
-                                  borderRadius: BorderRadius.circular(100.r),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? Colors.transparent
-                                        : Colors.white.withValues(alpha: 0.05),
-                                    width: 1.w,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    categoryName,
-                                    style: TextFontStyle
-                                        .textStyle14cFFFFFFSFProRounded400
-                                        .copyWith(
-                                          color: isSelected
-                                              ? Colors.black
-                                              : Colors.white.withValues(alpha: 0.7),
-                                          fontWeight: isSelected
-                                              ? FontWeight.w600
-                                              : FontWeight.w400,
-                                        ),
-                                  ),
-                                ),
-                              ),
+                            padding: EdgeInsets.only(bottom: 24.h),
+                            child: CategoryEventsRow(
+                              categoryId: category.id!,
+                              categoryName: category.name ?? 'Events',
+                              seed: authMeData?.id,
                             ),
                           );
                         },
                       );
                     },
                   ),
-                ),
-                UIHelper.verticalSpace(24.h),
-
-                // ── Popular Events List ─────────────────
-                const PopularEventsList(),
-                UIHelper.verticalSpace(24.h),
-
-                // ── Dynamic Category Lists ──────────────
-                StreamBuilder<IntrestCategoryModel>(
-                  stream: getCategoriesRxObj.getCategoriesData,
-                  builder: (context, snapshot) {
-                    final dataList = snapshot.data?.data ?? [];
-                    final authMeData = authMeRxObj.authMeData.valueOrNull?.data;
-                    
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: dataList.length,
-                      itemBuilder: (context, index) {
-                        final category = dataList[index];
-                        if (category.id == null) return const SizedBox.shrink();
-
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: 24.h),
-                          child: CategoryEventsRow(
-                            categoryId: category.id!,
-                            categoryName: category.name ?? 'Events',
-                            seed: authMeData?.id,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                const NearbyEventsMap(),
-              ],
+                  const NearbyEventsMap(),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
+    ),
+  ),
+),
     );
   }
 }

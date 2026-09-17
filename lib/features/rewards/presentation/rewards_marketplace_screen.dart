@@ -284,7 +284,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 12.w,
                               mainAxisSpacing: 16.h,
-                              childAspectRatio: 0.64,
+                              childAspectRatio: 0.58,
                             ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {

@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-const String url = "https://teamstreakpromo-mern-express.vercel.app";
+const String url = "https://teamstreakpromo-mern-express-indol.vercel.app";
 
 final class NetworkConstants {
   NetworkConstants._();
