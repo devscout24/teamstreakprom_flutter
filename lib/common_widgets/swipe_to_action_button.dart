@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import '../constants/text_font_style.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SwipeToActionButton extends StatefulWidget {
   final String text;
@@ -37,14 +38,22 @@ class _SwipeToActionButtonState extends State<SwipeToActionButton> {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100.r),
-            gradient: const LinearGradient(
-              colors: [Color(0xFFD39A3D), Color(0xFF8DB741)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
           ),
           child: Stack(
             children: [
+              Positioned.fill(
+                child: Shimmer.fromColors(
+                  baseColor: const Color(0xFF8DB741),
+                  highlightColor: const Color(0xFFD39A3D),
+                  period: const Duration(seconds: 2),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                  ),
+                ),
+              ),
               Center(
                 child: Opacity(
                   opacity:

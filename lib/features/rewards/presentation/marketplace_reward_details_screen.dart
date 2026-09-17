@@ -9,6 +9,7 @@ import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/swipe_to_action_button.dart';
 import '../widgets/confirm_redeem_bottom_sheet.dart';
 import '../model/get_marketplaces_model.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MarketplaceRewardDetailsScreen extends StatefulWidget {
   final String? rewardName;

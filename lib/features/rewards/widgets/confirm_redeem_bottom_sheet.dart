@@ -17,7 +17,7 @@ class ConfirmRedeemBottomSheet extends StatefulWidget {
 class _ConfirmRedeemBottomSheetState extends State<ConfirmRedeemBottomSheet> {
   int _step =
       0; // 0 = Reward Verification, 1 = Confirmation Redeem, 2 = Code Box
-  int _verificationMethod = 0; // 0 = 4-digit code, 1 = Quick Swipe
+  int _verificationMethod = 1; // 1 = Quick Swipe
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +76,6 @@ class _ConfirmRedeemBottomSheetState extends State<ConfirmRedeemBottomSheet> {
                 ),
               ),
               UIHelper.verticalSpace(16.h),
-              _buildVerificationOption(
-                index: 0,
-                title: "Require 4-digit Code",
-                description: "Employees must enter a a-digit code to redeem.",
-              ),
-              UIHelper.verticalSpace(12.h),
               _buildVerificationOption(
                 index: 1,
                 title: "Quick Swipe Confirmation",
