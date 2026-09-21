@@ -38,6 +38,8 @@ import '../features/settings/presentation/support_options_screen.dart';
 import '../features/settings/presentation/submit_problem_screen.dart';
 import '../features/settings/presentation/support_chat_screen.dart';
 import '../features/settings/presentation/manage_team_screen.dart';
+import '../features/settings/presentation/stripe_connect_screen.dart';
+import '../features/settings/presentation/stripe_webview_screen.dart';
 import '../features/event/presentation/event_details_screen.dart';
 
 final class Routes {
@@ -99,6 +101,8 @@ final class Routes {
   static const String supportChatScreen = '/supportChatScreen';
   static const String rewardsPointDetailsScreen = '/rewardsPointDetailsScreen';
   static const String manageTeamScreen = '/manageTeamScreen';
+  static const String stripeConnectScreen = '/stripeConnectScreen';
+  static const String stripeWebViewScreen = '/stripeWebViewScreen';
 
   static const String hostEditProfileScreen = '/hostEditProfileScreen';
   static const String businessPartnerNavigationScreen =
@@ -391,16 +395,6 @@ final class RouteGenerator {
                 settings: settings,
               );
 
-      case Routes.pickInterestScreen:
-        return defaultTargetPlatform == TargetPlatform.iOS
-            ? CupertinoPageRoute(
-                builder: (context) => const PickInterestScreen(),
-              )
-            : _FadedTransitionRoute(
-                widget: const PickInterestScreen(),
-                settings: settings,
-              );
-
       // Main App Routes
       case Routes.homeScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
@@ -531,6 +525,43 @@ final class RouteGenerator {
                 widget: SupportChatScreen(
                   topic: topicChat,
                   problem: problemChat,
+                ),
+                settings: settings,
+              );
+
+      case Routes.stripeConnectScreen:
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => const StripeConnectScreen(),
+              )
+            : _FadedTransitionRoute(
+                widget: const StripeConnectScreen(),
+                settings: settings,
+              );
+
+      case Routes.stripeWebViewScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final url = args?['url'] as String? ?? '';
+        final stripeAccountId = args?['stripeAccountId'] as String?;
+        final returnUrl = args?['returnUrl'] as String? ??
+            'https://yourfrontend.com/host/stripe/return';
+        final refreshUrl = args?['refreshUrl'] as String? ??
+            'https://yourfrontend.com/host/stripe/refresh';
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => StripeWebViewScreen(
+                  url: url,
+                  stripeAccountId: stripeAccountId,
+                  returnUrl: returnUrl,
+                  refreshUrl: refreshUrl,
+                ),
+              )
+            : _FadedTransitionRoute(
+                widget: StripeWebViewScreen(
+                  url: url,
+                  stripeAccountId: stripeAccountId,
+                  returnUrl: returnUrl,
+                  refreshUrl: refreshUrl,
                 ),
                 settings: settings,
               );

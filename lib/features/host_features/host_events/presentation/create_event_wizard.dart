@@ -53,6 +53,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final TextEditingController _endTimeController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
+  final List<PriceCategoryFormModel> _priceCategories = [];
   final List<String> _eventPhotoPaths = [];
   String? _selectedAgeRestriction = "18+";
 
@@ -69,6 +70,67 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final List<Map<String, dynamic>> _rewards = [];
   bool _isPostingEvent = false;
 
+  void _setupCategoryListeners(PriceCategoryFormModel cat) {
+    void listener() {
+      _syncFromPriceCategories();
+    }
+
+    cat.nameController.addListener(listener);
+    cat.priceController.addListener(listener);
+    cat.stockController.addListener(listener);
+  }
+
+  void _syncFromPriceCategories() {
+    int totalStock = 0;
+    double? minPrice;
+    double? maxPrice;
+
+    for (var cat in _priceCategories) {
+      final stock = int.tryParse(cat.stockController.text.trim()) ?? 0;
+      totalStock += stock;
+      final price = double.tryParse(cat.priceController.text.trim());
+      if (price != null) {
+        if (minPrice == null || price < minPrice) minPrice = price;
+        if (maxPrice == null || price > maxPrice) maxPrice = price;
+      }
+    }
+
+    if (totalStock > 0) {
+      _capacityController.text = totalStock.toString();
+    }
+    if (minPrice != null && maxPrice != null) {
+      _priceController.text = minPrice == maxPrice
+          ? minPrice.round().toString()
+          : "${minPrice.round()} - ${maxPrice.round()}";
+    }
+  }
+
+  void _addPriceCategory() {
+    if (_priceCategories.length >= 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Maximum 10 ticket categories allowed"),
+        ),
+      );
+      return;
+    }
+    setState(() {
+      final newCat = PriceCategoryFormModel();
+      _setupCategoryListeners(newCat);
+      _priceCategories.add(newCat);
+    });
+  }
+
+  void _removePriceCategory(int index) {
+    if (_priceCategories.length > 1) {
+      setState(() {
+        _priceCategories[index].dispose();
+        _priceCategories.removeAt(index);
+        _syncFromPriceCategories();
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +143,28 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       _priceController.text = data.ticketPrice?.toString() ?? "";
       _capacityController.text = data.stock?.toString() ?? "";
       _eventDescController.text = data.description ?? "";
+
+      if (data.priceCategories != null && data.priceCategories!.isNotEmpty) {
+        for (var pc in data.priceCategories!) {
+          final cat = PriceCategoryFormModel(
+            defaultName: pc.name ?? "",
+            defaultPrice: pc.price != null ? pc.price!.round().toString() : "",
+            defaultStock: pc.stock != null ? pc.stock!.toString() : "",
+          );
+          _setupCategoryListeners(cat);
+          _priceCategories.add(cat);
+        }
+      } else {
+        final cat = PriceCategoryFormModel(
+          defaultName: "General",
+          defaultPrice: data.ticketPrice != null
+              ? data.ticketPrice!.round().toString()
+              : "",
+          defaultStock: data.stock?.toString() ?? "",
+        );
+        _setupCategoryListeners(cat);
+        _priceCategories.add(cat);
+      }
 
       if (data.startDate != null) {
         _startDateController.text = DateFormat(
@@ -141,8 +225,27 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       // Pre-populate mock values for demonstration matching mockup
       _eventNameController.text = "";
       _locationController.text = "";
-      _priceController.text = "";
-      _capacityController.text = "";
+
+      // Default Ticket Categories matching user specifications:
+      // VIP (Price: 200, Stock: 20), General (Price: 50, Stock: 80)
+      final vipCat = PriceCategoryFormModel(
+        defaultName: "VIP",
+        defaultPrice: "200",
+        defaultStock: "20",
+      );
+      _setupCategoryListeners(vipCat);
+      _priceCategories.add(vipCat);
+
+      final genCat = PriceCategoryFormModel(
+        defaultName: "General",
+        defaultPrice: "50",
+        defaultStock: "80",
+      );
+      _setupCategoryListeners(genCat);
+      _priceCategories.add(genCat);
+
+      _priceController.text = "50 - 200";
+      _capacityController.text = "100";
 
       _rewardTitleController.text = "";
       _rewardQuantityController.text = "";
@@ -172,6 +275,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     _endTimeController.dispose();
     _priceController.dispose();
     _capacityController.dispose();
+    for (var cat in _priceCategories) {
+      cat.dispose();
+    }
     for (var artist in _artistForms) {
       artist.dispose();
     }
@@ -601,6 +707,53 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       }
     }
 
+    final validPriceCategories = _priceCategories
+        .where((c) => c.nameController.text.trim().isNotEmpty)
+        .take(10)
+        .map((c) {
+          final rawPrice = num.tryParse(c.priceController.text.trim()) ?? 0;
+          final price = (rawPrice % 1 == 0) ? rawPrice.toInt() : rawPrice;
+          final stock = int.tryParse(c.stockController.text.trim()) ?? 0;
+          return {
+            "name": c.nameController.text.trim(),
+            "stock": stock,
+            "price": price,
+          };
+        })
+        .toList();
+
+    num singleTicketPrice = 0;
+    int totalStock = int.tryParse(_capacityController.text.trim()) ?? 0;
+
+    if (validPriceCategories.isNotEmpty) {
+      final prices = validPriceCategories
+          .map((c) => c["price"] as num)
+          .toList();
+      singleTicketPrice = prices.reduce((a, b) => a < b ? a : b);
+      final sumStock = validPriceCategories.fold<int>(
+        0,
+        (sum, c) => sum + (c["stock"] as int),
+      );
+      if (sumStock > 0) {
+        totalStock = sumStock;
+      }
+    } else {
+      final rawPrice = num.tryParse(_priceController.text.trim()) ?? 0;
+      singleTicketPrice = (rawPrice % 1 == 0) ? rawPrice.toInt() : rawPrice;
+    }
+
+    final String priceCategoriesJson = validPriceCategories.isNotEmpty
+        ? jsonEncode(validPriceCategories)
+        : jsonEncode([
+            {
+              "name": "General",
+              "stock": totalStock,
+              "price": singleTicketPrice,
+            }
+          ]);
+
+    debugPrint("Price Categories Payload: $priceCategoriesJson");
+
     final Map<String, dynamic> body = {
       "subCategoryId": _selectedSubcategoryId ?? "65c8f1e29a8f3b0012345678",
       "title": _eventNameController.text,
@@ -619,8 +772,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       "endDate": _endDateController.text.isNotEmpty
           ? "${_endDateController.text}T${_endTimeController.text.isNotEmpty ? _endTimeController.text : "00:00"}:00.000Z"
           : "2026-09-01T23:00:00.000Z",
-      "ticketPrice": double.tryParse(_priceController.text) ?? 0.0,
-      "stock": int.tryParse(_capacityController.text) ?? 0,
+      "ticketPrice": singleTicketPrice,
+      "stock": totalStock,
+      "priceCategories": priceCategoriesJson,
       "images": eventImages,
       // Pass the complex objects as they were; if the backend expects JSON strings, you may need to jsonEncode them.
       // Assuming Dio will handle or the backend parses form-data correctly.
@@ -720,8 +874,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
     dio.FormData formData = dio.FormData.fromMap(body);
 
-    print("Event Body Data: $body");
-    print("Sending FormData...");
+    debugPrint("Event Body Data: $body");
+    debugPrint("Sending FormData...");
 
     try {
       bool success;
@@ -1047,6 +1201,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
           endTimeController: _endTimeController,
           priceController: _priceController,
           capacityController: _capacityController,
+          priceCategories: _priceCategories,
+          onAddPriceCategory: _addPriceCategory,
+          onRemovePriceCategory: _removePriceCategory,
           eventPhotoPaths: _eventPhotoPaths,
           onAddPhotos: () => _showFileSourceOptions(
             context,

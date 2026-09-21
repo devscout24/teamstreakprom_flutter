@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart';
+
 class CreateEventResponseModel {
   bool? success;
   int? statusCode;
@@ -39,6 +42,7 @@ class EventData {
   String? endDate;
   double? ticketPrice;
   int? stock;
+  List<PriceCategory>? priceCategories;
   List<String>? images;
   List<ArtistInfo>? artistInfo;
   List<Rewards>? rewards;
@@ -60,6 +64,7 @@ class EventData {
       this.endDate,
       this.ticketPrice,
       this.stock,
+      this.priceCategories,
       this.images,
       this.artistInfo,
       this.rewards,
@@ -82,6 +87,12 @@ class EventData {
       endDate = json['endDate'];
       ticketPrice = (json['ticketPrice'] != null) ? json['ticketPrice'].toDouble() : null;
       stock = json['stock'];
+      if (json['priceCategories'] != null) {
+        priceCategories = <PriceCategory>[];
+        json['priceCategories'].forEach((v) {
+          priceCategories!.add(PriceCategory.fromJson(v));
+        });
+      }
       images = json['images']?.cast<String>();
       if (json['artistInfo'] != null) {
         artistInfo = <ArtistInfo>[];
@@ -100,7 +111,7 @@ class EventData {
       updatedAt = json['updatedAt'];
       iV = json['__v'];
     } catch (e, stack) {
-      print('Error parsing EventData.fromJson: $e\n$stack');
+      debugPrint('Error parsing EventData.fromJson: $e\n$stack');
       rethrow;
     }
   }
@@ -119,6 +130,10 @@ class EventData {
     data['endDate'] = endDate;
     data['ticketPrice'] = ticketPrice;
     data['stock'] = stock;
+    if (priceCategories != null) {
+      data['priceCategories'] =
+          priceCategories!.map((v) => v.toJson()).toList();
+    }
     data['images'] = images;
     if (artistInfo != null) {
       data['artistInfo'] = artistInfo!.map((v) => v.toJson()).toList();

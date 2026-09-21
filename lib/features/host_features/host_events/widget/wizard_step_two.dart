@@ -6,6 +6,7 @@ import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/custom_selector_field.dart';
 import '../../auth/widget/document_upload_widget.dart';
+import '../model/event_model.dart';
 
 class WizardStepTwo extends StatelessWidget {
   final TextEditingController startDateController;
@@ -14,6 +15,9 @@ class WizardStepTwo extends StatelessWidget {
   final TextEditingController endTimeController;
   final TextEditingController priceController;
   final TextEditingController capacityController;
+  final List<PriceCategoryFormModel> priceCategories;
+  final VoidCallback onAddPriceCategory;
+  final ValueChanged<int> onRemovePriceCategory;
   final List<String> eventPhotoPaths;
   final VoidCallback onAddPhotos;
   final ValueChanged<int> onRemovePhoto;
@@ -29,6 +33,9 @@ class WizardStepTwo extends StatelessWidget {
     required this.endTimeController,
     required this.priceController,
     required this.capacityController,
+    required this.priceCategories,
+    required this.onAddPriceCategory,
+    required this.onRemovePriceCategory,
     required this.eventPhotoPaths,
     required this.onAddPhotos,
     required this.onRemovePhoto,
@@ -134,21 +141,119 @@ class WizardStepTwo extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16),
 
-        // Ticket Price
-        _buildLabel("Ticket Price"),
-        _buildTextField(
-          controller: priceController,
-          hint: "e.g. 50",
-          keyboardType: TextInputType.number,
+        // ── Ticket Price & Categories ───────────────────────────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel("Ticket Price & Categories"),
+                  Text(
+                    "Configure ticket tiers, price and seat allocations",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 12.sp,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            UIHelper.horizontalSpace(8),
+            GestureDetector(
+              onTap: onAddPriceCategory,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: AppColors.primaryColorSecond.withValues(alpha: 0.4),
+                    width: 1.w,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.add_rounded,
+                      size: 16.sp,
+                      color: AppColors.primaryColorSecond,
+                    ),
+                    UIHelper.horizontalSpace(4),
+                    Text(
+                      "Add Tier",
+                      style: TextStyle(
+                        fontFamily: "SF Pro Rounded",
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryColorSecond,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        UIHelper.verticalSpace(16),
+        UIHelper.verticalSpace(12),
+
+        // List of Price Category Cards
+        if (priceCategories.isNotEmpty) ...[
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: priceCategories.length,
+            separatorBuilder: (context, index) => UIHelper.verticalSpace(12),
+            itemBuilder: (context, index) {
+              final category = priceCategories[index];
+              return _buildPriceCategoryCard(
+                category: category,
+                index: index,
+                totalCount: priceCategories.length,
+                onRemove: () => onRemovePriceCategory(index),
+              );
+            },
+          ),
+          UIHelper.verticalSpace(16),
+        ],
 
         // People Capacity
-        _buildLabel("People Capacity"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel("Total People Capacity"),
+            if (priceCategories.isNotEmpty)
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 8.h),
+                  child: Text(
+                    "Total seats across categories",
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+                      fontSize: 11.sp,
+                      color: AppColors.primaryColorSecond,
+                    ),
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+          ],
+        ),
         _buildTextField(
           controller: capacityController,
-          hint: "e.g. 200",
+          hint: "e.g. 100",
           keyboardType: TextInputType.number,
+          prefixIcon: Icon(
+            Icons.people_outline_rounded,
+            size: 20.sp,
+            color: Colors.white.withValues(alpha: 0.5),
+          ),
         ),
         UIHelper.verticalSpace(16),
 
@@ -263,6 +368,140 @@ class WizardStepTwo extends StatelessWidget {
     );
   }
 
+  Widget _buildPriceCategoryCard({
+    required PriceCategoryFormModel category,
+    required int index,
+    required int totalCount,
+    required VoidCallback onRemove,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF191D26),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1.w,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.confirmation_number_outlined,
+                        size: 16.sp,
+                        color: AppColors.primaryColorSecond,
+                      ),
+                    ),
+                    UIHelper.horizontalSpace(8),
+                    Flexible(
+                      child: Text(
+                        category.nameController.text.isNotEmpty
+                            ? "${category.nameController.text} Ticket"
+                            : "Category ${index + 1}",
+                        style: TextStyle(
+                          fontFamily: "SF Pro Rounded",
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (totalCount > 1) ...[
+                UIHelper.horizontalSpace(8),
+                InkWell(
+                  onTap: onRemove,
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 20.sp,
+                      color: Colors.redAccent.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          UIHelper.verticalSpace(12),
+          _buildLabel("Category Name"),
+          _buildTextField(
+            controller: category.nameController,
+            hint: "e.g. VIP, General, Early Bird",
+          ),
+          UIHelper.verticalSpace(12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel("Price (\$)"),
+                    _buildTextField(
+                      controller: category.priceController,
+                      hint: "e.g. 200",
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      prefixIcon: Padding(
+                        padding: EdgeInsets.only(left: 14.w, right: 8.w),
+                        child: Text(
+                          "\$",
+                          style: TextStyle(
+                            fontFamily: "SF Pro Rounded",
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryColorSecond,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              UIHelper.horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel("Stock (Seats)"),
+                    _buildTextField(
+                      controller: category.stockController,
+                      hint: "e.g. 20",
+                      keyboardType: TextInputType.number,
+                      prefixIcon: Icon(
+                        Icons.event_seat_outlined,
+                        size: 18.sp,
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLabel(String label) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
@@ -308,6 +547,7 @@ class WizardStepTwo extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.3),
         ),
         prefixIcon: prefixIcon,
+        prefixIconConstraints: BoxConstraints(minWidth: 36.w, minHeight: 0),
         filled: true,
         fillColor: const Color(0xFF1E222B),
         contentPadding: EdgeInsets.symmetric(

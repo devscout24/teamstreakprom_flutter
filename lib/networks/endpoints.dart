@@ -61,4 +61,6 @@ final class Endpoints {
   static String updateEvent(String id) => "/api/events/$id";
   static String authMe() => "/api/auth/me";
   static String marketplaceDetails(String id) => "/api/marketplaces/$id";
+  static String createStripeConnectAccount() =>
+      "/api/payments/create-connect-account";
 }

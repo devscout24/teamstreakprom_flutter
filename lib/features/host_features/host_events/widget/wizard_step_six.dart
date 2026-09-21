@@ -383,7 +383,7 @@ class WizardStepSix extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Price : \$${price.isEmpty ? '0.00' : price}",
+                    "Price : ${price.isEmpty ? '\$0.00' : (price.startsWith('\$') ? price : '\$$price')}",
                     style: TextStyle(
                       fontFamily: "SF Pro Rounded",
                       fontSize: 14.sp,

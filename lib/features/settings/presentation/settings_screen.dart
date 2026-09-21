@@ -20,6 +20,7 @@ import '../../../networks/dio/dio.dart';
 import '../../../networks/endpoints.dart';
 import '../model/user_profile_model.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -319,6 +320,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Routes.accountSettingsScreen,
                       );
                       _fetchProfile();
+                    },
+                  ),
+
+                  _buildSectionHeader("Payments"),
+                  SettingsItem(
+                    iconWidget: FaIcon(
+                      FontAwesomeIcons.stripe,
+                      color: const Color(0xFF1B1C1A),
+                      size: 20.sp,
+                    ),
+                    title: "Connect with Stripe",
+                    onTap: () {
+                      NavigationService.navigateTo(
+                        Routes.stripeConnectScreen,
+                      );
                     },
                   ),
 

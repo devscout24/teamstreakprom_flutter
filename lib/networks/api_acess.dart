@@ -44,6 +44,8 @@ import 'package:teamstreakpromo/features/business_partner/business_partner_rewar
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_delete_marketplace/rx.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/delete_marketplace_response_model.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_update_marketplace/rx.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_create_stripe_connect/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/stripe_connect_response_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -166,4 +168,10 @@ final UpdateMarketplaceRx updateMarketplaceRxObj = UpdateMarketplaceRx(
   empty: MarketplaceResponseModel(),
   dataFetcher: BehaviorSubject<MarketplaceResponseModel>(),
 );
+
+final CreateStripeConnectRx createStripeConnectRxObj = CreateStripeConnectRx(
+  empty: StripeConnectResponseModel(),
+  dataFetcher: BehaviorSubject<StripeConnectResponseModel>(),
+);
+
 

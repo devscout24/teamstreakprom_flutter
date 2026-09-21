@@ -5,16 +5,20 @@ import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
 
 class SettingsItem extends StatelessWidget {
-  final String iconPath;
+  final String? iconPath;
+  final Widget? iconWidget;
   final String title;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   const SettingsItem({
     super.key,
-    required this.iconPath,
+    this.iconPath,
+    this.iconWidget,
     required this.title,
     this.onTap,
-  });
+    this.trailing,
+  }) : assert(iconPath != null || iconWidget != null, 'Either iconPath or iconWidget must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +41,13 @@ class SettingsItem extends StatelessWidget {
                   end: Alignment.bottomCenter,
                 ),
                 child: Center(
-                  child: Image.asset(
-                    iconPath,
-                    color: const Color(0xFF1B1C1A),
-                    width: 20.sp,
-                    height: 20.sp,
-                  ),
+                  child: iconWidget ??
+                      Image.asset(
+                        iconPath!,
+                        color: const Color(0xFF1B1C1A),
+                        width: 20.sp,
+                        height: 20.sp,
+                      ),
                 ),
               ),
               UIHelper.horizontalSpace(16.w),
@@ -53,11 +58,12 @@ class SettingsItem extends StatelessWidget {
                       .copyWith(fontWeight: FontWeight.w500, fontSize: 15.sp),
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.white.withValues(alpha: 0.5),
-                size: 24.sp,
-              ),
+              trailing ??
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.white.withValues(alpha: 0.5),
+                    size: 24.sp,
+                  ),
             ],
           ),
         ),
