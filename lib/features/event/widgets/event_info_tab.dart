@@ -68,7 +68,7 @@ class EventInfoTab extends StatelessWidget {
 
         // Artist profile cards
         if (artists.isNotEmpty)
-          ...artists.map((artist) => ArtistCard(artist: artist)).toList()
+          ...artists.map((artist) => ArtistCard(artist: artist))
         else
           Row(
             children: [

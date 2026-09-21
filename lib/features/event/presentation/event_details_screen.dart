@@ -8,12 +8,15 @@ import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
+
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
 import '../widgets/reward_success_dialog.dart';
 import '../widgets/event_details_widgets.dart';
 import '../widgets/event_info_tab.dart';
 import '../widgets/event_bottom_actions.dart';
+import '../widgets/ticket_type_list.dart';
+import '../model/event_ticket_type.dart';
 import '../../../constants/app_constants.dart';
 import '../../../helpers/di.dart';
 import 'package:teamstreakpromo/networks/api_acess.dart';
@@ -52,6 +55,8 @@ class EventDetailsScreen extends StatefulWidget {
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   int _selectedTabIndex = 0; // 0: Event Info, 1: Reward Info
   int _ticketCount = 1;
+  int _selectedTicketTypeIndex = 0;
+  late List<EventTicketType> _ticketTypes;
   int _currentCarouselIndex = 0;
   final PageController _pageController = PageController();
   Timer? _carouselTimer;
@@ -65,12 +70,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   late String _displayLocation;
   late String _displayDate;
   late String _displayPrice;
-  late String _displayImageUrl;
   late String _displayDescription;
   List<ArtistInfo> _artists = [];
 
   // Mock list of carousel images
   late List<String> _carouselImages;
+
+  EventTicketType? get _selectedTicketType =>
+      (_selectedTicketTypeIndex >= 0 &&
+              _selectedTicketTypeIndex < _ticketTypes.length)
+          ? _ticketTypes[_selectedTicketTypeIndex]
+          : (_ticketTypes.isNotEmpty ? _ticketTypes.first : null);
 
   @override
   void initState() {
@@ -79,8 +89,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     _displayLocation = widget.location;
     _displayDate = widget.date;
     _displayPrice = widget.price;
-    _displayImageUrl = widget.imageUrl;
     _displayDescription = widget.description;
+
+    _ticketTypes = [];
 
     _selectedTabIndex = widget.isReward ? 1 : 0;
     _carouselImages = [
@@ -112,6 +123,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     });
   }
 
+  Data? _getMatchedEvent(HostEventDetailsModel? model) {
+    if (model == null || model.data == null || model.data!.isEmpty) {
+      return null;
+    }
+    if (widget.eventId != null && widget.eventId!.isNotEmpty) {
+      final matched = model.data!.where((e) => e.id == widget.eventId);
+      if (matched.isNotEmpty) return matched.first;
+    }
+    return model.data!.first;
+  }
+
+  Data? get _currentEventData => _getMatchedEvent(_eventDetails);
+
   Future<void> _fetchEventDetails() async {
     setState(() => _isLoadingDetails = true);
     try {
@@ -120,23 +144,52 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       );
       setState(() {
         _eventDetails = response;
-        final data = response.data;
+        final data = _getMatchedEvent(response);
         if (data != null) {
           _displayTitle = data.title ?? _displayTitle;
           _displayLocation = data.placeName ?? _displayLocation;
           _displayDate = data.startDate != null
               ? DateFormat("d MMM, yyyy • ha").format(data.startDate!)
               : _displayDate;
-          _displayPrice =
-              "\$ ${data.ticketPrice ?? _displayPrice.replaceAll('\$', '').trim()}";
-          _displayImageUrl = (data.images != null && data.images!.isNotEmpty)
-              ? data.images!.first
-              : _displayImageUrl;
-          _displayDescription = data.description ?? _displayDescription;
 
-          if (data.images != null && data.images!.isNotEmpty) {
-            _carouselImages = data.images!;
+          // Populate ticket types from API priceCategories if available
+          if (data.priceCategories != null &&
+              data.priceCategories!.isNotEmpty) {
+            _ticketTypes = data.priceCategories!.map((pc) {
+              return EventTicketType(
+                id: pc.id ?? pc.name ?? 'ticket',
+                title: pc.name ?? 'General',
+                price: pc.price ?? 0.0,
+                subtitle: pc.stock != null ? "${pc.stock} seats remaining" : null,
+              );
+            }).toList();
+            _selectedTicketTypeIndex = 0;
+
+            final minPrice = _ticketTypes
+                .map((t) => t.price.round())
+                .reduce((a, b) => a < b ? a : b);
+            final maxPrice = _ticketTypes
+                .map((t) => t.price.round())
+                .reduce((a, b) => a > b ? a : b);
+            _displayPrice = minPrice == maxPrice
+                ? "\$ $minPrice"
+                : "\$ $minPrice - \$ $maxPrice";
+          } else if (data.ticketPrice != null && data.ticketPrice! > 0) {
+            _displayPrice = "\$ ${data.ticketPrice}";
+            _ticketTypes = [];
+          } else {
+            _ticketTypes = [];
           }
+
+          final validImages = (data.images ?? [])
+              .map((img) => img.trim())
+              .where((img) => img.isNotEmpty)
+              .toList();
+          if (validImages.isNotEmpty) {
+            _carouselImages = validImages;
+          }
+
+          _displayDescription = data.description ?? _displayDescription;
 
           if (data.artistInfo != null) {
             _artists = data.artistInfo!;
@@ -149,8 +202,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     title: r.title ?? "Reward",
                     description: r.description ?? "",
                     imageUrls: (r.images != null && r.images!.isNotEmpty)
-                        ? r.images!
-                        : ["https://via.placeholder.com/400"],
+                        ? r.images!.where((x) => x.isNotEmpty).toList()
+                        : (r.image != null && r.image!.isNotEmpty)
+                            ? [r.image!]
+                            : ["https://via.placeholder.com/400"],
                     isStockIn: (r.stock ?? 0) > 0,
                     points: r.pointsRequired?.toString() ?? "0",
                     stock: r.stock ?? 0,
@@ -168,18 +223,20 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   String get _formattedEndDate {
-    if (_eventDetails?.data?.endDate != null) {
+    final event = _currentEventData;
+    if (event?.endDate != null) {
       return DateFormat(
         "MMM d, yyyy · h:mm a",
-      ).format(_eventDetails!.data!.endDate!);
+      ).format(event!.endDate!);
     }
     return "N/A";
   }
 
   String get _timeLeft {
-    if (_eventDetails?.data?.endDate == null) return "";
+    final event = _currentEventData;
+    if (event?.endDate == null) return "";
     final now = DateTime.now();
-    final end = _eventDetails!.data!.endDate!;
+    final end = event!.endDate!;
     if (now.isAfter(end)) return "Ended";
 
     final diff = end.difference(now);
@@ -254,11 +311,109 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             fontSize: 18.sp,
           ),
         ),
-        content: Text(
-          "Successfully booked $_ticketCount tickets for $_displayTitle!",
-          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-            color: Colors.white.withValues(alpha: 0.8),
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Successfully booked $_ticketCount ticket(s) for $_displayTitle!",
+              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+            UIHelper.verticalSpace(14.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF13151B),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: Column(
+                children: [
+                  if (_selectedTicketType != null) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Ticket Type",
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                fontSize: 12.sp,
+                              ),
+                        ),
+                        UIHelper.horizontalSpace(8.w),
+                        Flexible(
+                          child: Text(
+                            _selectedTicketType!.title,
+                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.sp,
+                                ),
+                            textAlign: TextAlign.end,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    UIHelper.verticalSpace(6.h),
+                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Quantity",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 12.sp,
+                            ),
+                      ),
+                      Text(
+                        "$_ticketCount",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.sp,
+                            ),
+                      ),
+                    ],
+                  ),
+                  UIHelper.verticalSpace(6.h),
+                  Divider(color: Colors.white.withValues(alpha: 0.08)),
+                  UIHelper.verticalSpace(6.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Amount",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
+                            ),
+                      ),
+                      Text(
+                        "\$${NumberFormat('#,##0').format(((_selectedTicketType?.price ?? _currentEventData?.ticketPrice?.toDouble() ?? 0.0) * _ticketCount).round())}",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.primaryColorSecond,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15.sp,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -272,44 +427,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSocialIcon(IconData icon) {
-    return Container(
-      width: 28.w,
-      height: 28.w,
-      margin: EdgeInsets.only(right: 12.w),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
-      child: Center(
-        child: Icon(icon, size: 14.sp, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildTextSocialIcon(String label) {
-    return Container(
-      width: 28.w,
-      height: 28.w,
-      margin: EdgeInsets.only(right: 12.w),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 11.sp,
-            fontFamily: 'SF Pro',
-          ),
-        ),
       ),
     );
   }
@@ -331,7 +448,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               selectedTabIndex: _selectedTabIndex,
               ticketCount: _ticketCount,
               isDeleting: _isDeleting,
-              ticketPrice: _eventDetails?.data?.ticketPrice ?? 0.0,
+              ticketPrice: _selectedTicketType?.price ??
+                  (_currentEventData?.ticketPrice?.toDouble() ?? 0.0),
+              selectedTicketTitle: _selectedTicketType?.title,
+              onChangeTicketType: _ticketTypes.length > 1
+                  ? () {
+                      showTicketTypePickerBottomSheet(
+                        context: context,
+                        ticketTypes: _ticketTypes,
+                        selectedIndex: _selectedTicketTypeIndex,
+                        onSelect: (index) {
+                          setState(() {
+                            _selectedTicketTypeIndex = index;
+                          });
+                        },
+                      );
+                    }
+                  : null,
               onTicketCountIncrement: () {
                 setState(() {
                   _ticketCount++;
@@ -348,7 +481,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               onRedeemReward: _redeemRewardDirectly,
               onEditEvent: () {
                 NavigationService.navigateToWithArgs(Routes.createEventScreen, {
-                  'eventData': _eventDetails?.data,
+                  'eventData': _currentEventData,
                 });
               },
               onDeleteEvent: () async {
@@ -498,6 +631,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     ),
                               ),
                             ),
+                            UIHelper.horizontalSpace(8.w),
+                            Text(
+                              _displayPrice,
+                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 18.sp,
+                                    color: AppColors.primaryColorSecond,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
                           ],
                         ),
                         UIHelper.verticalSpace(8.h),
@@ -541,7 +684,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             ),
                           ),
                           child: Text(
-                            _eventDetails?.data?.categoryId?.name ?? "Event",
+                            _currentEventData?.categoryId?.name ?? "Event",
                             style: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
@@ -581,10 +724,28 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             artists: _artists,
                             formattedEndDate: _formattedEndDate,
                             timeLeft: _timeLeft,
-                            ageRestriction: _eventDetails?.data?.ageRestriction,
-                            stock: _eventDetails?.data?.stock,
-                            host: _eventDetails?.data?.hostId,
+                            ageRestriction: _currentEventData?.ageRestriction,
+                            stock: _currentEventData?.stock ??
+                                (_currentEventData?.priceCategories?.fold<int>(
+                                      0,
+                                      (sum, pc) => sum + (pc.stock ?? 0),
+                                    ) ??
+                                    0),
+                            host: _currentEventData?.hostId,
                           ),
+                          if (_ticketTypes.isNotEmpty) ...[
+                            UIHelper.verticalSpace(24.h),
+                            TicketTypesSection(
+                              ticketTypes: _ticketTypes,
+                              selectedIndex: _selectedTicketTypeIndex,
+                              onSelect: (index) {
+                                setState(() {
+                                  _selectedTicketTypeIndex = index;
+                                });
+                              },
+                            ),
+                          ],
+                          UIHelper.verticalSpace(20.h),
                         ] else ...[
                           // ── Reward Info Tab Content (Product List) ──
                           if (_rewardProducts.isEmpty)

@@ -54,3 +54,7 @@ const String kKeyIsExploring = 'exploring';
 //kKeyFCMToken
 const String kKeyFCMToken = 'firebase_token';
 //order statuses
+
+// Stripe
+const String kKeyStripeConnected = 'stripe_connected';
+const String kKeyStripeAccountId = 'stripe_account_id';

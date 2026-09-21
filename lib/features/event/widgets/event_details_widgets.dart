@@ -224,6 +224,53 @@ class ArtistCard extends StatelessWidget {
               ),
             ],
           ),
+          if (artist.socialMediaLinks != null &&
+              ((artist.socialMediaLinks?.instagram?.isNotEmpty ?? false) ||
+                  (artist.socialMediaLinks?.spotify?.isNotEmpty ?? false))) ...[
+            const Spacer(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (artist.socialMediaLinks?.instagram?.isNotEmpty ??
+                    false) ...[
+                  Container(
+                    width: 28.w,
+                    height: 28.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.camera_alt_outlined,
+                        size: 14.sp,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ),
+                  UIHelper.horizontalSpace(8.w),
+                ],
+                if (artist.socialMediaLinks?.spotify?.isNotEmpty ?? false) ...[
+                  Container(
+                    width: 28.w,
+                    height: 28.w,
+                    decoration: BoxDecoration(
+                      color:
+                          AppColors.primaryColorSecond.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.music_note_rounded,
+                        size: 14.sp,
+                        color: AppColors.primaryColorSecond,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );

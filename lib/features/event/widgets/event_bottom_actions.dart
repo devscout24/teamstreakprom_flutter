@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:teamstreakpromo/constants/text_font_style.dart';
 import 'package:teamstreakpromo/gen/assets.gen.dart';
+import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import 'package:teamstreakpromo/features/event/widgets/event_details_widgets.dart';
@@ -18,6 +20,8 @@ class EventBottomActions extends StatelessWidget {
   final VoidCallback onDeleteEvent;
   final bool isDeleting;
   final double ticketPrice;
+  final String? selectedTicketTitle;
+  final VoidCallback? onChangeTicketType;
 
   const EventBottomActions({
     super.key,
@@ -32,6 +36,8 @@ class EventBottomActions extends StatelessWidget {
     required this.onDeleteEvent,
     this.isDeleting = false,
     this.ticketPrice = 0.0,
+    this.selectedTicketTitle,
+    this.onChangeTicketType,
   });
 
   @override
@@ -74,16 +80,6 @@ class EventBottomActions extends StatelessWidget {
                             showDeleteEventBottomSheet(context, onDeleteEvent);
                           },
                     title: isDeleting ? null : "Delete",
-                    child: isDeleting
-                        ? SizedBox(
-                            width: 24.w,
-                            height: 24.w,
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.0,
-                            ),
-                          )
-                        : null,
                     height: 50.h,
                     borderRadius: BorderRadius.circular(100.r),
                     textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
@@ -95,6 +91,16 @@ class EventBottomActions extends StatelessWidget {
                     gradient: const LinearGradient(
                       colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
                     ),
+                    child: isDeleting
+                        ? SizedBox(
+                            width: 24.w,
+                            height: 24.w,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.0,
+                            ),
+                          )
+                        : null,
                   ),
                 ),
               ],
@@ -103,6 +109,64 @@ class EventBottomActions extends StatelessWidget {
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Selected Ticket Type indicator (if provided)
+                if (selectedTicketTitle != null &&
+                    selectedTicketTitle!.isNotEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Text(
+                              "Selected: ",
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                    fontSize: 12.sp,
+                                  ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                selectedTicketTitle!,
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: AppColors.primaryColorSecond,
+                                      fontSize: 12.5.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (onChangeTicketType != null)
+                        GestureDetector(
+                          onTap: onChangeTicketType,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 8.w),
+                            child: Text(
+                              "Change",
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: AppColors.primaryColorSecond,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  UIHelper.verticalSpace(10.h),
+                ],
+
                 // Quantity & Price Info Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -192,7 +256,9 @@ class EventBottomActions extends StatelessWidget {
                           ),
                           UIHelper.horizontalSpace(8.w),
                           Text(
-                            ticketPrice > 0 ? "\$${(ticketPrice * ticketCount).toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}" : "Free",
+                            ticketPrice > 0
+                                ? "\$${NumberFormat('#,##0').format((ticketPrice * ticketCount).round())}"
+                                : "Free",
                             style: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(

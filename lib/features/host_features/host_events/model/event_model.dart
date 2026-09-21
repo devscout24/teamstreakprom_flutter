@@ -39,3 +39,25 @@ class ArtistFormModel {
     }
   }
 }
+
+// Model to manage dynamic price categories / ticket tiers
+class PriceCategoryFormModel {
+  final TextEditingController nameController;
+  final TextEditingController priceController;
+  final TextEditingController stockController;
+
+  PriceCategoryFormModel({
+    String defaultName = "",
+    String defaultPrice = "",
+    String defaultStock = "",
+  })  : nameController = TextEditingController(text: defaultName),
+        priceController = TextEditingController(text: defaultPrice),
+        stockController = TextEditingController(text: defaultStock);
+
+  void dispose() {
+    nameController.dispose();
+    priceController.dispose();
+    stockController.dispose();
+  }
+}
+
