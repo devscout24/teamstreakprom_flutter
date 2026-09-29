@@ -27,6 +27,8 @@ import 'package:teamstreakpromo/features/host_features/host_events/data/rx_delet
 import 'package:teamstreakpromo/features/host_features/host_events/model/delete_event_response_model.dart';
 import 'package:teamstreakpromo/features/event/data/rx_get_event_details/rx.dart';
 import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart';
+import 'package:teamstreakpromo/features/event/data/rx_create_checkout_session/rx.dart';
+import 'package:teamstreakpromo/features/event/model/stripe_checkout_session_response_model.dart';
 import 'package:teamstreakpromo/features/home/data/rx_get_events/rx.dart';
 import 'package:teamstreakpromo/features/home/model/event_fetch_by_category_model.dart';
 import 'package:teamstreakpromo/features/auth/data/rx_auth_me/rx.dart';
@@ -46,6 +48,14 @@ import 'package:teamstreakpromo/features/business_partner/business_partner_rewar
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_update_marketplace/rx.dart';
 import 'package:teamstreakpromo/features/settings/data/rx_create_stripe_connect/rx.dart';
 import 'package:teamstreakpromo/features/settings/model/stripe_connect_response_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_get_stripe_account_status/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/stripe_account_status_model.dart';
+import 'package:teamstreakpromo/features/my_ticket/data/rx_get_my_orders/rx.dart';
+import 'package:teamstreakpromo/features/my_ticket/model/my_orders_response_model.dart';
+import 'package:teamstreakpromo/features/my_ticket/data/rx_get_order_details/rx.dart';
+import 'package:teamstreakpromo/features/my_ticket/model/order_details_response_model.dart';
+import 'package:teamstreakpromo/features/my_ticket/data/rx_cancel_event_order/rx.dart';
+import 'package:teamstreakpromo/features/my_ticket/model/cancel_event_order_response_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -128,6 +138,12 @@ final GetEventDetailsRx getEventDetailsRxObj = GetEventDetailsRx(
   dataFetcher: BehaviorSubject<HostEventDetailsModel>(),
 );
 
+final CreateCheckoutSessionRx createCheckoutSessionRxObj =
+    CreateCheckoutSessionRx(
+  empty: StripeCheckoutSessionResponseModel(),
+  dataFetcher: BehaviorSubject<StripeCheckoutSessionResponseModel>(),
+);
+
 final GetEventsByCategoryRx getEventsByCategoryRxObj = GetEventsByCategoryRx(
   empty: EventFetchByCategoryModel(),
   dataFetcher: BehaviorSubject<EventFetchByCategoryModel>(),
@@ -174,4 +190,24 @@ final CreateStripeConnectRx createStripeConnectRxObj = CreateStripeConnectRx(
   dataFetcher: BehaviorSubject<StripeConnectResponseModel>(),
 );
 
+final GetStripeAccountStatusRx getStripeAccountStatusRxObj =
+    GetStripeAccountStatusRx(
+  empty: StripeAccountStatusModel(),
+  dataFetcher: BehaviorSubject<StripeAccountStatusModel>(),
+);
+
+final GetMyOrdersRx getMyOrdersRxObj = GetMyOrdersRx(
+  empty: MyOrdersResponseModel(),
+  dataFetcher: BehaviorSubject<MyOrdersResponseModel>(),
+);
+
+final GetOrderDetailsRx getOrderDetailsRxObj = GetOrderDetailsRx(
+  empty: OrderDetailsResponseModel(),
+  dataFetcher: BehaviorSubject<OrderDetailsResponseModel>(),
+);
+
+final CancelEventOrderRx cancelEventOrderRxObj = CancelEventOrderRx(
+  empty: CancelEventOrderResponseModel(),
+  dataFetcher: BehaviorSubject<CancelEventOrderResponseModel>(),
+);
 

@@ -4,14 +4,15 @@ import '../constants/text_font_style.dart';
 import '../gen/colors.gen.dart';
 import 'custom_gradient_button.dart';
 
-/// A pair of labelled toggle tabs (e.g. "Upcoming" / "Past Ticket").
+/// A pair or group of labelled toggle tabs (e.g. "Upcoming" / "Past Ticket" / "Cancel").
 /// The selected tab uses [CustomGradientButton] with the primary gradient;
 /// the unselected tab uses [CustomGradientButton] with a transparent/no-op style.
 class TicketToggleButton extends StatelessWidget {
   const TicketToggleButton({
     super.key,
-    required this.leftLabel,
-    required this.rightLabel,
+    this.leftLabel,
+    this.rightLabel,
+    this.tabs,
     required this.selectedIndex,
     required this.onChanged,
     this.height,
@@ -21,10 +22,11 @@ class TicketToggleButton extends StatelessWidget {
     this.spacing,
   });
 
-  final String leftLabel;
-  final String rightLabel;
+  final String? leftLabel;
+  final String? rightLabel;
+  final List<String>? tabs;
 
-  /// 0 = left selected, 1 = right selected
+  /// Index of the selected tab
   final int selectedIndex;
   final ValueChanged<int> onChanged;
   final double? height;
@@ -33,10 +35,17 @@ class TicketToggleButton extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double? spacing;
 
+  List<String> get _labels {
+    if (tabs != null && tabs!.isNotEmpty) return tabs!;
+    return [leftLabel ?? '', rightLabel ?? ''];
+  }
+
   @override
   Widget build(BuildContext context) {
     final double h = height ?? 48.h;
     final double r = borderRadius ?? 100.r;
+    final labels = _labels;
+
     return Container(
       height: h,
       padding: padding ?? EdgeInsets.all(4.w),
@@ -47,21 +56,17 @@ class TicketToggleButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _TabItem(
-            label: leftLabel,
-            isSelected: selectedIndex == 0,
-            tabRadius: r - 4,
-            tabHeight: h - 8,
-            onTap: () => onChanged(0),
-          ),
-          if (spacing != null) SizedBox(width: spacing),
-          _TabItem(
-            label: rightLabel,
-            isSelected: selectedIndex == 1,
-            tabRadius: r - 4,
-            tabHeight: h - 8,
-            onTap: () => onChanged(1),
-          ),
+          for (int i = 0; i < labels.length; i++) ...[
+            if (i > 0 && spacing != null) SizedBox(width: spacing),
+            _TabItem(
+              label: labels[i],
+              isSelected: selectedIndex == i,
+              tabRadius: r - 4,
+              tabHeight: h - 8,
+              fontSize: labels.length > 2 ? 12.5.sp : 14.sp,
+              onTap: () => onChanged(i),
+            ),
+          ],
         ],
       ),
     );
@@ -74,6 +79,7 @@ class _TabItem extends StatelessWidget {
     required this.isSelected,
     required this.tabRadius,
     required this.tabHeight,
+    this.fontSize,
     required this.onTap,
   });
 
@@ -81,6 +87,7 @@ class _TabItem extends StatelessWidget {
   final bool isSelected;
   final double tabRadius;
   final double tabHeight;
+  final double? fontSize;
   final VoidCallback onTap;
 
   @override
@@ -88,7 +95,7 @@ class _TabItem extends StatelessWidget {
     final br = BorderRadius.circular(tabRadius);
     final textStyle = TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
       fontFamily: 'SF Pro',
-      fontSize: 14.sp,
+      fontSize: fontSize ?? 14.sp,
       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
       color: isSelected ? AppColors.c262824 : Colors.white,
     );
@@ -111,7 +118,18 @@ class _TabItem extends StatelessWidget {
                 colors: [Colors.transparent, Colors.transparent],
               ),
         child: isSelected
-            ? Text(label, style: textStyle)
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: Text(
+                    label,
+                    style: textStyle,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
             : ShaderMask(
                 blendMode: BlendMode.srcIn,
                 shaderCallback: (bounds) => const LinearGradient(
@@ -121,8 +139,20 @@ class _TabItem extends StatelessWidget {
                     Color(0xFFF28F31),
                     Color(0xFF72E84F),
                   ],
-                ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-                child: Text(label, style: textStyle),
+                ).createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4.w),
+                    child: Text(
+                      label,
+                      style: textStyle,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               ),
       ),
     );

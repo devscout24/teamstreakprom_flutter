@@ -63,4 +63,20 @@ final class Endpoints {
   static String marketplaceDetails(String id) => "/api/marketplaces/$id";
   static String createStripeConnectAccount() =>
       "/api/payments/create-connect-account";
+  static String createCheckoutSession() =>
+      "/api/payments/create-checkout-session";
+  static String getStripeAccountStatus() => "/api/payments/account-status";
+  static String myOrders({int? page, int? limit, String? status}) {
+    final Map<String, String> queryParams = {};
+    if (page != null) queryParams['page'] = page.toString();
+    if (limit != null) queryParams['limit'] = limit.toString();
+    if (status != null && status.isNotEmpty) queryParams['status'] = status;
+    if (queryParams.isNotEmpty) {
+      return "/api/event-orders/my-orders?${Uri(queryParameters: queryParams).query}";
+    }
+    return "/api/event-orders/my-orders";
+  }
+  static String eventOrderDetails(String id) => "/api/event-orders/$id";
+  static String cancelEventOrder(String orderId) =>
+      "/api/payments/event-orders/$orderId/cancel";
 }

@@ -13,6 +13,7 @@ import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
 import '../widgets/reward_success_dialog.dart';
 import '../widgets/event_details_widgets.dart';
+import 'stripe_checkout_webview_screen.dart';
 import '../widgets/event_info_tab.dart';
 import '../widgets/event_bottom_actions.dart';
 import '../widgets/ticket_type_list.dart';
@@ -282,6 +283,82 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     _showRewardSuccessDialog();
   }
 
+  Future<void> _createCheckoutSession() async {
+    if (widget.eventId == null) return;
+
+    final body = {
+      "eventId": widget.eventId,
+      "tickets": [
+        if (_selectedTicketType != null)
+          {
+            "priceCategoryId": _selectedTicketType!.id,
+            "quantity": _ticketCount
+          }
+      ],
+      "rewards": [
+        if (_selectedRewardProductIndex != null &&
+            _selectedRewardProductIndex! >= 0 &&
+            _selectedRewardProductIndex! < _rewardProducts.length)
+          {
+            "rewardId": "6ab0a7a6414da18a92f27b04", // Note: Need actual rewardId if available in RewardProduct model
+            "quantity": 1
+          }
+      ],
+      "successUrl": "https://yourfrontend.com/payment-success",
+      "cancelUrl": "https://yourfrontend.com/payment-cancel"
+    };
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final response = await createCheckoutSessionRxObj.createCheckoutSession(body);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      if (response.success == true &&
+          response.data != null &&
+          response.data!.url != null) {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StripeCheckoutWebViewScreen(
+              url: response.data!.url!,
+              successUrl: "https://yourfrontend.com/payment-success",
+              cancelUrl: "https://yourfrontend.com/payment-cancel",
+            ),
+          ),
+        );
+
+        if (!mounted) return;
+        if (result == true) {
+          _showBookingSuccessDialog();
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.message ?? "Failed to create checkout session"),
+            backgroundColor: const Color(0xFFDD1F1F),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: const Color(0xFFDD1F1F),
+        ),
+      );
+    }
+  }
+
   void _showRewardSuccessDialog() {
     showDialog(
       context: context,
@@ -477,7 +554,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   });
                 }
               },
-              onBuyTicket: _showBookingSuccessDialog,
+              onBuyTicket: _createCheckoutSession,
               onRedeemReward: _redeemRewardDirectly,
               onEditEvent: () {
                 NavigationService.navigateToWithArgs(Routes.createEventScreen, {

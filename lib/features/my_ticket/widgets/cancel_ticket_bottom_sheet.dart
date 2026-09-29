@@ -6,8 +6,8 @@ import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 
-Future<void> showCancelTicketBottomSheet(BuildContext context) async {
-  return showModalBottomSheet(
+Future<bool?> showCancelTicketBottomSheet(BuildContext context) async {
+  return showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
@@ -34,7 +34,7 @@ class CancelTicketBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Cancel Ticket",
+            "Refund My Ticket",
             style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class CancelTicketBottomSheet extends StatelessWidget {
           ),
           UIHelper.verticalSpace(16.h),
           Text(
-            "Are you sure you want to cancel this ticket? This action cannot be undone. Please review the refund policy before continuing.",
+            "Are you sure you want to refund this ticket? This action cannot be undone. Please review the refund policy before continuing.",
             textAlign: TextAlign.center,
             style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
               color: Colors.white.withValues(alpha: 0.7),
@@ -61,7 +61,7 @@ class CancelTicketBottomSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: CustomButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.of(context).pop(false),
                   title: "Keep Ticket",
                   height: 48.h,
                   borderRadius: BorderRadius.circular(100.r),
@@ -79,16 +79,17 @@ class CancelTicketBottomSheet extends StatelessWidget {
               Expanded(
                 child: CustomGradientButton(
                   onPressed: () {
-                    // Handle confirm cancellation logic here
-                    Navigator.pop(context);
+                    Navigator.of(context).pop(true);
                   },
-                  title: "Confirm",
+                  title: "Confirm Refund",
                   height: 48.h,
                   borderRadius: BorderRadius.circular(100.r),
-
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF28F31), Color(0xFFF28F31)],
+                  ),
                   textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
-                        color: AppColors.c262824,
+                        color: AppColors.c1B1F26,
                         fontWeight: FontWeight.w700,
                         fontSize: 14.sp,
                       ),

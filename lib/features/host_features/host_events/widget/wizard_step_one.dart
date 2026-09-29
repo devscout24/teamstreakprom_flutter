@@ -111,43 +111,41 @@ class WizardStepOne extends StatelessWidget {
               ),
         UIHelper.verticalSpace(16),
 
-        if (hasSubcategories) ...[
-          // Subcategory dropdown selector
-          _buildLabel("Event Subcategory"),
-          isLoadingSubcategories
-              ? Container(
-                  height: 54.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E222B),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      width: 1.w,
-                    ),
+        // Subcategory dropdown selector
+        _buildLabel("Event Subcategory"),
+        isLoadingSubcategories
+            ? Container(
+                height: 54.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E222B),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    width: 1.w,
                   ),
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: 20.w,
-                    height: 20.w,
-                    child: const CircularProgressIndicator(
-                      color: AppColors.primaryColorFirst,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                )
-              : CustomSelectorField(
-                  value: selectedSubcategory,
-                  hintText: "Choose Subcategories",
-                  onTap: onSubcategoryTap,
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Please select a subcategory";
-                    }
-                    return null;
-                  },
                 ),
-          UIHelper.verticalSpace(16),
-        ],
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(
+                    color: AppColors.primaryColorFirst,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+            : CustomSelectorField(
+                value: selectedSubcategory,
+                hintText: "Choose Subcategories",
+                onTap: onSubcategoryTap,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return "Please select a subcategory";
+                  }
+                  return null;
+                },
+              ),
+        UIHelper.verticalSpace(16),
 
         // Location text field
         _buildLabel("Location"),
