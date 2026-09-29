@@ -10,6 +10,7 @@ import '../../../gen/colors.gen.dart';
 import '../../../helpers/di.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../networks/api_acess.dart';
+import '../model/stripe_account_status_model.dart';
 import 'stripe_webview_screen.dart';
 
 class StripeConnectScreen extends StatefulWidget {
@@ -22,26 +23,73 @@ class StripeConnectScreen extends StatefulWidget {
 class _StripeConnectScreenState extends State<StripeConnectScreen> {
   bool _isConnected = false;
   bool _isLoading = false;
+  bool _isFetchingStatus = false;
   String _accountId = "";
+  StripeAccountStatusData? _statusData;
 
   @override
   void initState() {
     super.initState();
     _loadConnectionStatus();
+    _fetchAccountStatus();
   }
 
   void _loadConnectionStatus() {
     final connected = appData.read(kKeyStripeConnected) as bool? ?? false;
-    final accountId =
-        appData.read(kKeyStripeAccountId) as String? ?? "acct_1P9x45k9TeamStreak";
+    final accountId = appData.read(kKeyStripeAccountId) as String? ?? "";
     setState(() {
       _isConnected = connected;
       _accountId = accountId;
     });
   }
 
+  Future<void> _fetchAccountStatus() async {
+    setState(() {
+      _isFetchingStatus = true;
+    });
+
+    try {
+      final response = await getStripeAccountStatusRxObj
+          .getStripeAccountStatus();
+      if (response.success == true && response.data != null) {
+        final data = response.data!;
+        if (!mounted) return;
+        setState(() {
+          _statusData = data;
+          _isConnected = data.isStripeConnected ?? false;
+          if (data.stripeAccountId != null &&
+              data.stripeAccountId!.isNotEmpty) {
+            _accountId = data.stripeAccountId!;
+            appData.write(kKeyStripeAccountId, data.stripeAccountId);
+          }
+          appData.write(kKeyStripeConnected, _isConnected);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching stripe account status: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingStatus = false;
+        });
+      }
+    }
+  }
+
+  Color _getStatusColor() {
+    final status = _statusData?.stripeAccountStatus?.toUpperCase();
+    if (status == "ACTIVE" || _isConnected) {
+      return const Color(0xFF10B981);
+    } else if (status == "PENDING") {
+      return Colors.amber;
+    } else if (status == "RESTRICTED") {
+      return const Color(0xFFFF5252);
+    }
+    return Colors.amber;
+  }
+
   Future<void> _toggleConnection() async {
-    if (_isConnected) {
+    if (_isConnected && _statusData?.stripeDetailsSubmitted != false) {
       _showDisconnectDialog();
     } else {
       setState(() {
@@ -89,6 +137,7 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
 
           if (result == true && mounted) {
             _loadConnectionStatus();
+            _fetchAccountStatus();
           }
         } else {
           final errorMsg =
@@ -180,6 +229,7 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
                     _isLoading = false;
                     _isConnected = false;
                     _accountId = "";
+                    _statusData = null;
                   });
 
                   messenger.showSnackBar(
@@ -233,278 +283,326 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
                 fontSize: 18.sp,
               ),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                onPressed: _isFetchingStatus ? null : _fetchAccountStatus,
+              ),
+            ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hero Stripe Card
-            GradientContainer(
-              padding: EdgeInsets.all(20.w),
-              borderRadius: BorderRadius.circular(20.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
+      body: _isFetchingStatus
+          ? const Center(child: CircularProgressIndicator(color: Colors.orange))
+          : RefreshIndicator(
+              onRefresh: _fetchAccountStatus,
+              color: AppColors.primaryColorFirst,
+              backgroundColor: const Color(0xFF1E222B),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Hero Stripe Card
+                    GradientContainer(
+                      padding: EdgeInsets.all(20.w),
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 48.w,
-                            height: 48.w,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF635BFF).withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(
-                                color: const Color(0xFF635BFF).withValues(alpha: 0.4),
-                              ),
-                            ),
-                            child: Center(
-                              child: FaIcon(
-                                FontAwesomeIcons.stripe,
-                                color: const Color(0xFF635BFF),
-                                size: 28.sp,
-                              ),
-                            ),
-                          ),
-                          UIHelper.horizontalSpace(12.w),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                "Stripe Connect",
-                                style: TextStyle(
-                                  fontFamily: "SF Pro Rounded",
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 48.w,
+                                    height: 48.w,
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFF635BFF,
+                                      ).withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      border: Border.all(
+                                        color: const Color(
+                                          0xFF635BFF,
+                                        ).withValues(alpha: 0.4),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.stripe,
+                                        color: const Color(0xFF635BFF),
+                                        size: 28.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  UIHelper.horizontalSpace(12.w),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Stripe Connect",
+                                        style: TextStyle(
+                                          fontFamily: "SF Pro Rounded",
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Payouts & Payments",
+                                        style: TextStyle(
+                                          fontFamily: "SF Pro",
+                                          fontSize: 12.sp,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.6,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              Text(
-                                "Payouts & Payments",
-                                style: TextStyle(
-                                  fontFamily: "SF Pro",
-                                  fontSize: 12.sp,
-                                  color: Colors.white.withValues(alpha: 0.6),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.w,
+                                  vertical: 4.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor().withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(100.r),
+                                  border: Border.all(
+                                    color: _getStatusColor(),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _isConnected
+                                          ? Icons.check_circle_rounded
+                                          : Icons.info_outline_rounded,
+                                      size: 13.sp,
+                                      color: _getStatusColor(),
+                                    ),
+                                    UIHelper.horizontalSpace(4.w),
+                                    Text(
+                                      _statusData?.stripeAccountStatus ??
+                                          (_isConnected
+                                              ? "Connected"
+                                              : "Not Linked"),
+                                      style: TextStyle(
+                                        fontFamily: "SF Pro Rounded",
+                                        fontSize: 11.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: _getStatusColor(),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
+                          UIHelper.verticalSpace(16.h),
+                          Divider(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            thickness: 1,
+                          ),
+                          UIHelper.verticalSpace(12.h),
+                          Text(
+                            _isConnected
+                                ? "Your Stripe account is connected (${_statusData?.stripeAccountStatus ?? 'Active'}). Payouts: ${_statusData?.stripePayoutsEnabled == true ? 'Enabled' : 'Disabled'}, Charges: ${_statusData?.stripeChargesEnabled == true ? 'Enabled' : 'Disabled'}."
+                                : "Connect your Stripe account to receive direct payouts, sell tickets, and manage transactions securely.",
+                            style: TextStyle(
+                              fontFamily: "SF Pro",
+                              fontSize: 13.sp,
+                              color: Colors.white.withValues(alpha: 0.75),
+                              height: 1.4,
+                            ),
+                          ),
                         ],
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _isConnected
-                              ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                              : Colors.amber.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(100.r),
-                          border: Border.all(
-                            color: _isConnected
-                                ? const Color(0xFF10B981)
-                                : Colors.amber,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                    ),
+
+                    if (_isConnected || _statusData != null) ...[
+                      UIHelper.verticalSpace(20.h),
+                      // Connected Account Details
+                      Text(
+                        "Account Details",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                            ),
+                      ),
+                      UIHelper.verticalSpace(12.h),
+                      GradientContainer(
+                        padding: EdgeInsets.all(16.w),
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: Column(
                           children: [
-                            Icon(
-                              _isConnected
-                                  ? Icons.check_circle_rounded
-                                  : Icons.info_outline_rounded,
-                              size: 13.sp,
-                              color: _isConnected
+                            if (_statusData?.stripeAccountId?.isNotEmpty ==
+                                    true ||
+                                _accountId.isNotEmpty) ...[
+                              _buildDetailRow(
+                                "Account ID",
+                                _statusData?.stripeAccountId?.isNotEmpty == true
+                                    ? _statusData!.stripeAccountId!
+                                    : _accountId,
+                              ),
+                              _buildDetailDivider(),
+                            ],
+                            _buildDetailRow("Linked Email", userEmail),
+                            _buildDetailDivider(),
+                            _buildDetailRow(
+                              "Account Status",
+                              _statusData?.stripeAccountStatus ??
+                                  (_isConnected ? "Connected" : "UNLINKED"),
+                              valueColor: _getStatusColor(),
+                            ),
+                            _buildDetailDivider(),
+                            _buildDetailRow(
+                              "Verification",
+                              _statusData?.isStripeVerified == true
+                                  ? "Verified"
+                                  : "Unverified",
+                              valueColor: _statusData?.isStripeVerified == true
                                   ? const Color(0xFF10B981)
                                   : Colors.amber,
                             ),
-                            UIHelper.horizontalSpace(4.w),
-                            Text(
-                              _isConnected ? "Connected" : "Not Linked",
-                              style: TextStyle(
-                                fontFamily: "SF Pro Rounded",
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: _isConnected
-                                    ? const Color(0xFF10B981)
-                                    : Colors.amber,
-                              ),
+                            _buildDetailDivider(),
+                            _buildDetailRow(
+                              "Payouts",
+                              _statusData?.stripePayoutsEnabled == true
+                                  ? "Enabled"
+                                  : "Disabled",
+                              valueColor:
+                                  _statusData?.stripePayoutsEnabled == true
+                                  ? const Color(0xFF10B981)
+                                  : Colors.white.withValues(alpha: 0.7),
                             ),
+                            _buildDetailDivider(),
+                            _buildDetailRow(
+                              "Charges",
+                              _statusData?.stripeChargesEnabled == true
+                                  ? "Enabled"
+                                  : "Disabled",
+                              valueColor:
+                                  _statusData?.stripeChargesEnabled == true
+                                  ? const Color(0xFF10B981)
+                                  : Colors.white.withValues(alpha: 0.7),
+                            ),
+                            _buildDetailDivider(),
+                            _buildDetailRow(
+                              "Details Submitted",
+                              _statusData?.stripeDetailsSubmitted == true
+                                  ? "Yes"
+                                  : "No",
+                              valueColor:
+                                  _statusData?.stripeDetailsSubmitted == true
+                                  ? const Color(0xFF10B981)
+                                  : Colors.white.withValues(alpha: 0.7),
+                            ),
+                            _buildDetailDivider(),
+                            _buildDetailRow("Payout Schedule", "Daily Rolling"),
+                            _buildDetailDivider(),
+                            _buildDetailRow("Currency", "USD (\$)"),
                           ],
                         ),
                       ),
                     ],
-                  ),
-                  UIHelper.verticalSpace(16.h),
-                  Divider(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    thickness: 1,
-                  ),
-                  UIHelper.verticalSpace(12.h),
-                  Text(
-                    _isConnected
-                        ? "Your Stripe account is connected. Earnings and payouts are automatically processed to your bank."
-                        : "Connect your Stripe account to receive direct payouts, sell tickets, and manage transactions securely.",
-                    style: TextStyle(
-                      fontFamily: "SF Pro",
-                      fontSize: 13.sp,
-                      color: Colors.white.withValues(alpha: 0.75),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            if (_isConnected) ...[
-              UIHelper.verticalSpace(20.h),
-              // Connected Account Details
-              Text(
-                "Account Details",
-                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
-                ),
-              ),
-              UIHelper.verticalSpace(12.h),
-              GradientContainer(
-                padding: EdgeInsets.all(16.w),
-                borderRadius: BorderRadius.circular(16.r),
-                child: Column(
-                  children: [
-                    _buildDetailRow("Account ID", _accountId),
-                    _buildDetailDivider(),
-                    _buildDetailRow("Linked Email", userEmail),
-                    _buildDetailDivider(),
-                    _buildDetailRow("Payout Schedule", "Daily Rolling"),
-                    _buildDetailDivider(),
-                    _buildDetailRow("Currency", "USD (\$)"),
-                  ],
-                ),
-              ),
-            ],
-
-            UIHelper.verticalSpace(24.h),
-            Text(
-              "Why connect Stripe?",
-              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 14.sp,
-              ),
-            ),
-            UIHelper.verticalSpace(12.h),
-
-            _buildFeatureTile(
-              icon: Icons.flash_on_rounded,
-              title: "Direct & Instant Payouts",
-              description:
-                  "Receive funds directly into your verified bank account without delays.",
-            ),
-            _buildFeatureTile(
-              icon: Icons.shield_rounded,
-              title: "Bank-Level Security",
-              description:
-                  "Stripe is certified PCI Service Provider Level 1, the most stringent security certification.",
-            ),
-            _buildFeatureTile(
-              icon: Icons.credit_card_rounded,
-              title: "Universal Payment Methods",
-              description:
-                  "Accept major credit cards, debit cards, Apple Pay, and Google Pay seamlessly.",
-            ),
-            _buildFeatureTile(
-              icon: Icons.analytics_outlined,
-              title: "Automated Reports & Invoicing",
-              description:
-                  "Track transactions, download invoices, and monitor financial analytics anytime.",
-            ),
-
-            UIHelper.verticalSpace(32.h),
-
-            // Action Button
-            if (_isLoading)
-              Center(
-                child: Container(
-                  height: 52.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E222B),
-                    borderRadius: BorderRadius.circular(100.r),
-                  ),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  ),
-                ),
-              )
-            else if (!_isConnected)
-              CustomGradientButton(
-                onPressed: _toggleConnection,
-                height: 52.h,
-                borderRadius: BorderRadius.circular(100.r),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      FontAwesomeIcons.stripe,
-                      color: const Color(0xFF1B1C1A),
-                      size: 24.sp,
-                    ),
-                    UIHelper.horizontalSpace(8.w),
+                    UIHelper.verticalSpace(24.h),
                     Text(
-                      "Connect with Stripe",
+                      "Why connect Stripe?",
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
-                            color: const Color(0xFF1B1C1A),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.sp,
                           ),
                     ),
+                    UIHelper.verticalSpace(12.h),
+
+                    _buildFeatureTile(
+                      icon: Icons.flash_on_rounded,
+                      title: "Direct & Instant Payouts",
+                      description:
+                          "Receive funds directly into your verified bank account without delays.",
+                    ),
+                    _buildFeatureTile(
+                      icon: Icons.shield_rounded,
+                      title: "Bank-Level Security",
+                      description:
+                          "Stripe is certified PCI Service Provider Level 1, the most stringent security certification.",
+                    ),
+                    _buildFeatureTile(
+                      icon: Icons.credit_card_rounded,
+                      title: "Universal Payment Methods",
+                      description:
+                          "Accept major credit cards, debit cards, Apple Pay, and Google Pay seamlessly.",
+                    ),
+                    _buildFeatureTile(
+                      icon: Icons.analytics_outlined,
+                      title: "Automated Reports & Invoicing",
+                      description:
+                          "Track transactions, download invoices, and monitor financial analytics anytime.",
+                    ),
+
+                    UIHelper.verticalSpace(32.h),
+
+                    // Action Button
+                    if (!_isConnected ||
+                        _statusData?.stripeDetailsSubmitted == false)
+                      CustomGradientButton(
+                        onPressed: _isLoading ? null : _toggleConnection,
+                        height: 52.h,
+                        borderRadius: BorderRadius.circular(100.r),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FaIcon(
+                                    FontAwesomeIcons.stripe,
+                                    color: const Color(0xFF1B1C1A),
+                                    size: 24.sp,
+                                  ),
+                                  UIHelper.horizontalSpace(8.w),
+                                  Text(
+                                    "Connect with Stripe",
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          color: const Color(0xFF1B1C1A),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16.sp,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    UIHelper.verticalSpace(24.h),
                   ],
                 ),
-              )
-            else
-              GestureDetector(
-                onTap: _showDisconnectDialog,
-                child: Container(
-                  height: 50.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(100.r),
-                    border: Border.all(
-                      color: const Color(0xFFFF5252).withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Disconnect Stripe Account",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        color: const Color(0xFFFF5252),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ),
-                ),
               ),
-            UIHelper.verticalSpace(24.h),
-          ],
-        ),
-      ),
+            ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
@@ -524,7 +622,7 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
               fontFamily: "SF Pro Rounded",
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: valueColor ?? Colors.white,
             ),
           ),
         ],
@@ -559,11 +657,7 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
                 color: const Color(0xFFD39A3D).withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFFD39A3D),
-                size: 18.sp,
-              ),
+              child: Icon(icon, color: const Color(0xFFD39A3D), size: 18.sp),
             ),
             UIHelper.horizontalSpace(12.w),
             Expanded(

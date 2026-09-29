@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../constants/text_font_style.dart';
+import '../../../gen/assets.gen.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
@@ -22,6 +25,8 @@ class TicketCard extends StatelessWidget {
     this.viewLabel = 'View',
     this.cancelLabel = 'Cancel',
     this.showActions = true,
+    this.imageUrl,
+    this.qrCodeUrl,
   });
 
   final String eventName;
@@ -34,28 +39,60 @@ class TicketCard extends StatelessWidget {
   final String viewLabel;
   final String cancelLabel;
   final bool showActions;
+  final String? imageUrl;
+  final String? qrCodeUrl;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveImage =
+        (imageUrl != null && imageUrl!.isNotEmpty) ? imageUrl : qrCodeUrl;
+
     return GradientContainer(
       padding: EdgeInsets.all(14.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Top row: QR + event info ──────────────────────────
+          // ── Top row: Event Flyer + event info ──────────────────
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // QR code
+              // Event flyer image
               Container(
                 width: 86.w,
                 height: 86.w,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
-                padding: EdgeInsets.all(4.w),
-                child: CustomPaint(painter: _QrPainter()),
+                child: (effectiveImage != null && effectiveImage.isNotEmpty)
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: CachedNetworkImage(
+                          imageUrl: effectiveImage,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: const Color(0xFF262A34),
+                            highlightColor: const Color(0xFF383D4A),
+                            child: Container(
+                              color: const Color(0xFF262A34),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => ClipRRect(
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: Image.asset(
+                              Assets.images.placeholderImage.path,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.asset(
+                          Assets.images.placeholderImage.path,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
               ),
               UIHelper.horizontalSpace(12.w),
 
@@ -147,51 +184,52 @@ class TicketCard extends StatelessWidget {
             ],
           ),
 
-          if (showActions) ...[
+          if (showActions && (onViewPressed != null || onCancelPressed != null)) ...[
             UIHelper.verticalSpace(12.h),
 
             // ── Action buttons ────────────────────────────────────
             Row(
               children: [
-                // View — green
-                Expanded(
-                  child: CustomGradientButton(
-                    onPressed: onViewPressed,
-                    title: viewLabel,
-                    height: 40.h,
-                    borderRadius: BorderRadius.circular(100.r),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7DFF57), Color(0xFF7DFF57)],
+                if (onViewPressed != null)
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: onViewPressed,
+                      title: viewLabel,
+                      height: 40.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7DFF57), Color(0xFF7DFF57)],
+                      ),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            fontFamily: 'SF Pro',
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.c262824,
+                          ),
                     ),
-                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          fontFamily: 'SF Pro',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.c262824,
-                        ),
                   ),
-                ),
-                UIHelper.horizontalSpace(10.w),
-                // Cancel — orange
-                Expanded(
-                  child: CustomGradientButton(
-                    onPressed: onCancelPressed,
-                    title: cancelLabel,
-                    height: 40.h,
-                    borderRadius: BorderRadius.circular(100.r),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFF28F31), Color(0xFFF28F31)],
+                if (onViewPressed != null && onCancelPressed != null)
+                  UIHelper.horizontalSpace(10.w),
+                if (onCancelPressed != null)
+                  Expanded(
+                    child: CustomGradientButton(
+                      onPressed: onCancelPressed,
+                      title: cancelLabel,
+                      height: 40.h,
+                      borderRadius: BorderRadius.circular(100.r),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFF28F31), Color(0xFFF28F31)],
+                      ),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            fontFamily: 'SF Pro',
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.c1B1F26,
+                          ),
                     ),
-                    textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(
-                          fontFamily: 'SF Pro',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.c1B1F26,
-                        ),
                   ),
-                ),
               ],
             ),
           ],
@@ -199,55 +237,4 @@ class TicketCard extends StatelessWidget {
       ),
     );
   }
-}
-
-// ── QR code painter ────────────────────────────────────────────────────
-
-/// Draws a pixel-perfect 21×21 QR-style grid matching the screenshot.
-class _QrPainter extends CustomPainter {
-  // 1 = black, 0 = white  (simplified 21×21 static pattern)
-  static const _grid = [
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
-    [0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
-    [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],
-    [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rows = _grid.length;
-    final cols = _grid[0].length;
-    final cellW = size.width / cols;
-    final cellH = size.height / rows;
-
-    final black = Paint()..color = Colors.black;
-    final white = Paint()..color = Colors.white;
-
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        final rect = Rect.fromLTWH(c * cellW, r * cellH, cellW, cellH);
-        canvas.drawRect(rect, _grid[r][c] == 1 ? black : white);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter _) => false;
 }

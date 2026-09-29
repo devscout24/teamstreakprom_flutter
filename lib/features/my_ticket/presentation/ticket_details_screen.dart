@@ -1,28 +1,119 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../constants/text_font_style.dart';
-import '../../../gen/colors.gen.dart';
-import '../../../helpers/ui_helpers.dart';
-import '../../../common_widgets/custom_button.dart';
+import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../common_widgets/gradient_container.dart';
-import '../../../common_widgets/custom_back_button.dart';
+import '../../../constants/text_font_style.dart';
+import '../../../gen/assets.gen.dart';
+import '../../../gen/colors.gen.dart';
+import '../../../helpers/ui_helpers.dart';
+import '../../../networks/api_acess.dart';
+import '../../../common_widgets/custom_toast.dart';
+import '../model/my_orders_response_model.dart';
+import '../model/order_details_response_model.dart';
+import '../services/ticket_pdf_service.dart';
+import '../widgets/cancel_ticket_bottom_sheet.dart';
 
-class TicketDetailsScreen extends StatelessWidget {
+class TicketDetailsScreen extends StatefulWidget {
   const TicketDetailsScreen({
     super.key,
-    required this.eventName,
-    required this.dateTime,
-    required this.location,
-    required this.ticketCount,
-    required this.price,
+    this.orderId,
   });
 
-  final String eventName;
-  final String dateTime;
-  final String location;
-  final int ticketCount;
-  final String price;
+  final String? orderId;
+
+  @override
+  State<TicketDetailsScreen> createState() => _TicketDetailsScreenState();
+}
+
+class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
+  bool _isRefunding = false;
+  bool _isDownloading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.orderId != null && widget.orderId!.isNotEmpty) {
+      getOrderDetailsRxObj.clean();
+      getOrderDetailsRxObj.fetchOrderDetails(widget.orderId!);
+    }
+  }
+
+  Future<void> _refundTicket(String orderId) async {
+    setState(() {
+      _isRefunding = true;
+    });
+
+    try {
+      final response =
+          await cancelEventOrderRxObj.cancelEventOrder(orderId);
+      if (response.success ?? true) {
+        final msg = response.message ??
+            "Event ticket order cancelled and full refund issued successfully";
+        customToastMessage("Success", msg);
+        if (widget.orderId != null && widget.orderId!.isNotEmpty) {
+          getOrderDetailsRxObj.fetchOrderDetails(widget.orderId!);
+        }
+        getMyOrdersRxObj.fetchMyOrders();
+      }
+    } catch (e) {
+      // Error handling is in rx layer
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefunding = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _downloadTicket(MyOrderData order) async {
+    setState(() {
+      _isDownloading = true;
+    });
+
+    try {
+      final pdfBytes = await TicketPdfService.generateTicketPdf(order);
+      final rawTicketId = order.ticketId ?? order.id ?? "ticket";
+      final safeTicketId =
+          rawTicketId.replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+      final fileName = 'ticket_$safeTicketId.pdf';
+
+      final savedFile = await TicketPdfService.saveToDownloads(
+        bytes: pdfBytes,
+        fileName: fileName,
+      );
+
+      customToastMessage(
+        "Download Complete",
+        "Saved to ${savedFile.path}",
+      );
+    } catch (e) {
+      customToastMessage(
+        "Download Failed",
+        "Could not download ticket PDF: $e",
+        isError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+        });
+      }
+    }
+  }
+
+  String _formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) return '';
+    try {
+      return DateFormat("dd MMM – hh:mm a").format(dateTime.toLocal());
+    } catch (_) {
+      return dateTime.toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,89 +138,253 @@ class TicketDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          children: [
-            // The main ticket container
-            GradientContainer(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // QR Code Container
-                  Center(
-                    child: Container(
-                      width: 250.w,
-                      height: 250.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      padding: EdgeInsets.all(16.w),
-                      child: CustomPaint(painter: _QrPainter()),
-                    ),
-                  ),
-                  UIHelper.verticalSpace(24.h),
+      body: widget.orderId != null && widget.orderId!.isNotEmpty
+          ? StreamBuilder<OrderDetailsResponseModel>(
+              stream: getOrderDetailsRxObj.getOrderDetailsData,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.orange),
+                  );
+                }
 
-                  CustomPaint(
-                    size: Size(double.infinity, 1.w),
-                    painter: _DashedLinePainter(
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  UIHelper.verticalSpace(12.h),
-
-                  // Details Rows
-                  _buildDetailRow("Event", eventName),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Event Location", location),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Date & Time", dateTime),
-                  UIHelper.verticalSpace(12.h),
-
-                  // Organizer & Ticket ID
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildDetailRow(
-                          "Event Organizer",
-                          "Music of Tour",
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 48.sp,
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
-                      ),
-                      Expanded(
-                        child: _buildDetailRow(
-                          "Ticket ID",
-                          "MOT3203920212",
-                          alignRight: true,
+                        UIHelper.verticalSpace(12.h),
+                        Text(
+                          'Failed to load ticket details',
+                          style: TextFontStyle
+                              .textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                            fontFamily: 'SF Pro',
+                            fontSize: 16.sp,
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        UIHelper.verticalSpace(12.h),
+                        TextButton(
+                          onPressed: () {
+                            getOrderDetailsRxObj
+                                .fetchOrderDetails(widget.orderId!);
+                          },
+                          child: const Text(
+                            'Try Again',
+                            style: TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final order = snapshot.data?.data;
+                if (order == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.orange),
+                  );
+                }
+
+                return _buildContent(order);
+              },
+            )
+          : Center(
+              child: Text(
+                'Invalid order ID',
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  fontFamily: 'SF Pro',
+                  fontSize: 16.sp,
+                  color: Colors.white.withValues(alpha: 0.4),
+                ),
               ),
             ),
-            UIHelper.verticalSpace(24.h),
+    );
+  }
 
-            // Download Ticket Button
+  Widget _buildContent(MyOrderData order) {
+    final eventName = order.eventId?.title ?? 'Event';
+    final location = order.eventId?.placeName ?? '';
+    final dateTime = _formatDateTime(order.eventId?.startDate);
+    final organizer = order.hostId?.businessProfile?.businessName ??
+        order.hostId?.name ??
+        "N/A";
+    final ticketId = order.ticketId ?? order.id ?? "N/A";
+    final qrCodeUrl = order.qrCode;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20.w),
+      child: Column(
+        children: [
+          GradientContainer(
+            width: double.infinity,
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // QR Code Container
+                Center(
+                  child: Container(
+                    width: 250.w,
+                    height: 250.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    padding: EdgeInsets.all(16.w),
+                    child: (qrCodeUrl != null && qrCodeUrl.isNotEmpty)
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: CachedNetworkImage(
+                              imageUrl: qrCodeUrl,
+                              fit: BoxFit.contain,
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey.shade300,
+                                highlightColor: Colors.grey.shade100,
+                                child: Container(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Image.asset(
+                                Assets.images.placeholderImage.path,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: Image.asset(
+                              Assets.images.placeholderImage.path,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                  ),
+                ),
+                UIHelper.verticalSpace(24.h),
+
+                CustomPaint(
+                  size: Size(double.infinity, 1.w),
+                  painter: _DashedLinePainter(
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                ),
+                UIHelper.verticalSpace(12.h),
+
+                // Details Rows
+                _buildDetailRow("Event", eventName),
+                UIHelper.verticalSpace(12.h),
+                _buildDetailRow("Event Location", location),
+                UIHelper.verticalSpace(12.h),
+                _buildDetailRow("Date & Time", dateTime),
+                UIHelper.verticalSpace(12.h),
+
+                // Organizer & Ticket ID
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: _buildDetailRow(
+                        "Event Organizer",
+                        organizer,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildDetailRow(
+                        "Ticket ID",
+                        ticketId,
+                        alignRight: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          UIHelper.verticalSpace(24.h),
+
+          // Download Ticket Button
+          CustomGradientButton(
+            onPressed: _isDownloading ? null : () => _downloadTicket(order),
+            height: 50.h,
+            borderRadius: BorderRadius.circular(100.r),
+            child: _isDownloading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    "Download Ticket",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                      color: AppColors.c262824,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+          ),
+
+          if (order.status != 'CANCELLED') ...[
+            UIHelper.verticalSpace(14.h),
+
+            // Refund My Ticket Button
             CustomGradientButton(
-              onPressed: () {},
-              title: "Download Ticket",
+              onPressed: _isRefunding
+                  ? null
+                  : () async {
+                      final targetOrderId = order.id ?? widget.orderId;
+                      if (targetOrderId == null || targetOrderId.isEmpty) {
+                        customToastMessage(
+                          "Error",
+                          "Invalid order ID",
+                          isError: true,
+                        );
+                        return;
+                      }
+                      final confirm =
+                          await showCancelTicketBottomSheet(context);
+                      if (confirm == true) {
+                        _refundTicket(targetOrderId);
+                      }
+                    },
               height: 50.h,
               borderRadius: BorderRadius.circular(100.r),
-
-              textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                  .copyWith(
-                    color: AppColors.c262824,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16.sp,
-                  ),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFF28F31), Color(0xFFF28F31)],
+              ),
+              child: _isRefunding
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      "Refund My Ticket",
+                      style: TextFontStyle
+                          .textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                        color: AppColors.c1B1F26,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.sp,
+                      ),
+                    ),
             ),
-            UIHelper.verticalSpace(24.h),
           ],
-        ),
+          UIHelper.verticalSpace(24.h),
+        ],
       ),
     );
   }
@@ -180,24 +435,18 @@ class TicketDetailsScreen extends StatelessWidget {
 
 class _DashedLinePainter extends CustomPainter {
   final Color color;
-  final double strokeWidth;
-  final double dashWidth;
-  final double dashSpace;
 
-  _DashedLinePainter({
-    required this.color,
-    this.strokeWidth = 1.0,
-    this.dashWidth = 4.0,
-    this.dashSpace = 4.0,
-  });
+  _DashedLinePainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = strokeWidth
+      ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
+    const dashWidth = 4.0;
+    const dashSpace = 4.0;
     double startX = 0;
     while (startX < size.width) {
       canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
@@ -207,57 +456,6 @@ class _DashedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DashedLinePainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.dashWidth != dashWidth ||
-        oldDelegate.dashSpace != dashSpace;
+    return oldDelegate.color != color;
   }
-}
-
-// Same QRPainter from ticket_card.dart
-class _QrPainter extends CustomPainter {
-  static const _grid = [
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
-    [0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
-    [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],
-    [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0],
-    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rows = _grid.length;
-    final cols = _grid[0].length;
-    final cellW = size.width / cols;
-    final cellH = size.height / rows;
-
-    final black = Paint()..color = Colors.black;
-    final white = Paint()..color = Colors.white;
-
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        final rect = Rect.fromLTWH(c * cellW, r * cellH, cellW, cellH);
-        canvas.drawRect(rect, _grid[r][c] == 1 ? black : white);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter _) => false;
 }

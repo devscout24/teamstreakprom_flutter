@@ -12,6 +12,9 @@ import '../widget/wizard_step_two.dart';
 import '../widget/wizard_step_three.dart';
 import '../widget/wizard_step_four.dart';
 import '../widget/wizard_step_six.dart';
+import '../widget/stripe_connect_required_dialog.dart';
+import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/networks/api_acess.dart';
 import 'package:teamstreakpromo/features/onboarding/model/intrest_category_model.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
@@ -69,6 +72,61 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   final TextEditingController _rewardPointController = TextEditingController();
   final List<Map<String, dynamic>> _rewards = [];
   bool _isPostingEvent = false;
+  bool _isStripeActive = false;
+
+  Future<void> _checkStripeAccountStatus({bool showDialog = true}) async {
+    try {
+      final response =
+          await getStripeAccountStatusRxObj.getStripeAccountStatus();
+      if (!mounted) return;
+
+      final status = response.data?.stripeAccountStatus?.trim().toUpperCase();
+      if (status == "ACTIVE") {
+        setState(() {
+          _isStripeActive = true;
+        });
+        return; // Do not show dialog
+      } else {
+        setState(() {
+          _isStripeActive = false;
+        });
+        if (showDialog && mounted) {
+          _showStripeRequiredDialog();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error checking stripe account status: $e");
+      if (!mounted) return;
+      setState(() {
+        _isStripeActive = false;
+      });
+      if (showDialog && mounted) {
+        _showStripeRequiredDialog();
+      }
+    }
+  }
+
+  void _showStripeRequiredDialog() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StripeConnectRequiredDialog(
+          onConnect: () async {
+            Navigator.pop(dialogContext);
+            await NavigationService.navigateTo(Routes.stripeConnectScreen);
+            // Re-check Stripe account status after returning from Stripe Connect screen
+            _checkStripeAccountStatus(showDialog: true);
+          },
+          onCancel: () {
+            Navigator.pop(dialogContext);
+            Navigator.pop(context); // Go back from wizard screen
+          },
+        );
+      },
+    );
+  }
 
   void _setupCategoryListeners(PriceCategoryFormModel cat) {
     void listener() {
@@ -135,6 +193,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   void initState() {
     super.initState();
     getCategoriesRxObj.fetchCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStripeAccountStatus(showDialog: true);
+    });
 
     if (widget.eventData != null) {
       final data = widget.eventData!;
@@ -143,6 +204,12 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       _priceController.text = data.ticketPrice?.toString() ?? "";
       _capacityController.text = data.stock?.toString() ?? "";
       _eventDescController.text = data.description ?? "";
+
+      if (data.categoryId != null) {
+        _selectedSubcategoryId = data.categoryId!.id;
+        _selectedSubcategory = data.categoryId!.name;
+        _selectedCategory = data.categoryId!.name;
+      }
 
       if (data.priceCategories != null && data.priceCategories!.isNotEmpty) {
         for (var pc in data.priceCategories!) {
@@ -694,6 +761,21 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   void _handlePostEvent() async {
+    if (!_isStripeActive) {
+      _showStripeRequiredDialog();
+      return;
+    }
+
+    if (_selectedSubcategoryId == null || _selectedSubcategoryId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select an event subcategory"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isPostingEvent = true);
 
     List<dynamic> eventImages = [];
@@ -755,7 +837,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     debugPrint("Price Categories Payload: $priceCategoriesJson");
 
     final Map<String, dynamic> body = {
-      "subCategoryId": _selectedSubcategoryId ?? "65c8f1e29a8f3b0012345678",
+      "subCategoryId": _selectedSubcategoryId!,
       "title": _eventNameController.text,
       "latitude": 40.7128,
       "longitude": -74.006,
@@ -1168,7 +1250,36 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                     );
                   },
                   onSubcategoryTap: () {
-                    if (subcategoryNames.isEmpty) return;
+                    if (_selectedCategory == null ||
+                        _selectedCategory!.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Please select an event category first"),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+                    if (isSubLoading) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Loading subcategories, please wait..."),
+                        ),
+                      );
+                      return;
+                    }
+                    if (subcategoryNames.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "No subcategories found for this category",
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     _showSelectorBottomSheet(
                       title: "Choose Subcategories",
                       options: subcategoryNames,
@@ -1184,7 +1295,25 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                     );
                   },
                   onContinue: () {
-                    if (_formKey.currentState!.validate()) {
+                    final isFormValid =
+                        _formKey.currentState?.validate() ?? false;
+                    if (_selectedCategory == null ||
+                        _selectedCategory!.isEmpty) {
+                      return;
+                    }
+                    if (_selectedSubcategory == null ||
+                        _selectedSubcategory!.isEmpty ||
+                        _selectedSubcategoryId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Please select an event subcategory"),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+                    if (isFormValid) {
                       setState(() => _currentStep = 2);
                     }
                   },
