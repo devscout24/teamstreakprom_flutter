@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:teamstreakpromo/constants/text_font_style.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/gen/assets.gen.dart';
@@ -16,6 +20,10 @@ class EventInfoTab extends StatelessWidget {
   final int? ageRestriction;
   final int? stock;
   final HostId? host;
+  final double? latitude;
+  final double? longitude;
+  final String? placeName;
+  final String? eventTitle;
 
   const EventInfoTab({
     super.key,
@@ -27,6 +35,10 @@ class EventInfoTab extends StatelessWidget {
     required this.ageRestriction,
     required this.stock,
     this.host,
+    this.latitude,
+    this.longitude,
+    this.placeName,
+    this.eventTitle,
   });
 
   @override
@@ -268,7 +280,7 @@ class EventInfoTab extends StatelessWidget {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.r)),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.r),
-            child: Assets.images.mapEvent.image(fit: BoxFit.cover),
+            child: _buildGoogleMap(context),
           ),
         ),
         UIHelper.verticalSpace(24.h),
@@ -330,4 +342,109 @@ class EventInfoTab extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildGoogleMap(BuildContext context) {
+    final hasValidCoordinates = latitude != null &&
+        longitude != null &&
+        latitude != 0.0 &&
+        longitude != 0.0;
+
+    // Use event coordinates or default fallback
+    final targetLatLng = hasValidCoordinates
+        ? LatLng(latitude!, longitude!)
+        : const LatLng(37.7749, -122.4194);
+
+    final markers = <Marker>{
+      Marker(
+        markerId: const MarkerId('event_location'),
+        position: targetLatLng,
+        infoWindow: InfoWindow(
+          title: eventTitle ?? "Event Location",
+          snippet: placeName ?? "Event Venue",
+        ),
+      ),
+    };
+
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: targetLatLng,
+            zoom: 14.0,
+          ),
+          markers: markers,
+          zoomControlsEnabled: false,
+          myLocationButtonEnabled: false,
+          mapToolbarEnabled: false,
+          compassEnabled: false,
+          rotateGesturesEnabled: true,
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+            Factory<OneSequenceGestureRecognizer>(
+              () => EagerGestureRecognizer(),
+            ),
+          },
+        ),
+        // Overlay button to open in Google Maps app / browser
+        Positioned(
+          bottom: 10.h,
+          right: 10.w,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _openInGoogleMaps(
+                targetLatLng.latitude,
+                targetLatLng.longitude,
+              ),
+              borderRadius: BorderRadius.circular(8.r),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: AppColors.scaffoldColor.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    width: 1.w,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.directions,
+                      color: AppColors.primaryColorSecond,
+                      size: 14.sp,
+                    ),
+                    UIHelper.horizontalSpace(4.w),
+                    Text(
+                      "Open in Maps",
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openInGoogleMaps(double lat, double lng) async {
+    final googleMapsUrl = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+    try {
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {}
+  }
 }
+
