@@ -12,7 +12,9 @@ import '../../../../helpers/ui_helpers.dart';
 import '../../../../common_widgets/swipe_to_action_button.dart';
 import '../../../../common_widgets/custom_button.dart';
 import '../../../../networks/api_acess.dart';
+import '../../../../common_widgets/custom_toast.dart';
 import '../model/get_marketplace_details_model.dart';
+import '../model/redeem_reward_model.dart';
 import 'business_partner_create_reward_screen.dart';
 
 class BusinessPartnerRewardsDetailsScreen extends StatefulWidget {
@@ -35,6 +37,7 @@ class _BusinessPartnerRewardsDetailsScreenState
   int _currentImageIndex = 0;
   final PageController _pageController = PageController(viewportFraction: 0.9);
   bool _isLoading = true;
+  bool _isRedeeming = false;
   String? _errorMessage;
 
   @override
@@ -581,12 +584,42 @@ class _BusinessPartnerRewardsDetailsScreenState
                     ],
                   )
                 else
-                  SwipeToActionButton(
-                    text: "Swipe right to Redeem Reward",
-                    onAction: () async {
-                      _showRedeemBottomSheet(context);
-                    },
-                  ),
+                  if (_isRedeeming)
+                    Container(
+                      height: 56.h,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.c242A34,
+                        borderRadius: BorderRadius.circular(100.r),
+                      ),
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        height: 24.h,
+                        width: 24.h,
+                        child: const CircularProgressIndicator(
+                          color: AppColors.primaryColorSecond,
+                          strokeWidth: 2.5,
+                        ),
+                      ),
+                    )
+                  else
+                    GestureDetector(
+                      onTap: () async {
+                        final confirm = await _showRedeemBottomSheet(context);
+                        if (confirm == true) {
+                          _handleRedeem(data);
+                        }
+                      },
+                      child: SwipeToActionButton(
+                        text: "Swipe right to Redeem Reward",
+                        onAction: () async {
+                          final confirm = await _showRedeemBottomSheet(context);
+                          if (confirm == true) {
+                            await _handleRedeem(data);
+                          }
+                        },
+                      ),
+                    ),
                 UIHelper.verticalSpace(32.h),
               ],
             ),
@@ -596,8 +629,8 @@ class _BusinessPartnerRewardsDetailsScreenState
     );
   }
 
-  void _showRedeemBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+  Future<bool?> _showRedeemBottomSheet(BuildContext context) {
+    return showModalBottomSheet<bool>(
       context: context,
       backgroundColor: const Color(0xFF1E222B),
       shape: RoundedRectangleBorder(
@@ -627,7 +660,10 @@ class _BusinessPartnerRewardsDetailsScreenState
                 textAlign: TextAlign.center,
               ),
               UIHelper.verticalSpace(24.h),
-              Divider(color: Colors.white.withValues(alpha: 0.08), height: 1.h),
+              Divider(
+                color: Colors.white.withValues(alpha: 0.08),
+                height: 1.h,
+              ),
               UIHelper.verticalSpace(24.h),
               Row(
                 children: [
@@ -635,7 +671,7 @@ class _BusinessPartnerRewardsDetailsScreenState
                     child: SizedBox(
                       height: 48.h,
                       child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pop(context, false),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF1E222B),
@@ -659,9 +695,7 @@ class _BusinessPartnerRewardsDetailsScreenState
                   UIHelper.horizontalSpace(16.w),
                   Expanded(
                     child: CustomGradientButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context, true),
                       title: "Confirm",
                       height: 48.h,
                       borderRadius: BorderRadius.circular(100.r),
@@ -680,6 +714,42 @@ class _BusinessPartnerRewardsDetailsScreenState
         );
       },
     );
+  }
+
+  Future<void> _handleRedeem(MarketplaceDetailsData? data) async {
+    final String rewardId = widget.id ?? data?.id ?? "";
+    if (rewardId.isEmpty) {
+      customToastMessage(
+        "Error",
+        "Reward ID is missing",
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => _isRedeeming = true);
+    try {
+      final request = RedeemRewardRequestModel(
+        itemType: "MARKETPLACE",
+        itemId: rewardId,
+        quantity: 1,
+      );
+      final response =
+          await redeemRewardRxObj.redeemReward(request.toJson());
+      if (mounted) {
+        customToastMessage(
+          "Success",
+          response.message ?? "Reward redeemed successfully!",
+        );
+        _fetchDetails();
+      }
+    } catch (e) {
+      // Error toast is automatically handled by RxResponseInt handleErrorWithReturn
+    } finally {
+      if (mounted) {
+        setState(() => _isRedeeming = false);
+      }
+    }
   }
 
   Widget _buildDot(bool isActive) {

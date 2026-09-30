@@ -809,6 +809,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     ) ??
                                     0),
                             host: _currentEventData?.hostId,
+                            latitude: _currentEventData?.latitude,
+                            longitude: _currentEventData?.longitude,
+                            placeName: _currentEventData?.placeName,
+                            eventTitle: _currentEventData?.title,
                           ),
                           if (_ticketTypes.isNotEmpty) ...[
                             UIHelper.verticalSpace(24.h),

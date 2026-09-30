@@ -1,5 +1,6 @@
 // ignore_for_file: constant_identifier_names
 const String url = "https://teamstreakpromo-mern-express-indol.vercel.app";
+const String googleMapsApiKey = "YOUR_GOOGLE_MAPS_API_KEY";
 
 final class NetworkConstants {
   NetworkConstants._();
@@ -11,10 +12,12 @@ final class NetworkConstants {
   static const ACCEPT_TYPE = "application/json";
   static const AUTHORIZATION = "Authorization";
   static const CONTENT_TYPE = "content-Type";
+  static const GOOGLE_MAPS_API_KEY = googleMapsApiKey;
 }
 
 final class Endpoints {
   Endpoints._();
+  static const String googleMapsApiKey = NetworkConstants.GOOGLE_MAPS_API_KEY;
   //backend_url
   static String signUp() => "/api/auth/register";
   static String verifyRegisterOtp() => "/api/auth/verify-register-otp";
@@ -79,4 +82,5 @@ final class Endpoints {
   static String eventOrderDetails(String id) => "/api/event-orders/$id";
   static String cancelEventOrder(String orderId) =>
       "/api/payments/event-orders/$orderId/cancel";
+  static String orders() => "/api/orders";
 }
