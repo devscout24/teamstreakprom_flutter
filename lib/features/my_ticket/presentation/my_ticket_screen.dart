@@ -218,7 +218,7 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: TicketToggleButton(
-              tabs: const ['Upcoming', 'Past Ticket', 'Refunded Tickets'],
+              tabs: const ['Upcoming', 'Past Ticket', 'Refunded'],
               selectedIndex: _tabIndex,
               onChanged: _onTabChanged,
               height: 50.h,
@@ -389,7 +389,7 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                               price: price,
                               imageUrl: flyerUrl,
                               showActions: _tabIndex == 0,
-                              viewLabel: 'View',
+                              viewLabel: 'View My Ticket',
                               onViewPressed: () {
                                 NavigationService.navigateToWithArgs(
                                   Routes.ticketDetailsScreen,
