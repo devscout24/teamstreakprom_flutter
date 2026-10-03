@@ -83,4 +83,20 @@ final class Endpoints {
   static String cancelEventOrder(String orderId) =>
       "/api/payments/event-orders/$orderId/cancel";
   static String orders() => "/api/orders";
+  static String myRewardOrders({
+    int? page,
+    int? limit,
+    String? itemType,
+    String? status,
+  }) {
+    final Map<String, String> queryParams = {};
+    if (page != null) queryParams['page'] = page.toString();
+    if (limit != null) queryParams['limit'] = limit.toString();
+    if (itemType != null && itemType.isNotEmpty) queryParams['itemType'] = itemType;
+    if (status != null && status.isNotEmpty) queryParams['status'] = status;
+    if (queryParams.isNotEmpty) {
+      return "/api/orders/my-orders?${Uri(queryParameters: queryParams).query}";
+    }
+    return "/api/orders/my-orders";
+  }
 }

@@ -58,6 +58,8 @@ import 'package:teamstreakpromo/features/my_ticket/data/rx_cancel_event_order/rx
 import 'package:teamstreakpromo/features/my_ticket/model/cancel_event_order_response_model.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_redeem_reward/rx.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/redeem_reward_model.dart';
+import 'package:teamstreakpromo/features/rewards/data/rx_get_my_reward_orders/rx.dart';
+import 'package:teamstreakpromo/features/rewards/model/my_reward_orders_response_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -217,4 +219,10 @@ final RedeemRewardRx redeemRewardRxObj = RedeemRewardRx(
   empty: RedeemRewardResponseModel(),
   dataFetcher: BehaviorSubject<RedeemRewardResponseModel>(),
 );
+
+final GetMyRewardOrdersRx getMyRewardOrdersRxObj = GetMyRewardOrdersRx(
+  empty: MyRewardOrdersResponseModel(),
+  dataFetcher: BehaviorSubject<MyRewardOrdersResponseModel>(),
+);
+
 
