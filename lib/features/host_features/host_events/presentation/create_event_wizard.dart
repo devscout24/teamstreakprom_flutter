@@ -130,7 +130,11 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
   void _setupCategoryListeners(PriceCategoryFormModel cat) {
     void listener() {
-      _syncFromPriceCategories();
+      if (mounted) {
+        setState(() {
+          _syncFromPriceCategories();
+        });
+      }
     }
 
     cat.nameController.addListener(listener);
@@ -153,7 +157,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       }
     }
 
-    if (totalStock > 0) {
+    if (totalStock > 0 && _capacityController.text.trim().isEmpty) {
       _capacityController.text = totalStock.toString();
     }
     if (minPrice != null && maxPrice != null) {
@@ -180,7 +184,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   }
 
   void _removePriceCategory(int index) {
-    if (_priceCategories.length > 1) {
+    if (_priceCategories.isNotEmpty) {
       setState(() {
         _priceCategories[index].dispose();
         _priceCategories.removeAt(index);
@@ -192,6 +196,9 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   @override
   void initState() {
     super.initState();
+    _capacityController.addListener(() {
+      if (mounted) setState(() {});
+    });
     getCategoriesRxObj.fetchCategories();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkStripeAccountStatus(showDialog: true);
@@ -292,27 +299,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       // Pre-populate mock values for demonstration matching mockup
       _eventNameController.text = "";
       _locationController.text = "";
-
-      // Default Ticket Categories matching user specifications:
-      // VIP (Price: 200, Stock: 20), General (Price: 50, Stock: 80)
-      final vipCat = PriceCategoryFormModel(
-        defaultName: "VIP",
-        defaultPrice: "200",
-        defaultStock: "20",
-      );
-      _setupCategoryListeners(vipCat);
-      _priceCategories.add(vipCat);
-
-      final genCat = PriceCategoryFormModel(
-        defaultName: "General",
-        defaultPrice: "50",
-        defaultStock: "80",
-      );
-      _setupCategoryListeners(genCat);
-      _priceCategories.add(genCat);
-
-      _priceController.text = "50 - 200";
-      _capacityController.text = "100";
+      _priceController.text = "";
+      _capacityController.text = "";
 
       _rewardTitleController.text = "";
       _rewardQuantityController.text = "";
@@ -418,6 +406,82 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                 child: const Text(
                   "Add",
                   style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show alert when total tier tickets exceed max venue capacity
+  void _showCapacityExceededDialog(
+    BuildContext context, {
+    required int totalTickets,
+    required int maxCapacity,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E222B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+            side: BorderSide(
+              color: Colors.redAccent.withValues(alpha: 0.3),
+              width: 1.w,
+            ),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.redAccent,
+                size: 24.sp,
+              ),
+              UIHelper.horizontalSpace(8),
+              Expanded(
+                child: Text(
+                  "Capacity Limit Exceeded",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            "Please increase your Max capacity limit to the number of tickets planned to be distributed.",
+            style: TextStyle(
+              fontFamily: "SF Pro",
+              fontSize: 14.sp,
+              color: Colors.white.withValues(alpha: 0.8),
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 18.w,
+                  vertical: 9.h,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColorFirst,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: const Text(
+                  "OK",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
                     color: Colors.black,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1362,9 +1426,31 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
             );
           },
           onContinue: () {
-            if (_formKey.currentState!.validate()) {
-              setState(() => _currentStep = 3);
+            if (!_formKey.currentState!.validate()) {
+              return;
             }
+
+            final int maxCapacity =
+                int.tryParse(_capacityController.text.trim()) ?? 0;
+            int totalTierTickets = 0;
+            for (var cat in _priceCategories) {
+              final stock =
+                  int.tryParse(cat.stockController.text.trim()) ?? 0;
+              totalTierTickets += stock;
+            }
+
+            if (_priceCategories.isNotEmpty &&
+                maxCapacity > 0 &&
+                totalTierTickets > maxCapacity) {
+              _showCapacityExceededDialog(
+                context,
+                totalTickets: totalTierTickets,
+                maxCapacity: maxCapacity,
+              );
+              return;
+            }
+
+            setState(() => _currentStep = 3);
           },
         );
       case 3:

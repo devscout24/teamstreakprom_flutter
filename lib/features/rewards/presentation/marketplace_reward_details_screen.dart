@@ -7,9 +7,10 @@ import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/swipe_to_action_button.dart';
+import '../../../networks/api_acess.dart';
 import '../widgets/confirm_redeem_bottom_sheet.dart';
 import '../model/get_marketplaces_model.dart';
-import 'package:shimmer/shimmer.dart';
+import '../model/my_reward_order_details_model.dart';
 
 class MarketplaceRewardDetailsScreen extends StatefulWidget {
   final String? rewardName;
@@ -17,6 +18,7 @@ class MarketplaceRewardDetailsScreen extends StatefulWidget {
   final String? dateTime;
   final String? rewardOrganizer;
   final String? rewardId;
+  final String? orderId;
   final MarketplaceItem? item;
 
   const MarketplaceRewardDetailsScreen({
@@ -26,6 +28,7 @@ class MarketplaceRewardDetailsScreen extends StatefulWidget {
     this.dateTime,
     this.rewardOrganizer,
     this.rewardId,
+    this.orderId,
     this.item,
   });
 
@@ -36,6 +39,27 @@ class MarketplaceRewardDetailsScreen extends StatefulWidget {
 
 class _MarketplaceRewardDetailsScreenState
     extends State<MarketplaceRewardDetailsScreen> {
+  bool _isLoading = false;
+
+  String? get _effectiveOrderId => widget.orderId ?? widget.rewardId;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = _effectiveOrderId;
+    if (id != null && id.isNotEmpty) {
+      _isLoading = true;
+      getRewardOrderDetailsRxObj.clean();
+      getRewardOrderDetailsRxObj.fetchRewardOrderDetails(id).whenComplete(() {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    }
+  }
+
   Future<void> _showConfirmRedeemSheet() async {
     await showModalBottomSheet(
       context: context,
@@ -45,45 +69,14 @@ class _MarketplaceRewardDetailsScreenState
     );
   }
 
-  String get _rewardName =>
-      widget.item?.title ?? widget.rewardName ?? "N/A";
-
-  String get _rewardLocation =>
-      widget.item?.location ?? widget.rewardLocation ?? "N/A";
-
-  String get _dateTime {
-    if (widget.item?.endDateTime != null) {
-      return DateFormat("MMM dd, yyyy • hh:mm a")
-          .format(widget.item!.endDateTime!);
+  String _formatDateTime(DateTime? dt) {
+    if (dt == null) return "N/A";
+    try {
+      return DateFormat("MMM dd, yyyy • hh:mm a").format(dt.toLocal());
+    } catch (_) {
+      return dt.toString();
     }
-    if (widget.item?.startDateTime != null) {
-      return DateFormat("MMM dd, yyyy • hh:mm a")
-          .format(widget.item!.startDateTime!);
-    }
-    if (widget.dateTime != null && widget.dateTime!.isNotEmpty) {
-      return widget.dateTime!;
-    }
-    return "N/A";
   }
-
-  String get _rewardOrganizer {
-    if (widget.item?.category?.name != null &&
-        widget.item!.category!.name!.isNotEmpty) {
-      return widget.item!.category!.name!;
-    }
-    if (widget.item?.subCategory?.name != null &&
-        widget.item!.subCategory!.name!.isNotEmpty) {
-      return widget.item!.subCategory!.name!;
-    }
-    if (widget.rewardOrganizer != null &&
-        widget.rewardOrganizer!.isNotEmpty) {
-      return widget.rewardOrganizer!;
-    }
-    return "N/A";
-  }
-
-  String get _rewardId =>
-      widget.item?.id ?? widget.rewardId ?? "N/A";
 
   @override
   Widget build(BuildContext context) {
@@ -108,58 +101,113 @@ class _MarketplaceRewardDetailsScreenState
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          children: [
-            // The main ticket container
-            GradientContainer(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDetailRow("Reward", _rewardName),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward Location", _rewardLocation),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Date & Time", _dateTime),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward Organizer", _rewardOrganizer),
-                  UIHelper.verticalSpace(12.h),
-                  _buildDetailRow("Reward ID", _rewardId),
-                ],
-              ),
-            ),
-            UIHelper.verticalSpace(16.h),
+      body: StreamBuilder<MyRewardOrderDetailsModel>(
+        stream: getRewardOrderDetailsRxObj.getRewardOrderDetailsData,
+        builder: (context, snapshot) {
+          if (_isLoading &&
+              (!snapshot.hasData || snapshot.data?.data == null)) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.orange),
+            );
+          }
 
-            // Info Box
-            GradientContainer(
-              padding: EdgeInsets.all(16.w),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.white.withValues(alpha: 0.8),
-                    size: 20.sp,
+          final orderData = snapshot.data?.data;
+          final itemData = orderData?.item ?? orderData?.itemId;
+
+          final rewardName = itemData?.title ??
+              widget.item?.title ??
+              widget.rewardName ??
+              "N/A";
+
+          final rewardLocation = itemData?.location ??
+              widget.item?.location ??
+              widget.rewardLocation ??
+              "N/A";
+
+          String formattedDateTime = "N/A";
+          if (itemData?.endDateTime != null) {
+            formattedDateTime = _formatDateTime(itemData!.endDateTime);
+          } else if (itemData?.startDateTime != null) {
+            formattedDateTime = _formatDateTime(itemData!.startDateTime);
+          } else if (orderData?.createdAt != null) {
+            formattedDateTime = _formatDateTime(orderData!.createdAt);
+          } else if (widget.item?.endDateTime != null) {
+            formattedDateTime = _formatDateTime(widget.item!.endDateTime);
+          } else if (widget.item?.startDateTime != null) {
+            formattedDateTime = _formatDateTime(widget.item!.startDateTime);
+          } else if (widget.dateTime != null && widget.dateTime!.isNotEmpty) {
+            formattedDateTime = widget.dateTime!;
+          }
+
+          final rewardOrganizer = orderData?.businessOwnerId?.name ??
+              (widget.item?.category?.name != null &&
+                      widget.item!.category!.name!.isNotEmpty
+                  ? widget.item!.category!.name!
+                  : (widget.item?.subCategory?.name != null &&
+                          widget.item!.subCategory!.name!.isNotEmpty
+                      ? widget.item!.subCategory!.name!
+                      : (widget.rewardOrganizer != null &&
+                              widget.rewardOrganizer!.isNotEmpty
+                          ? widget.rewardOrganizer!
+                          : "N/A")));
+
+          final rewardId =
+              orderData?.id ?? widget.item?.id ?? widget.rewardId ?? "N/A";
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              children: [
+                // The main ticket container
+                GradientContainer(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailRow("Reward", rewardName),
+                      UIHelper.verticalSpace(12.h),
+                      _buildDetailRow("Reward Location", rewardLocation),
+                      UIHelper.verticalSpace(12.h),
+                      _buildDetailRow("Date & Time", formattedDateTime),
+                      UIHelper.verticalSpace(12.h),
+                      _buildDetailRow("Reward Organizer", rewardOrganizer),
+                      UIHelper.verticalSpace(12.h),
+                      _buildDetailRow("Reward ID", rewardId),
+                    ],
                   ),
-                  UIHelper.horizontalSpace(12.w),
-                  Expanded(
-                    child: Text(
-                      "This reward can only be redeem from this physical store.",
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 12.sp,
-                          ),
-                    ),
+                ),
+                UIHelper.verticalSpace(16.h),
+
+                // Info Box
+                GradientContainer(
+                  padding: EdgeInsets.all(16.w),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.white.withValues(alpha: 0.8),
+                        size: 20.sp,
+                      ),
+                      UIHelper.horizontalSpace(12.w),
+                      Expanded(
+                        child: Text(
+                          "This reward can only be redeem from this physical store.",
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 12.sp,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                UIHelper.verticalSpace(24.h),
+              ],
             ),
-            UIHelper.verticalSpace(24.h),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(

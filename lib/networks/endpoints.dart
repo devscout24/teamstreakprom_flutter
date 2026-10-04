@@ -83,6 +83,7 @@ final class Endpoints {
   static String cancelEventOrder(String orderId) =>
       "/api/payments/event-orders/$orderId/cancel";
   static String orders() => "/api/orders";
+  static String rewardOrderDetails(String id) => "/api/orders/$id";
   static String myRewardOrders({
     int? page,
     int? limit,

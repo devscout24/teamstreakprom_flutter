@@ -13,7 +13,11 @@ class HostEventsTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> tabs = ["Upcoming", "Past", "Cancel"];
+    final List<String> tabs = [
+      "Upcoming Events",
+      "Past Events",
+      "Canceled Events",
+    ];
 
     return Container(
       height: 48.h,
@@ -45,12 +49,16 @@ class HostEventsTabBar extends StatelessWidget {
                       : null,
                 ),
                 alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
                 child: isSelected
                     ? Text(
                         tab,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: "SF Pro Rounded",
-                          fontSize: 14.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
                         ),
@@ -67,9 +75,12 @@ class HostEventsTabBar extends StatelessWidget {
                         blendMode: BlendMode.srcIn,
                         child: Text(
                           tab,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: "SF Pro Rounded",
-                            fontSize: 14.sp,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),

@@ -50,13 +50,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "from",
-                      style: TextFontStyle.textStyle20c232421SFPro590.copyWith(
-                        fontSize: 14.sp,
-                        color: Colors.white,
-                      ),
-                    ),
                     SizedBox(height: 4.h),
                     Text(
                       "Rooted In Comunity",

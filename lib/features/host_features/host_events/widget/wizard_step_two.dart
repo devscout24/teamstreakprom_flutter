@@ -46,6 +46,18 @@ class WizardStepTwo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int totalTierTickets = 0;
+    for (var cat in priceCategories) {
+      final stock = int.tryParse(cat.stockController.text.trim()) ?? 0;
+      totalTierTickets += stock;
+    }
+    final int enteredCapacity =
+        int.tryParse(capacityController.text.trim()) ?? 0;
+    final bool isCapacityExceeded =
+        priceCategories.isNotEmpty &&
+        enteredCapacity > 0 &&
+        totalTierTickets > enteredCapacity;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -162,47 +174,20 @@ class WizardStepTwo extends StatelessWidget {
                 ],
               ),
             ),
-            UIHelper.horizontalSpace(8),
-            GestureDetector(
-              onTap: onAddPriceCategory,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: AppColors.primaryColorSecond.withValues(alpha: 0.4),
-                    width: 1.w,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.add_rounded,
-                      size: 16.sp,
-                      color: AppColors.primaryColorSecond,
-                    ),
-                    UIHelper.horizontalSpace(4),
-                    Text(
-                      "Add Tier",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryColorSecond,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            if (priceCategories.isNotEmpty) ...[
+              UIHelper.horizontalSpace(8),
+              _buildAddTierButton(onAddPriceCategory),
+            ],
           ],
         ),
         UIHelper.verticalSpace(12),
 
-        // List of Price Category Cards
-        if (priceCategories.isNotEmpty) ...[
+        // If no price categories yet, display "+Add ticket Tier" as the primary button
+        if (priceCategories.isEmpty) ...[
+          _buildEmptyAddTierButton(onAddPriceCategory),
+          UIHelper.verticalSpace(16),
+        ] else ...[
+          // List of Price Category Cards
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -218,28 +203,83 @@ class WizardStepTwo extends StatelessWidget {
               );
             },
           ),
+          UIHelper.verticalSpace(12),
+          _buildAddTierSecondaryButton(onAddPriceCategory),
           UIHelper.verticalSpace(16),
         ],
 
-        // People Capacity
+        // Max Venue Capacity
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildLabel("Total People Capacity"),
-            if (priceCategories.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildLabel("Max Venue capacity"),
+                UIHelper.horizontalSpace(6),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 8.h),
+                  child: GestureDetector(
+                    onTap: () => _showVenueCapacityInfoDialog(context),
+                    child: Tooltip(
+                      message:
+                          "The max venue capacity details are necessary to ensure that we are able to distribute the correct amount of tickets to meet your specifications",
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: Container(
+                        padding: EdgeInsets.all(3.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 15.sp,
+                          color: AppColors.primaryColorSecond,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (priceCategories.isNotEmpty && totalTierTickets > 0)
               Flexible(
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 8.h),
-                  child: Text(
-                    "Total seats across categories",
-                    style: TextStyle(
-                      fontFamily: "SF Pro",
-                      fontSize: 11.sp,
-                      color: AppColors.primaryColorSecond,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 3.h,
                     ),
-                    textAlign: TextAlign.end,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    decoration: BoxDecoration(
+                      color: isCapacityExceeded
+                          ? Colors.redAccent.withValues(alpha: 0.15)
+                          : AppColors.primaryColorSecond.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6.r),
+                      border: isCapacityExceeded
+                          ? Border.all(
+                              color: Colors.redAccent.withValues(alpha: 0.4),
+                              width: 1.w,
+                            )
+                          : null,
+                    ),
+                    child: Text(
+                      isCapacityExceeded
+                          ? "Tier tickets: $totalTierTickets (Exceeds Limit)"
+                          : "Tier tickets: $totalTierTickets",
+                      style: TextStyle(
+                        fontFamily: "SF Pro Rounded",
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: isCapacityExceeded
+                            ? Colors.redAccent
+                            : AppColors.primaryColorSecond,
+                      ),
+                      textAlign: TextAlign.end,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
@@ -247,13 +287,27 @@ class WizardStepTwo extends StatelessWidget {
         ),
         _buildTextField(
           controller: capacityController,
-          hint: "e.g. 100",
+          hint: "e.g. 40",
           keyboardType: TextInputType.number,
           prefixIcon: Icon(
             Icons.people_outline_rounded,
             size: 20.sp,
             color: Colors.white.withValues(alpha: 0.5),
           ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return "This field is required";
+            }
+            final venueCapacity = int.tryParse(value.trim());
+            if (venueCapacity == null || venueCapacity <= 0) {
+              return "Please enter a valid capacity";
+            }
+            if (priceCategories.isNotEmpty &&
+                totalTierTickets > venueCapacity) {
+              return "max limit $venueCapacity";
+            }
+            return null;
+          },
         ),
         UIHelper.verticalSpace(16),
 
@@ -481,13 +535,13 @@ class WizardStepTwo extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildLabel("Stock (Seats)"),
+                    _buildLabel("Maximum capacity"),
                     _buildTextField(
                       controller: category.stockController,
                       hint: "e.g. 20",
                       keyboardType: TextInputType.number,
                       prefixIcon: Icon(
-                        Icons.event_seat_outlined,
+                        Icons.people_outline_rounded,
                         size: 18.sp,
                         color: Colors.white.withValues(alpha: 0.5),
                       ),
@@ -496,6 +550,177 @@ class WizardStepTwo extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddTierButton(VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColorSecond.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: AppColors.primaryColorSecond.withValues(alpha: 0.4),
+            width: 1.w,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add_rounded,
+              size: 16.sp,
+              color: AppColors.primaryColorSecond,
+            ),
+            UIHelper.horizontalSpace(4),
+            Text(
+              "+Add ticket Tier",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryColorSecond,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyAddTierButton(VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFF191D26),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: AppColors.primaryColorSecond.withValues(alpha: 0.35),
+            width: 1.2.w,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle_outline_rounded,
+              size: 18.sp,
+              color: AppColors.primaryColorSecond,
+            ),
+            UIHelper.horizontalSpace(8),
+            Text(
+              "+Add ticket Tier",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryColorSecond,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddTierSecondaryButton(VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 10.h),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColorSecond.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: AppColors.primaryColorSecond.withValues(alpha: 0.25),
+            width: 1.w,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_rounded,
+              size: 16.sp,
+              color: AppColors.primaryColorSecond,
+            ),
+            UIHelper.horizontalSpace(6),
+            Text(
+              "+Add ticket Tier",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryColorSecond,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showVenueCapacityInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E222B),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1.w,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              color: AppColors.primaryColorSecond,
+              size: 22.sp,
+            ),
+            UIHelper.horizontalSpace(8),
+            Text(
+              "Max Venue Capacity",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          "The max venue capacity details are necessary to ensure that we are able to distribute the correct amount of tickets to meet your specifications",
+          style: TextStyle(
+            fontFamily: "SF Pro",
+            fontSize: 13.sp,
+            color: Colors.white.withValues(alpha: 0.8),
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              "Got it",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryColorFirst,
+              ),
+            ),
           ),
         ],
       ),
@@ -523,6 +748,7 @@ class WizardStepTwo extends StatelessWidget {
     int maxLines = 1,
     Widget? prefixIcon,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -533,12 +759,13 @@ class WizardStepTwo extends StatelessWidget {
         fontSize: 14.sp,
         color: Colors.white,
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return "This field is required";
-        }
-        return null;
-      },
+      validator: validator ??
+          (value) {
+            if (value == null || value.trim().isEmpty) {
+              return "This field is required";
+            }
+            return null;
+          },
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(

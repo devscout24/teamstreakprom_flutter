@@ -26,7 +26,7 @@ class HostEventsScreen extends StatefulWidget {
 }
 
 class _HostEventsScreenState extends State<HostEventsScreen> {
-  String _activeTab = "Upcoming";
+  String _activeTab = "Upcoming Events";
 
   @override
   void initState() {
@@ -65,7 +65,7 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
             ),
             UIHelper.verticalSpace(24),
 
-            // Toggle Bar (Upcoming / Past / Cancel)
+            // Toggle Bar (Upcoming Events / Past Events / Canceled Events)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: HostEventsTabBar(
@@ -105,14 +105,14 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                   }
 
                   List<EventItem> activeList = [];
-                  if (_activeTab == "Upcoming") {
+                  if (_activeTab == "Upcoming Events") {
                     activeList = snapshot.data?.data ?? [];
                   }
 
                   return activeList.isEmpty
                       ? Center(
                           child: Text(
-                            "No ${_activeTab.toLowerCase()} events found",
+                            "No ${_activeTab.toLowerCase()} found",
                             style: TextStyle(
                               fontFamily: "SF Pro",
                               fontSize: 14.sp,

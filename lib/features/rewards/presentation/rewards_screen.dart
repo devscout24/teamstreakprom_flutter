@@ -392,11 +392,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         MarketplaceRewardDetailsScreen(
-                                      rewardName: reward.title ?? '',
-                                      rewardLocation: reward.location ?? '',
-                                      dateTime: formattedDateTime,
-                                      rewardOrganizer: "Nike Official Store",
-                                      rewardId: reward.id ?? '',
+                                      orderId: reward.id,
                                     ),
                                   ),
                                 );

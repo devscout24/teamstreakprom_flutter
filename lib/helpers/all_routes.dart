@@ -42,6 +42,7 @@ import '../features/settings/presentation/stripe_connect_screen.dart';
 import '../features/settings/presentation/stripe_webview_screen.dart';
 import '../features/event/presentation/event_details_screen.dart';
 import '../features/my_ticket/presentation/ticket_details_screen.dart';
+import '../features/rewards/presentation/marketplace_reward_details_screen.dart';
 
 final class Routes {
   static final Routes _routes = Routes._internal();
@@ -109,6 +110,8 @@ final class Routes {
   static const String businessPartnerNavigationScreen =
       '/businessPartnerNavigationScreen';
   static const String ticketDetailsScreen = '/ticketDetailsScreen';
+  static const String marketplaceRewardDetailsScreen =
+      '/marketplaceRewardDetailsScreen';
 }
 
 final class RouteGenerator {
@@ -579,6 +582,23 @@ final class RouteGenerator {
             : _FadedTransitionRoute(
                 widget: TicketDetailsScreen(
                   orderId: args?['orderId'] as String?,
+                ),
+                settings: settings,
+              );
+
+      case Routes.marketplaceRewardDetailsScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return defaultTargetPlatform == TargetPlatform.iOS
+            ? CupertinoPageRoute(
+                builder: (context) => MarketplaceRewardDetailsScreen(
+                  orderId: (args?['orderId'] ?? args?['id'] ?? args?['rewardId'])
+                      as String?,
+                ),
+              )
+            : _FadedTransitionRoute(
+                widget: MarketplaceRewardDetailsScreen(
+                  orderId: (args?['orderId'] ?? args?['id'] ?? args?['rewardId'])
+                      as String?,
                 ),
                 settings: settings,
               );
