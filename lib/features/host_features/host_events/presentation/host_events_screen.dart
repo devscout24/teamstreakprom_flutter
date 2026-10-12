@@ -186,7 +186,10 @@ class _HostEventsScreenState extends State<HostEventsScreen> {
                                           context.mounted) {
                                         NavigationService.navigateToWithArgs(
                                           Routes.createEventScreen,
-                                          {'eventData': response!.data},
+                                          {
+                                            'eventData': response.singleData ??
+                                                response.data!.first,
+                                          },
                                         );
                                       }
                                     } catch (e) {

@@ -27,7 +27,14 @@ class HostEventsHeader extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
-              color: AppColors.primaryColorFirst,
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.primaryColorFirst,
+                  AppColors.primaryColorSecond,
+                ],
+              ),
               borderRadius: BorderRadius.circular(24.r),
             ),
             child: Row(

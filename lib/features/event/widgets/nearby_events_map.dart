@@ -77,11 +77,24 @@ class NearbyEventsMap extends StatelessWidget {
                       ),
                     ),
                     Center(
-                      child: Image.asset(
-                        Assets.images.mapIndicator.path,
-                        width: 44.w,
-                        height: 44.w,
-                        fit: BoxFit.contain,
+                      child: ShaderMask(
+                        shaderCallback: (Rect bounds) {
+                          return const LinearGradient(
+                            colors: [
+                              AppColors.primaryColorFirst,
+                              AppColors.primaryColorSecond,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds);
+                        },
+                        blendMode: BlendMode.srcIn,
+                        child: Image.asset(
+                          Assets.icons.splashLogo.path,
+                          width: 16.w,
+                          height: 16.w,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ],

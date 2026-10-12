@@ -364,13 +364,21 @@ final class RouteGenerator {
 
       case Routes.createEventScreen:
         final args = settings.arguments as Map<String, dynamic>?;
-        final eventData = args?['eventData'];
+        final rawEventData = args?['eventData'];
+        dynamic resolvedEventData;
+        if (rawEventData is List && rawEventData.isNotEmpty) {
+          resolvedEventData = rawEventData.first;
+        } else {
+          resolvedEventData = rawEventData;
+        }
+
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => CreateEventWizard(eventData: eventData),
+                builder: (context) =>
+                    CreateEventWizard(eventData: resolvedEventData),
               )
             : _FadedTransitionRoute(
-                widget: CreateEventWizard(eventData: eventData),
+                widget: CreateEventWizard(eventData: resolvedEventData),
                 settings: settings,
               );
 

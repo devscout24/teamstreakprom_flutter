@@ -1,6 +1,8 @@
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,7 +13,7 @@ import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart';
 import 'package:teamstreakpromo/features/event/widgets/event_details_widgets.dart';
 
-class EventInfoTab extends StatelessWidget {
+class EventInfoTab extends StatefulWidget {
   final bool isHost;
   final String displayDescription;
   final List<ArtistInfo> artists;
@@ -42,6 +44,77 @@ class EventInfoTab extends StatelessWidget {
   });
 
   @override
+  State<EventInfoTab> createState() => _EventInfoTabState();
+}
+
+class _EventInfoTabState extends State<EventInfoTab> {
+  BitmapDescriptor? _customMarkerIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomMarker();
+  }
+
+  Future<void> _loadCustomMarker() async {
+    try {
+      final ByteData byteData =
+          await rootBundle.load(Assets.icons.splashLogo.path);
+      final ui.Codec codec = await ui.instantiateImageCodec(
+        byteData.buffer.asUint8List(),
+        targetWidth: 28,
+      );
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image rawImage = frameInfo.image;
+      final int width = rawImage.width;
+      final int height = rawImage.height;
+
+      // Tint logo with app default gradient
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder);
+      final Rect rect = Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble());
+
+      canvas.drawImage(rawImage, Offset.zero, Paint());
+
+      final Paint gradientPaint = Paint()
+        ..shader = ui.Gradient.linear(
+          Offset.zero,
+          Offset(width.toDouble(), height.toDouble()),
+          [AppColors.primaryColorFirst, AppColors.primaryColorSecond],
+        )
+        ..blendMode = BlendMode.srcIn;
+
+      canvas.drawRect(rect, gradientPaint);
+
+      final ui.Picture picture = recorder.endRecording();
+      final ui.Image tintedImage = await picture.toImage(width, height);
+      final ByteData? byteDataResult = await tintedImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
+      if (byteDataResult != null && mounted) {
+        setState(() {
+          _customMarkerIcon = BitmapDescriptor.bytes(
+            byteDataResult.buffer.asUint8List(),
+          );
+        });
+      }
+    } catch (_) {
+      try {
+        final icon = await BitmapDescriptor.asset(
+          const ImageConfiguration(size: Size(16, 16)),
+          Assets.icons.splashLogo.path,
+        );
+        if (mounted) {
+          setState(() {
+            _customMarkerIcon = icon;
+          });
+        }
+      } catch (_) {}
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +128,7 @@ class EventInfoTab extends StatelessWidget {
         ),
         UIHelper.verticalSpace(8.h),
         Text(
-          displayDescription,
+          widget.displayDescription,
           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
             color: Colors.white.withValues(alpha: 0.7),
             fontSize: 13.sp,
@@ -79,8 +152,8 @@ class EventInfoTab extends StatelessWidget {
         UIHelper.verticalSpace(12.h),
 
         // Artist profile cards
-        if (artists.isNotEmpty)
-          ...artists.map((artist) => ArtistCard(artist: artist))
+        if (widget.artists.isNotEmpty)
+          ...widget.artists.map((artist) => ArtistCard(artist: artist))
         else
           Row(
             children: [
@@ -135,7 +208,7 @@ class EventInfoTab extends StatelessWidget {
                           ),
                       children: [
                         TextSpan(
-                          text: formattedEndDate,
+                          text: widget.formattedEndDate,
                           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                               .copyWith(
                                 color: Colors.white,
@@ -147,7 +220,7 @@ class EventInfoTab extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    timeLeft,
+                    widget.timeLeft,
                     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                         .copyWith(
                           color: AppColors.cF54141,
@@ -168,7 +241,7 @@ class EventInfoTab extends StatelessWidget {
                   UIHelper.horizontalSpace(8.w),
                   Expanded(
                     child: Text(
-                      "This event is only for who are above ${ageRestriction ?? 18} years old.",
+                      "This event is only for who are above ${widget.ageRestriction ?? 18} years old.",
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: AppColors.primaryColorFirst,
@@ -188,9 +261,9 @@ class EventInfoTab extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24.r,
-              backgroundImage: (host?.profileImage != null &&
-                      host!.profileImage!.isNotEmpty)
-                  ? NetworkImage(host!.profileImage!) as ImageProvider
+              backgroundImage: (widget.host?.profileImage != null &&
+                      widget.host!.profileImage!.isNotEmpty)
+                  ? NetworkImage(widget.host!.profileImage!) as ImageProvider
                   : AssetImage(Assets.images.placeholderImage.path),
             ),
             UIHelper.horizontalSpace(12.w),
@@ -198,7 +271,7 @@ class EventInfoTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  host?.name ?? "Unknown Host",
+                  widget.host?.name ?? "Unknown Host",
                   style:
                       TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
                     color: Colors.white,
@@ -249,7 +322,7 @@ class EventInfoTab extends StatelessWidget {
                 Icon(Icons.event_seat, color: AppColors.cDC822D, size: 16.sp),
                 UIHelper.horizontalSpace(6.w),
                 Text(
-                  "${stock ?? 0} seat remaining",
+                  "${widget.stock ?? 0} seat remaining",
                   style:
                       TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
                     color: AppColors.cDC822D,
@@ -286,7 +359,7 @@ class EventInfoTab extends StatelessWidget {
         UIHelper.verticalSpace(24.h),
 
         // Refer section
-        if (!isHost) ...[
+        if (!widget.isHost) ...[
           Container(
             height: 52.h,
             width: double.infinity,
@@ -344,23 +417,24 @@ class EventInfoTab extends StatelessWidget {
   }
 
   Widget _buildGoogleMap(BuildContext context) {
-    final hasValidCoordinates = latitude != null &&
-        longitude != null &&
-        latitude != 0.0 &&
-        longitude != 0.0;
+    final hasValidCoordinates = widget.latitude != null &&
+        widget.longitude != null &&
+        widget.latitude != 0.0 &&
+        widget.longitude != 0.0;
 
     // Use event coordinates or default fallback
     final targetLatLng = hasValidCoordinates
-        ? LatLng(latitude!, longitude!)
+        ? LatLng(widget.latitude!, widget.longitude!)
         : const LatLng(37.7749, -122.4194);
 
     final markers = <Marker>{
       Marker(
         markerId: const MarkerId('event_location'),
         position: targetLatLng,
+        icon: _customMarkerIcon ?? BitmapDescriptor.defaultMarker,
         infoWindow: InfoWindow(
-          title: eventTitle ?? "Event Location",
-          snippet: placeName ?? "Event Venue",
+          title: widget.eventTitle ?? "Event Location",
+          snippet: widget.placeName ?? "Event Venue",
         ),
       ),
     };

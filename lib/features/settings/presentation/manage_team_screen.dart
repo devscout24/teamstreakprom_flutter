@@ -419,7 +419,7 @@ class _AddMemberBottomSheetState extends State<_AddMemberBottomSheet> {
           UIHelper.verticalSpace(16.h),
 
           Text(
-            "Please ensure an this input field for this\ninvitation a new member.",
+            "Please fill out the field below To give ticket authorizing access to your team members, please fill out the input field below, they will then be sent an authorization email directly. This email will allows your team members to properly handle ticket authorization and scanning",
             textAlign: TextAlign.center,
             style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
               color: Colors.white.withValues(alpha: 0.7),
@@ -468,7 +468,7 @@ class _AddMemberBottomSheetState extends State<_AddMemberBottomSheet> {
               UIHelper.horizontalSpace(12.w),
               Expanded(
                 child: Text(
-                  "This invitation will remain just 24 hours. After this time is end this invitation link is not working.",
+                  "This invitation will remain active for 24 hours enabling each team member to be able to scan and authenticate tickets as well as view active and inactive ticket status, after 24 hours, a new link must be sent to this team members email",
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
                         color: Colors.orange,

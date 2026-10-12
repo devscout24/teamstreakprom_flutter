@@ -23,6 +23,7 @@ import 'package:teamstreakpromo/features/event/model/host_event_details_model.da
     as hedm;
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'event_location_picker_screen.dart';
 
 class CreateEventWizard extends StatefulWidget {
   final hedm.Data? eventData;
@@ -48,6 +49,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
   String? _selectedSubcategory;
   String? _selectedSubcategoryId;
   final TextEditingController _locationController = TextEditingController();
+  double? _latitude;
+  double? _longitude;
 
   // Step 2 Controllers
   final TextEditingController _startDateController = TextEditingController();
@@ -208,6 +211,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
       final data = widget.eventData!;
       _eventNameController.text = data.title ?? "";
       _locationController.text = data.placeName ?? "";
+      _latitude = data.latitude;
+      _longitude = data.longitude;
       _priceController.text = data.ticketPrice?.toString() ?? "";
       _capacityController.text = data.stock?.toString() ?? "";
       _eventDescController.text = data.description ?? "";
@@ -341,6 +346,26 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     _rewardQuantityController.dispose();
     _rewardPointController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickLocation() async {
+    final result = await Navigator.of(context).push<LocationResult>(
+      MaterialPageRoute(
+        builder: (context) => EventLocationPickerScreen(
+          initialAddress: _locationController.text,
+          initialLatitude: _latitude,
+          initialLongitude: _longitude,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _locationController.text = result.address;
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+      });
+    }
   }
 
   // Show a dialog to let the user add a custom age restriction
@@ -903,8 +928,8 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
     final Map<String, dynamic> body = {
       "subCategoryId": _selectedSubcategoryId!,
       "title": _eventNameController.text,
-      "latitude": 40.7128,
-      "longitude": -74.006,
+      "latitude": _latitude ?? 40.7128,
+      "longitude": _longitude ?? -74.006,
       "ageRestriction":
           int.tryParse(
             _selectedAgeRestriction?.replaceAll(RegExp(r'[^0-9]'), '') ?? '18',
@@ -1288,6 +1313,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
                   selectedCategory: _selectedCategory,
                   selectedSubcategory: _selectedSubcategory,
                   locationController: _locationController,
+                  onLocationTap: _pickLocation,
                   isLoadingCategories: isCatLoading,
                   isLoadingSubcategories: isSubLoading,
                   hasSubcategories:

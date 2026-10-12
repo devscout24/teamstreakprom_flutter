@@ -21,11 +21,7 @@ class BusinessPartnerRewardsDetailsScreen extends StatefulWidget {
   final String? type;
   final String? id;
 
-  const BusinessPartnerRewardsDetailsScreen({
-    super.key,
-    this.type,
-    this.id,
-  });
+  const BusinessPartnerRewardsDetailsScreen({super.key, this.type, this.id});
 
   @override
   State<BusinessPartnerRewardsDetailsScreen> createState() =>
@@ -123,9 +119,7 @@ class _BusinessPartnerRewardsDetailsScreenState
                     );
                   }
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFF28F31),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFFF28F31)),
                   );
                 }
 
@@ -137,19 +131,23 @@ class _BusinessPartnerRewardsDetailsScreenState
   }
 
   Widget _buildContent(MarketplaceDetailsData? data) {
-    final List<String> photos = (data?.photos != null && data!.photos!.isNotEmpty)
+    final List<String> photos =
+        (data?.photos != null && data!.photos!.isNotEmpty)
         ? data.photos!
         : [
-            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800"
+            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800",
           ];
 
     final String title = data?.title ?? "Adidas Courtblock Shoes";
     final String points = data != null ? "${data.points ?? 0}" : "95";
     final String location = data?.location ?? "Divine Art Festival";
-    final String description = data?.description ??
+    final String description =
+        data?.description ??
         "Experience unmatched comfort with NIKE Men's Sneakers. Crafted for durability, they feature a breathable upper and cushioned sole, ensuring you stay light on your feet. The stylish design seamlessly blends with any outfit, making them a versatile choice for any occasion.";
     final String storeName =
-        data?.businessProfile?.businessName ?? data?.category?.name ?? "Nike Official Store";
+        data?.businessProfile?.businessName ??
+        data?.category?.name ??
+        "Nike Official Store";
 
     String endDateStr = "Aug 28, 2026";
     String timeLeftStr = "7h 32m left";
@@ -302,13 +300,15 @@ class _BusinessPartnerRewardsDetailsScreenState
                       size: 14.sp,
                     ),
                     UIHelper.horizontalSpace(4.w),
-                    Text(
-                      location,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.c9D9D9D,
-                            fontSize: 14.sp,
-                          ),
+                    Expanded(
+                      child: Text(
+                        location,
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.c9D9D9D,
+                              fontSize: 14.sp,
+                            ),
+                      ),
                     ),
                   ],
                 ),
@@ -354,7 +354,8 @@ class _BusinessPartnerRewardsDetailsScreenState
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(100.r),
-                        child: data?.businessProfile?.profileImage != null &&
+                        child:
+                            data?.businessProfile?.profileImage != null &&
                                 data!.businessProfile!.profileImage!.isNotEmpty
                             ? AppNetworkImage(
                                 imageUrl: data.businessProfile!.profileImage!,
@@ -395,26 +396,26 @@ class _BusinessPartnerRewardsDetailsScreenState
                                 size: 14.sp,
                               ),
                               UIHelper.horizontalSpace(4.w),
-                                Text(
-                                  "${data?.businessProfile?.rating ?? 4.9}",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: const Color(0xFFFCA311),
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
+                              Text(
+                                "${data?.businessProfile?.rating ?? 4.9}",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: const Color(0xFFFCA311),
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
                               UIHelper.horizontalSpace(8.w),
-                                Text(
-                                  "|  ${data?.businessProfile?.sold ?? 7932} sold",
-                                  style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
-                                      .copyWith(
-                                        color: AppColors.cBCBCBB,
-                                        fontSize: 12.sp,
-                                      ),
-                                ),
+                              Text(
+                                "|  ${data?.businessProfile?.sold ?? 7932} sold",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: AppColors.cBCBCBB,
+                                      fontSize: 12.sp,
+                                    ),
+                              ),
                             ],
                           ),
                         ],
@@ -499,9 +500,10 @@ class _BusinessPartnerRewardsDetailsScreenState
                             size: 16.sp,
                           ),
                           UIHelper.horizontalSpace(8.w),
+
                           Expanded(
                             child: Text(
-                              "This reward can be collected from a physical store location.",
+                              "This reward must be redeemed at the physical location with an employee present",
                               style: TextFontStyle
                                   .textStyle14cFFFFFFSFProRounded400
                                   .copyWith(
@@ -583,43 +585,42 @@ class _BusinessPartnerRewardsDetailsScreenState
                       ),
                     ],
                   )
-                else
-                  if (_isRedeeming)
-                    Container(
-                      height: 56.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.c242A34,
-                        borderRadius: BorderRadius.circular(100.r),
-                      ),
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        height: 24.h,
-                        width: 24.h,
-                        child: const CircularProgressIndicator(
-                          color: AppColors.primaryColorSecond,
-                          strokeWidth: 2.5,
-                        ),
-                      ),
-                    )
-                  else
-                    GestureDetector(
-                      onTap: () async {
-                        final confirm = await _showRedeemBottomSheet(context);
-                        if (confirm == true) {
-                          _handleRedeem(data);
-                        }
-                      },
-                      child: SwipeToActionButton(
-                        text: "Swipe right to Redeem Reward",
-                        onAction: () async {
-                          final confirm = await _showRedeemBottomSheet(context);
-                          if (confirm == true) {
-                            await _handleRedeem(data);
-                          }
-                        },
+                else if (_isRedeeming)
+                  Container(
+                    height: 56.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppColors.c242A34,
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      height: 24.h,
+                      width: 24.h,
+                      child: const CircularProgressIndicator(
+                        color: AppColors.primaryColorSecond,
+                        strokeWidth: 2.5,
                       ),
                     ),
+                  )
+                else
+                  GestureDetector(
+                    onTap: () async {
+                      final confirm = await _showRedeemBottomSheet(context);
+                      if (confirm == true) {
+                        _handleRedeem(data);
+                      }
+                    },
+                    child: SwipeToActionButton(
+                      text: "Swipe to redeem this reward",
+                      onAction: () async {
+                        final confirm = await _showRedeemBottomSheet(context);
+                        if (confirm == true) {
+                          await _handleRedeem(data);
+                        }
+                      },
+                    ),
+                  ),
                 UIHelper.verticalSpace(32.h),
               ],
             ),
@@ -652,7 +653,7 @@ class _BusinessPartnerRewardsDetailsScreenState
               ),
               UIHelper.verticalSpace(12.h),
               Text(
-                "Please ensure an employee is present before redeeming this reward.",
+                "Please select confirm below to successfully complete the reward redemption process. Please present the confirmation details to an employee upon redemption",
                 style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 14.sp,
@@ -660,10 +661,7 @@ class _BusinessPartnerRewardsDetailsScreenState
                 textAlign: TextAlign.center,
               ),
               UIHelper.verticalSpace(24.h),
-              Divider(
-                color: Colors.white.withValues(alpha: 0.08),
-                height: 1.h,
-              ),
+              Divider(color: Colors.white.withValues(alpha: 0.08), height: 1.h),
               UIHelper.verticalSpace(24.h),
               Row(
                 children: [
@@ -719,11 +717,7 @@ class _BusinessPartnerRewardsDetailsScreenState
   Future<void> _handleRedeem(MarketplaceDetailsData? data) async {
     final String rewardId = widget.id ?? data?.id ?? "";
     if (rewardId.isEmpty) {
-      customToastMessage(
-        "Error",
-        "Reward ID is missing",
-        isError: true,
-      );
+      customToastMessage("Error", "Reward ID is missing", isError: true);
       return;
     }
 
@@ -734,8 +728,7 @@ class _BusinessPartnerRewardsDetailsScreenState
         itemId: rewardId,
         quantity: 1,
       );
-      final response =
-          await redeemRewardRxObj.redeemReward(request.toJson());
+      final response = await redeemRewardRxObj.redeemReward(request.toJson());
       if (mounted) {
         customToastMessage(
           "Success",
@@ -797,11 +790,12 @@ class _BusinessPartnerRewardsDetailsScreenState
                   Text(
                     "Are you sure you want to delete this reward? This action cannot be undone.",
                     textAlign: TextAlign.center,
-                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 13.sp,
-                      height: 1.5,
-                    ),
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 13.sp,
+                          height: 1.5,
+                        ),
                   ),
                   UIHelper.verticalSpace(24.h),
                   Divider(
@@ -814,13 +808,16 @@ class _BusinessPartnerRewardsDetailsScreenState
                     children: [
                       Expanded(
                         child: CustomButton(
-                          onPressed: isLoading ? null : () => Navigator.pop(context),
+                          onPressed: isLoading
+                              ? null
+                              : () => Navigator.pop(context),
                           title: "Cancel",
                           height: 48.h,
                           borderRadius: BorderRadius.circular(100.r),
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.c262824,
-                          textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          textStyle: TextFontStyle
+                              .textStyle14cFFFFFFSFProRounded400
                               .copyWith(
                                 color: AppColors.c262824,
                                 fontWeight: FontWeight.w700,
@@ -837,11 +834,17 @@ class _BusinessPartnerRewardsDetailsScreenState
                                   if (widget.id == null) return;
                                   setState(() => isLoading = true);
                                   try {
-                                    await deleteMarketplaceRxObj.deleteMarketplace(widget.id!);
-                                    getMyMarketplacesRxObj.fetchMyMarketplaces();
+                                    await deleteMarketplaceRxObj
+                                        .deleteMarketplace(widget.id!);
+                                    getMyMarketplacesRxObj
+                                        .fetchMyMarketplaces();
                                     if (context.mounted) {
-                                      Navigator.pop(context); // Pop bottom sheet
-                                      Navigator.pop(context); // Pop details screen
+                                      Navigator.pop(
+                                        context,
+                                      ); // Pop bottom sheet
+                                      Navigator.pop(
+                                        context,
+                                      ); // Pop details screen
                                     }
                                   } catch (e) {
                                     setState(() => isLoading = false);
@@ -863,7 +866,8 @@ class _BusinessPartnerRewardsDetailsScreenState
                                 )
                               : Text(
                                   "Delete",
-                                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                                  style: TextFontStyle
+                                      .textStyle14cFFFFFFSFProRounded400
                                       .copyWith(
                                         color: AppColors.c262824,
                                         fontWeight: FontWeight.w700,

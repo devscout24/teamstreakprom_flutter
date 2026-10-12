@@ -45,13 +45,15 @@ class HostStatCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: "SF Pro",
+
                     fontSize: 12.sp,
                     color: AppColors.cFFFFFF.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w400,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

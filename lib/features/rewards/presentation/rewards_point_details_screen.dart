@@ -109,7 +109,7 @@ class RewardsPointDetailsScreen extends StatelessWidget {
                   ),
                   UIHelper.verticalSpace(16.h),
                   Text(
-                    "Earn 325 more points to unlock more rewards.",
+                    "Use points on custom and exclusive rewards",
                     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                         .copyWith(
                           fontSize: 13.sp,

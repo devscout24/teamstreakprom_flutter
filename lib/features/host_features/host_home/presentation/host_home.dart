@@ -76,11 +76,13 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
         child: StreamBuilder<UserProfileModel>(
           stream: userProfileRxObj.userProfileData,
           builder: (context, snapshot) {
-            final profile = snapshot.data?.data ??
+            final profile =
+                snapshot.data?.data ??
                 userProfileRxObj.userProfileData.valueOrNull?.data;
 
             final name = profile?.name ?? "Host";
-            final location = profile?.businessProfile?.location ??
+            final location =
+                profile?.businessProfile?.location ??
                 profile?.businessProfile?.businessName ??
                 "Location";
             String? profileImageUrl = profile?.profileImage;
@@ -120,7 +122,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
                                   );
                                 },
                                 child: HostStatCard(
-                                  title: "Total Revenue",
+                                  title: "Total Revenue\nGained",
                                   value: "\$12,450",
                                   icon: Icons.access_time_rounded,
                                   iconColor: Colors.greenAccent,

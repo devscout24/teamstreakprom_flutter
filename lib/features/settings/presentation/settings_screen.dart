@@ -54,12 +54,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: StreamBuilder<UserProfileModel>(
           stream: userProfileRxObj.userProfileData,
           builder: (context, snapshot) {
-            final hasData = snapshot.hasData ||
+            final hasData =
+                snapshot.hasData ||
                 userProfileRxObj.userProfileData.valueOrNull?.data != null;
-            final isWaiting = !hasData &&
-                snapshot.connectionState == ConnectionState.waiting;
+            final isWaiting =
+                !hasData && snapshot.connectionState == ConnectionState.waiting;
 
-            final profile = snapshot.data?.data ??
+            final profile =
+                snapshot.data?.data ??
                 userProfileRxObj.userProfileData.valueOrNull?.data;
 
             // Derive role from live snapshot data, NOT stale valueOrNull cache
@@ -120,7 +122,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(16.r),
                             image: DecorationImage(
                               image: AssetImage(
-                                  Assets.images.pointBackground.path),
+                                Assets.images.pointBackground.path,
+                              ),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -168,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               UIHelper.verticalSpace(16.h),
                               Text(
-                                "Earn 325 more points to unlock more rewards.",
+                                "Use points on custom and exclusive rewards",
                                 style: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
@@ -235,81 +238,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     )
                   else
-                  GradientContainer(
-                    onTap: () async {
-                      if (isHostOrBP) {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const HostEditProfileScreen(),
-                          ),
-                        );
-                      } else {
-                        await NavigationService.navigateTo(
-                          Routes.editProfileScreen,
-                        );
-                      }
-                      _fetchProfile();
-                    },
-                    padding: EdgeInsets.all(16.w),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 56.w,
-                          height: 56.w,
-                          decoration:
-                              const BoxDecoration(shape: BoxShape.circle),
-                          child: ClipOval(
-                            child: (profileImageUrl != null &&
-                                    profileImageUrl.isNotEmpty)
-                                ? AppNetworkImage(
-                                    imageUrl: profileImageUrl,
-                                    height: 56.w,
-                                    width: 56.w,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    Assets.images.placeholderImage.path,
-                                    height: 56.w,
-                                    width: 56.w,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                        UIHelper.horizontalSpace(16.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: TextFontStyle
-                                    .textStyle24cFFFFFFSFPro590
-                                    .copyWith(
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.w600,
+                    GradientContainer(
+                      onTap: () async {
+                        if (isHostOrBP) {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const HostEditProfileScreen(),
+                            ),
+                          );
+                        } else {
+                          await NavigationService.navigateTo(
+                            Routes.editProfileScreen,
+                          );
+                        }
+                        _fetchProfile();
+                      },
+                      padding: EdgeInsets.all(16.w),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 56.w,
+                            height: 56.w,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child:
+                                  (profileImageUrl != null &&
+                                      profileImageUrl.isNotEmpty)
+                                  ? AppNetworkImage(
+                                      imageUrl: profileImageUrl,
+                                      height: 56.w,
+                                      width: 56.w,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      Assets.images.placeholderImage.path,
+                                      height: 56.w,
+                                      width: 56.w,
+                                      fit: BoxFit.cover,
                                     ),
-                              ),
-                              if (email.isNotEmpty) ...[
-                                UIHelper.verticalSpace(4.h),
+                            ),
+                          ),
+                          UIHelper.horizontalSpace(16.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  email,
+                                  name,
                                   style: TextFontStyle
-                                      .textStyle14cFFFFFFSFProRounded400
+                                      .textStyle24cFFFFFFSFPro590
                                       .copyWith(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.6),
-                                        fontSize: 13.sp,
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                 ),
+                                if (email.isNotEmpty) ...[
+                                  UIHelper.verticalSpace(4.h),
+                                  Text(
+                                    email,
+                                    style: TextFontStyle
+                                        .textStyle14cFFFFFFSFProRounded400
+                                        .copyWith(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.6,
+                                          ),
+                                          fontSize: 13.sp,
+                                        ),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
                   _buildSectionHeader("Profile & Security"),
                   SettingsItem(
@@ -332,9 +338,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     title: "Connect with Stripe",
                     onTap: () {
-                      NavigationService.navigateTo(
-                        Routes.stripeConnectScreen,
-                      );
+                      NavigationService.navigateTo(Routes.stripeConnectScreen);
                     },
                   ),
 
@@ -379,9 +383,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     iconPath: Assets.icons.termsConditionIcon.path,
                     title: "Terms & Condition",
                     onTap: () {
-                      NavigationService.navigateTo(
-                        Routes.termsConditionScreen,
-                      );
+                      NavigationService.navigateTo(Routes.termsConditionScreen);
                     },
                   ),
 
@@ -506,7 +508,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     DioSingleton.instance.update("");
 
                                     if (context.mounted) {
-                                      Navigator.pop(context); // Close bottom sheet
+                                      Navigator.pop(
+                                        context,
+                                      ); // Close bottom sheet
                                     }
                                     NavigationService.navigateToReplacement(
                                       Routes.signInScreen,

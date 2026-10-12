@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../gen/colors.gen.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../helpers/ui_helpers.dart';
@@ -260,17 +261,31 @@ class NearbyEventMapScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 32.w,
-                    height: 32.w,
+                    width: 20.w,
+                    height: 20.w,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF8DB741),
+                      color: Colors.transparent,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(
-                        Icons.account_balance_outlined,
-                        color: Colors.black,
-                        size: 16.sp,
+                      child: ShaderMask(
+                        shaderCallback: (Rect bounds) {
+                          return const LinearGradient(
+                            colors: [
+                              AppColors.primaryColorFirst,
+                              AppColors.primaryColorSecond,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds);
+                        },
+                        blendMode: BlendMode.srcIn,
+                        child: Image.asset(
+                          Assets.icons.splashLogo.path,
+                          width: 16.w,
+                          height: 16.w,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),

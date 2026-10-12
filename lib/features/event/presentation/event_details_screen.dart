@@ -79,9 +79,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   EventTicketType? get _selectedTicketType =>
       (_selectedTicketTypeIndex >= 0 &&
-              _selectedTicketTypeIndex < _ticketTypes.length)
-          ? _ticketTypes[_selectedTicketTypeIndex]
-          : (_ticketTypes.isNotEmpty ? _ticketTypes.first : null);
+          _selectedTicketTypeIndex < _ticketTypes.length)
+      ? _ticketTypes[_selectedTicketTypeIndex]
+      : (_ticketTypes.isNotEmpty ? _ticketTypes.first : null);
 
   @override
   void initState() {
@@ -161,7 +161,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 id: pc.id ?? pc.name ?? 'ticket',
                 title: pc.name ?? 'General',
                 price: pc.price ?? 0.0,
-                subtitle: pc.stock != null ? "${pc.stock} seats remaining" : null,
+                subtitle: pc.stock != null
+                    ? "${pc.stock} seats remaining"
+                    : null,
               );
             }).toList();
             _selectedTicketTypeIndex = 0;
@@ -205,8 +207,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     imageUrls: (r.images != null && r.images!.isNotEmpty)
                         ? r.images!.where((x) => x.isNotEmpty).toList()
                         : (r.image != null && r.image!.isNotEmpty)
-                            ? [r.image!]
-                            : ["https://via.placeholder.com/400"],
+                        ? [r.image!]
+                        : ["https://via.placeholder.com/400"],
                     isStockIn: (r.stock ?? 0) > 0,
                     points: r.pointsRequired?.toString() ?? "0",
                     stock: r.stock ?? 0,
@@ -226,9 +228,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   String get _formattedEndDate {
     final event = _currentEventData;
     if (event?.endDate != null) {
-      return DateFormat(
-        "MMM d, yyyy · h:mm a",
-      ).format(event!.endDate!);
+      return DateFormat("MMM d, yyyy · h:mm a").format(event!.endDate!);
     }
     return "N/A";
   }
@@ -292,32 +292,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         if (_selectedTicketType != null)
           {
             "priceCategoryId": _selectedTicketType!.id,
-            "quantity": _ticketCount
-          }
+            "quantity": _ticketCount,
+          },
       ],
       "rewards": [
         if (_selectedRewardProductIndex != null &&
             _selectedRewardProductIndex! >= 0 &&
             _selectedRewardProductIndex! < _rewardProducts.length)
           {
-            "rewardId": "6ab0a7a6414da18a92f27b04", // Note: Need actual rewardId if available in RewardProduct model
-            "quantity": 1
-          }
+            "rewardId":
+                "6ab0a7a6414da18a92f27b04", // Note: Need actual rewardId if available in RewardProduct model
+            "quantity": 1,
+          },
       ],
       "successUrl": "https://yourfrontend.com/payment-success",
-      "cancelUrl": "https://yourfrontend.com/payment-cancel"
+      "cancelUrl": "https://yourfrontend.com/payment-cancel",
     };
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
-      final response = await createCheckoutSessionRxObj.createCheckoutSession(body);
+      final response = await createCheckoutSessionRxObj.createCheckoutSession(
+        body,
+      );
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
 
@@ -342,7 +343,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.message ?? "Failed to create checkout session"),
+            content: Text(
+              response.message ?? "Failed to create checkout session",
+            ),
             backgroundColor: const Color(0xFFDD1F1F),
           ),
         );
@@ -424,7 +427,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         Flexible(
                           child: Text(
                             _selectedTicketType!.title,
-                            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -525,7 +529,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               selectedTabIndex: _selectedTabIndex,
               ticketCount: _ticketCount,
               isDeleting: _isDeleting,
-              ticketPrice: _selectedTicketType?.price ??
+              ticketPrice:
+                  _selectedTicketType?.price ??
                   (_currentEventData?.ticketPrice?.toDouble() ?? 0.0),
               selectedTicketTitle: _selectedTicketType?.title,
               onChangeTicketType: _ticketTypes.length > 1
@@ -724,21 +729,30 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
                         // Location
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: Colors.white.withValues(alpha: 0.6),
-                              size: 16.sp,
+                            Padding(
+                              padding: EdgeInsets.only(top: 2.h),
+                              child: Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.white.withValues(alpha: 0.6),
+                                size: 16.sp,
+                              ),
                             ),
                             UIHelper.horizontalSpace(6.w),
-                            Text(
-                              _displayLocation,
-                              style: TextFontStyle
-                                  .textStyle14cFFFFFFSFProRounded400
-                                  .copyWith(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    fontSize: 13.sp,
-                                  ),
+                            Expanded(
+                              child: Text(
+                                _displayLocation,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      color: Colors.white
+                                          .withValues(alpha: 0.6),
+                                      fontSize: 13.sp,
+                                    ),
+                              ),
                             ),
                           ],
                         ),
@@ -802,7 +816,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             formattedEndDate: _formattedEndDate,
                             timeLeft: _timeLeft,
                             ageRestriction: _currentEventData?.ageRestriction,
-                            stock: _currentEventData?.stock ??
+                            stock:
+                                _currentEventData?.stock ??
                                 (_currentEventData?.priceCategories?.fold<int>(
                                       0,
                                       (sum, pc) => sum + (pc.stock ?? 0),

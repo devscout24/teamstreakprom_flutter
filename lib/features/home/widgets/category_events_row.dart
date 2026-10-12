@@ -9,6 +9,7 @@ import '../../home/data/rx_get_events/api.dart';
 import '../../home/model/event_fetch_by_category_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../../event/presentation/popular_events_screen.dart';
 
 class CategoryEventsRow extends StatefulWidget {
   final String categoryId;
@@ -107,7 +108,15 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Navigate to see all events for this category
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PopularEventsScreen(
+                        categoryId: widget.categoryId,
+                        categoryName: widget.categoryName,
+                      ),
+                    ),
+                  );
                 },
                 child: Text(
                   "See All",

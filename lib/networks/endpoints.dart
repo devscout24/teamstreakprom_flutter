@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 const String url = "https://teamstreakpromo-mern-express-indol.vercel.app";
-const String googleMapsApiKey = "YOUR_GOOGLE_MAPS_API_KEY";
+const String googleMapsApiKey = "AIzaSyDY1PqPRQd2K48PBMlbTF4byawHMfyMOPs";
 
 final class NetworkConstants {
   NetworkConstants._();

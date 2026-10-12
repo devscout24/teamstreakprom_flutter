@@ -12,7 +12,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 
 class PopularEventsList extends StatefulWidget {
-  const PopularEventsList({super.key});
+  final VoidCallback? onSeeAllTapped;
+
+  const PopularEventsList({super.key, this.onSeeAllTapped});
 
   @override
   State<PopularEventsList> createState() => _PopularEventsListState();
@@ -61,17 +63,17 @@ class _PopularEventsListState extends State<PopularEventsList> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PopularEventsScreen(),
-                    ),
-                  );
-                },
+                onTap: widget.onSeeAllTapped ??
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PopularEventsScreen(),
+                        ),
+                      );
+                    },
                 child: Text(
                   "See All",
-
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
                         color: AppColors.cFFFFFF,

@@ -200,19 +200,27 @@ class WizardStepSix extends StatelessWidget {
               UIHelper.verticalSpace(6),
               // Location
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    color: Colors.white.withValues(alpha: 0.4),
-                    size: 14.w,
+                  Padding(
+                    padding: EdgeInsets.only(top: 1.h),
+                    child: Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.white.withValues(alpha: 0.4),
+                      size: 14.w,
+                    ),
                   ),
                   UIHelper.horizontalSpace(4),
-                  Text(
-                    location.isEmpty ? "Location Not Set" : location,
-                    style: TextStyle(
-                      fontFamily: "SF Pro",
-                      fontSize: 12.sp,
-                      color: Colors.white.withValues(alpha: 0.5),
+                  Expanded(
+                    child: Text(
+                      location.isEmpty ? "Location Not Set" : location,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: "SF Pro",
+                        fontSize: 12.sp,
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
                     ),
                   ),
                 ],

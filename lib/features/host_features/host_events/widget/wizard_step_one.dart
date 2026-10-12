@@ -13,6 +13,7 @@ class WizardStepOne extends StatelessWidget {
   final TextEditingController locationController;
   final VoidCallback onCategoryTap;
   final VoidCallback onSubcategoryTap;
+  final VoidCallback? onLocationTap;
   final VoidCallback onContinue;
   final bool isLoadingCategories;
   final bool isLoadingSubcategories;
@@ -27,6 +28,7 @@ class WizardStepOne extends StatelessWidget {
     required this.locationController,
     required this.onCategoryTap,
     required this.onSubcategoryTap,
+    this.onLocationTap,
     required this.onContinue,
     this.isLoadingCategories = false,
     this.isLoadingSubcategories = false,
@@ -152,10 +154,19 @@ class WizardStepOne extends StatelessWidget {
         _buildTextField(
           controller: locationController,
           hint: "e.g. New York, US",
+          readOnly: onLocationTap != null,
+          onTap: onLocationTap,
           prefixIcon: Icon(
             Icons.location_on_outlined,
             color: Colors.white.withValues(alpha: 0.4),
           ),
+          suffixIcon: onLocationTap != null
+              ? Icon(
+                  Icons.map_outlined,
+                  color: AppColors.primaryColorFirst,
+                  size: 20.sp,
+                )
+              : null,
         ),
         UIHelper.verticalSpace(30),
 
@@ -186,12 +197,17 @@ class WizardStepOne extends StatelessWidget {
     required String hint,
     int maxLines = 1,
     Widget? prefixIcon,
+    Widget? suffixIcon,
+    bool readOnly = false,
+    VoidCallback? onTap,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      readOnly: readOnly,
+      onTap: onTap,
       style: TextStyle(
         fontFamily: "SF Pro",
         fontSize: 14.sp,
@@ -211,6 +227,7 @@ class WizardStepOne extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.3),
         ),
         prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: const Color(0xFF1E222B),
         contentPadding: EdgeInsets.symmetric(
