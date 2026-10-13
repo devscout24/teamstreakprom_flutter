@@ -50,7 +50,7 @@ void showInviteFriendBottomSheet(BuildContext context) {
 
                 // Title
                 Text(
-                  "Invite Friend",
+                  "Invite a Friend",
                   style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,

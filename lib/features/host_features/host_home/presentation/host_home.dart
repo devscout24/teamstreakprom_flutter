@@ -122,7 +122,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
                                   );
                                 },
                                 child: HostStatCard(
-                                  title: "Total Revenue\nGained",
+                                  title: "Total Revenue Earned",
                                   value: "\$12,450",
                                   icon: Icons.access_time_rounded,
                                   iconColor: Colors.greenAccent,
@@ -135,7 +135,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
                             UIHelper.horizontalSpace(16),
                             Expanded(
                               child: HostStatCard(
-                                title: "Ticket Sold",
+                                title: "Overall Tickets Sold",
                                 value: "12,450",
                                 icon: Icons.north_east_rounded,
                                 iconColor: Colors.blueAccent,

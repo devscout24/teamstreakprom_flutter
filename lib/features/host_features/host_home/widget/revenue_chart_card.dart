@@ -62,7 +62,7 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Revenue",
+                "Revenue Stream",
                 style: TextStyle(
                   fontFamily: "SF Pro Rounded",
                   fontSize: 18.sp,
