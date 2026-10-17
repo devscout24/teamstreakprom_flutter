@@ -79,6 +79,7 @@ final class Endpoints {
     }
     return "/api/event-orders/my-orders";
   }
+
   static String eventOrderDetails(String id) => "/api/event-orders/$id";
   static String cancelEventOrder(String orderId) =>
       "/api/payments/event-orders/$orderId/cancel";
@@ -93,11 +94,50 @@ final class Endpoints {
     final Map<String, String> queryParams = {};
     if (page != null) queryParams['page'] = page.toString();
     if (limit != null) queryParams['limit'] = limit.toString();
-    if (itemType != null && itemType.isNotEmpty) queryParams['itemType'] = itemType;
+    if (itemType != null && itemType.isNotEmpty) {
+      queryParams['itemType'] = itemType;
+    }
     if (status != null && status.isNotEmpty) queryParams['status'] = status;
     if (queryParams.isNotEmpty) {
       return "/api/orders/my-orders?${Uri(queryParameters: queryParams).query}";
     }
     return "/api/orders/my-orders";
   }
+
+  static String mySupportTickets({
+    int? page,
+    int? limit,
+    String? status,
+    String? search,
+  }) {
+    final Map<String, String> queryParams = {};
+    if (page != null) queryParams['page'] = page.toString();
+    if (limit != null) queryParams['limit'] = limit.toString();
+    if (status != null && status.isNotEmpty) queryParams['status'] = status;
+    if (search != null && search.isNotEmpty) queryParams['search'] = search;
+    if (queryParams.isNotEmpty) {
+      return "/api/customer-support/my-tickets?${Uri(queryParameters: queryParams).query}";
+    }
+    return "/api/customer-support/my-tickets";
+  }
+
+  static String createSupportTicket() => "/api/customer-support/tickets";
+  static String ticketMessages(String id) =>
+      "/api/customer-support/tickets/$id/messages";
+  static String staticContents({String? category, String? slug}) {
+    final Map<String, String> queryParams = {};
+    if (category != null && category.isNotEmpty) {
+      queryParams['category'] = category;
+    }
+    if (slug != null && slug.isNotEmpty) {
+      queryParams['slug'] = slug;
+    }
+    if (queryParams.isNotEmpty) {
+      return "/api/contents?${Uri(queryParameters: queryParams).query}";
+    }
+    return "/api/contents";
+  }
+  static String deleteAccount() => "/api/auth/delete-account";
 }
+
+

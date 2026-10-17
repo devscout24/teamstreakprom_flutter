@@ -487,11 +487,13 @@ final class RouteGenerator {
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
                 builder: (context) => const HelpSupportScreen(),
+                settings: settings,
               )
             : _FadedTransitionRoute(
                 widget: const HelpSupportScreen(),
                 settings: settings,
               );
+
 
       case Routes.supportOptionsScreen:
         return defaultTargetPlatform == TargetPlatform.iOS
@@ -527,20 +529,29 @@ final class RouteGenerator {
 
       case Routes.supportChatScreen:
         final argsChat = settings.arguments as Map<String, dynamic>?;
+        final ticketId = argsChat?['ticketId'] as String? ??
+            argsChat?['id'] as String? ??
+            '';
         final topicChat = argsChat?['topic'] as String? ?? '';
         final problemChat = argsChat?['problem'] as String? ?? '';
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) =>
-                    SupportChatScreen(topic: topicChat, problem: problemChat),
+                builder: (context) => SupportChatScreen(
+                  ticketId: ticketId,
+                  topic: topicChat,
+                  problem: problemChat,
+                ),
+                settings: settings,
               )
             : _FadedTransitionRoute(
                 widget: SupportChatScreen(
+                  ticketId: ticketId,
                   topic: topicChat,
                   problem: problemChat,
                 ),
                 settings: settings,
               );
+
 
       case Routes.stripeConnectScreen:
         return defaultTargetPlatform == TargetPlatform.iOS

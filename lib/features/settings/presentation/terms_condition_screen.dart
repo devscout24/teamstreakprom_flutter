@@ -1,136 +1,230 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../common_widgets/custom_app_bar.dart';
-import '../../../gen/assets.gen.dart';
-import '../../../common_widgets/custom_back_button.dart';
+import '../../../constants/app_constants.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
+import '../../../helpers/di.dart';
 import '../../../helpers/ui_helpers.dart';
+import '../../../networks/api_acess.dart';
+import '../model/static_content_model.dart';
 
-class TermsConditionScreen extends StatelessWidget {
+class TermsConditionScreen extends StatefulWidget {
   const TermsConditionScreen({super.key});
+
+  @override
+  State<TermsConditionScreen> createState() => _TermsConditionScreenState();
+}
+
+class _TermsConditionScreenState extends State<TermsConditionScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchContents();
+  }
+
+  String _getTermsSlug() {
+    final rawType =
+        appData.read(kAccountType)?.toString().toLowerCase().trim() ?? '';
+    final profileRole = userProfileRxObj
+            .userProfileData.valueOrNull?.data?.role
+            ?.toLowerCase()
+            .trim() ??
+        '';
+
+    final effectiveType = rawType.isNotEmpty ? rawType : profileRole;
+
+    if (effectiveType == 'host' || effectiveType == 'accounttype.host') {
+      return 'terms-of-service-host';
+    } else if (effectiveType == 'business' ||
+        effectiveType == 'businesspartner' ||
+        effectiveType == 'accounttype.businesspartner') {
+      return 'terms-of-service-business';
+    } else {
+      return 'terms-of-service-user';
+    }
+  }
+
+  Future<void> _fetchContents() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final slug = _getTermsSlug();
+      await getStaticContentsRxObj.fetchStaticContents(slug: slug);
+    } catch (e) {
+      debugPrint("Failed to fetch static contents: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  String _stripHtml(String htmlString) {
+    String parsed = htmlString
+        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<li[^>]*>', caseSensitive: false), '• ')
+        .replaceAll(
+          RegExp(
+            r'</(p|div|li|h1|h2|h3|h4|h5|h6|tr|ul|ol)>',
+            caseSensitive: false,
+          ),
+          '\n\n',
+        )
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .replaceAll('&apos;', "'")
+        .trim();
+
+    parsed = parsed.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+    return parsed;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(title: "Terms & Condition"),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSection(
-              title: "1. Acceptance of Terms",
-              content:
-                  "By accessing or using Eventify, you agree to be bound by these Terms & Conditions. If you do not agree, please refrain from using the app.",
+      appBar: const CustomAppBar(title: "Terms & Conditions"),
+      body: StreamBuilder<StaticContentModel>(
+        stream: getStaticContentsRxObj.getStaticContentsData,
+        builder: (context, snapshot) {
+          final hasData = snapshot.hasData &&
+              snapshot.data?.data != null &&
+              snapshot.data!.data!.isNotEmpty;
+
+          if (_isLoading && !hasData) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColorFirst,
+              ),
+            );
+          }
+
+          if (snapshot.hasError && !hasData) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      size: 48.sp,
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                    UIHelper.verticalSpace(12.h),
+                    Text(
+                      'Failed to load Terms & Conditions',
+                      textAlign: TextAlign.center,
+                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            fontFamily: 'SF Pro',
+                            fontSize: 16.sp,
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                    ),
+                    UIHelper.verticalSpace(12.h),
+                    TextButton(
+                      onPressed: _fetchContents,
+                      child: const Text(
+                        'Try Again',
+                        style: TextStyle(color: AppColors.primaryColorFirst),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final allItems = snapshot.data?.data ?? [];
+          final currentSlug = _getTermsSlug();
+
+          // Prefer items matching the specific slug for this account type
+          final matchingItems = allItems.where((item) {
+            return item.slug?.toLowerCase() == currentSlug.toLowerCase();
+          }).toList();
+
+          final displayList =
+              matchingItems.isNotEmpty ? matchingItems : allItems;
+
+          if (displayList.isEmpty) {
+            return Center(
+              child: Text(
+                'No Terms & Conditions available',
+                style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                  fontFamily: 'SF Pro',
+                  fontSize: 16.sp,
+                  color: Colors.white.withValues(alpha: 0.4),
+                ),
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            color: AppColors.primaryColorFirst,
+            backgroundColor: AppColors.scaffoldColor,
+            onRefresh: _fetchContents,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < displayList.length; i++) ...[
+                    _buildContentItem(displayList[i]),
+                    if (i < displayList.length - 1)
+                      UIHelper.verticalSpace(24.h),
+                  ],
+                  UIHelper.verticalSpace(32.h),
+                ],
+              ),
             ),
-            UIHelper.verticalSpace(24.h),
-            _buildSection(
-              title: "2. Use of the App",
-              content:
-                  "Eventify provides a platform that connects users with event organizers, venues, and ticket sellers. You agree to use the app responsibly and only for lawful purposes.",
-            ),
-            UIHelper.verticalSpace(24.h),
-            _buildSection(
-              title: "3. Event Services",
-              bulletPoints: [
-                "Event availability depends on venue capacity.",
-                "Tickets for events are subject to confirmation before purchase.",
-                "An event can only be booked after the payment is successfully processed.",
-              ],
-            ),
-            UIHelper.verticalSpace(24.h),
-            _buildSection(
-              title: "4. Payments",
-              bulletPoints: [
-                "Payments can be made online through the app or in cash at the venue.",
-                "Online payments may include a service fee.",
-                "Cash payments are recorded for transparency but collected by the venue staff.",
-                "All completed bookings are logged in the system.",
-              ],
-            ),
-            UIHelper.verticalSpace(24.h),
-            _buildSection(
-              title: "6. Organizer Responsibilities",
-              bulletPoints: [
-                "Event organizers must be verified before using the platform.",
-                "Subscription status determines account access and event management capabilities.",
-                "Eventify does not manage event content or attendee behavior.",
-              ],
-            ),
-            UIHelper.verticalSpace(24.h),
-            _buildSection(
-              title: "7. Safety",
-              content:
-                  "User safety is a priority. Please report any suspicious activity to support.",
-            ),
-            UIHelper.verticalSpace(32.h),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    String? content,
-    List<String>? bulletPoints,
-  }) {
+  Widget _buildContentItem(StaticContentItem item) {
+    final title = item.title?.trim() ?? '';
+    final content = item.content?.trim() ?? '';
+    final cleanContent = content.isNotEmpty ? _stripHtml(content) : '';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-            fontSize: 16.sp,
-            color: AppColors.cF3F3F3,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        UIHelper.verticalSpace(12.h),
-        if (content != null)
+        if (title.isNotEmpty) ...[
           Text(
-            content,
+            title,
+            style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+              fontSize: 16.sp,
+              color: AppColors.cF3F3F3,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          UIHelper.verticalSpace(12.h),
+        ],
+        if (cleanContent.isNotEmpty)
+          Text(
+            cleanContent,
             style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
               color: AppColors.cBCBCBB,
               fontFamily: "SF Pro",
+              fontSize: 14.sp,
               height: 1.5,
             ),
           ),
-        if (bulletPoints != null)
-          ...bulletPoints.map((point) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: 8.h),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 6.h, right: 8.w),
-                    child: Container(
-                      width: 4.w,
-                      height: 4.w,
-                      decoration: const BoxDecoration(
-                        color: AppColors.c9B9C9A,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      point,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            fontFamily: "SF Pro",
-                            color: AppColors.cBCBCBB,
-                            height: 1.5,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
       ],
     );
   }

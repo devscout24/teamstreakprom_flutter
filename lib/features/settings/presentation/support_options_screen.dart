@@ -76,10 +76,14 @@ class SupportOptionsScreen extends StatelessWidget {
 
   Widget _buildOptionButton(BuildContext context, String text) {
     return InkWell(
-      onTap: () {
-        NavigationService.navigateToWithArgs(Routes.submitProblemScreen, {
-          'topic': text,
-        });
+      onTap: () async {
+        final result = await NavigationService.navigateToWithArgs(
+          Routes.submitProblemScreen,
+          {'topic': text},
+        );
+        if (result == true && context.mounted) {
+          NavigationService.goBack;
+        }
       },
       borderRadius: BorderRadius.circular(100.r),
       child: Container(

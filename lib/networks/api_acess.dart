@@ -56,12 +56,23 @@ import 'package:teamstreakpromo/features/my_ticket/data/rx_get_order_details/rx.
 import 'package:teamstreakpromo/features/my_ticket/model/order_details_response_model.dart';
 import 'package:teamstreakpromo/features/my_ticket/data/rx_cancel_event_order/rx.dart';
 import 'package:teamstreakpromo/features/my_ticket/model/cancel_event_order_response_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_get_static_contents/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/static_content_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_delete_account/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/delete_account_response_model.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/data/rx_redeem_reward/rx.dart';
 import 'package:teamstreakpromo/features/business_partner/business_partner_rewards/model/redeem_reward_model.dart';
 import 'package:teamstreakpromo/features/rewards/data/rx_get_my_reward_orders/rx.dart';
 import 'package:teamstreakpromo/features/rewards/model/my_reward_orders_response_model.dart';
 import 'package:teamstreakpromo/features/rewards/data/rx_get_reward_order_details/rx.dart';
 import 'package:teamstreakpromo/features/rewards/model/my_reward_order_details_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_get_my_tickets/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/my_support_tickets_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_create_support_ticket/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/create_support_ticket_response_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_get_ticket_messages/rx.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_send_ticket_message/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/ticket_messages_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -232,6 +243,38 @@ final GetRewardOrderDetailsRx getRewardOrderDetailsRxObj =
   empty: MyRewardOrderDetailsModel(),
   dataFetcher: BehaviorSubject<MyRewardOrderDetailsModel>(),
 );
+
+final GetMyTicketsRx getMyTicketsRxObj = GetMyTicketsRx(
+  empty: MySupportTicketsModel(),
+  dataFetcher: BehaviorSubject<MySupportTicketsModel>(),
+);
+
+final CreateSupportTicketRx createSupportTicketRxObj = CreateSupportTicketRx(
+  empty: CreateSupportTicketResponseModel(),
+  dataFetcher: BehaviorSubject<CreateSupportTicketResponseModel>(),
+);
+
+final GetTicketMessagesRx getTicketMessagesRxObj = GetTicketMessagesRx(
+  empty: TicketMessagesResponseModel(),
+  dataFetcher: BehaviorSubject<TicketMessagesResponseModel>(),
+);
+
+final SendTicketMessageRx sendTicketMessageRxObj = SendTicketMessageRx(
+  empty: SendTicketMessageResponseModel(),
+  dataFetcher: BehaviorSubject<SendTicketMessageResponseModel>(),
+);
+
+final GetStaticContentsRx getStaticContentsRxObj = GetStaticContentsRx(
+  empty: StaticContentModel(),
+  dataFetcher: BehaviorSubject<StaticContentModel>(),
+);
+
+final DeleteAccountRx deleteAccountRxObj = DeleteAccountRx(
+  empty: DeleteAccountResponseModel(),
+  dataFetcher: BehaviorSubject<DeleteAccountResponseModel>(),
+);
+
+
 
 
 

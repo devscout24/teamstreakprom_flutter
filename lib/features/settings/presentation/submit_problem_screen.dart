@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
+import '../../../common_widgets/custom_toast.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../../helpers/all_routes.dart';
-import '../../../helpers/navigation_service.dart';
+import '../../../networks/api_acess.dart';
 
 class SubmitProblemScreen extends StatefulWidget {
   final String topic;
@@ -20,11 +20,55 @@ class SubmitProblemScreen extends StatefulWidget {
 
 class _SubmitProblemScreenState extends State<SubmitProblemScreen> {
   final TextEditingController _problemController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _problemController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitTicket() async {
+    final problem = _problemController.text.trim();
+    if (problem.isEmpty) {
+      customToastMessage(
+        "Required",
+        "Please write your problem details",
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await createSupportTicketRxObj.createSupportTicket(
+        title: widget.topic,
+        description: problem,
+      );
+
+      // Refresh tickets list so help_support_screen has latest data
+      getMyTicketsRxObj.fetchMyTickets();
+
+      customToastMessage(
+        "Success",
+        response.message ?? "Support ticket submitted successfully",
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    } catch (_) {
+      // Error toast is already displayed by RxResponseInt handleErrorWithReturn
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -148,20 +192,20 @@ class _SubmitProblemScreenState extends State<SubmitProblemScreen> {
                         ),
                         UIHelper.verticalSpace(24.h),
                         CustomGradientButton(
-                          onPressed: () {
-                            if (_problemController.text.trim().isNotEmpty) {
-                              NavigationService.navigateToWithArgs(
-                                Routes.supportChatScreen,
-                                {
-                                  'topic': widget.topic,
-                                  'problem': _problemController.text.trim(),
-                                },
-                              );
-                            }
-                          },
-                          title: "Submit",
+                          onPressed: _isLoading ? null : _submitTicket,
+                          title: _isLoading ? null : "Submit",
                           height: 52.h,
                           borderRadius: BorderRadius.circular(100.r),
+                          child: _isLoading
+                              ? SizedBox(
+                                  width: 24.w,
+                                  height: 24.w,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : null,
                         ),
                       ],
                     ),
@@ -175,3 +219,4 @@ class _SubmitProblemScreenState extends State<SubmitProblemScreen> {
     );
   }
 }
+

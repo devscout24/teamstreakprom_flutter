@@ -52,7 +52,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   children: [
                     SizedBox(height: 4.h),
                     Text(
-                      "Rooted In Comunity",
+                      "Rooted In Community",
                       style: TextFontStyle.textStyle20c232421SFPro590.copyWith(
                         fontSize: 18.sp,
                         color: Colors.white,

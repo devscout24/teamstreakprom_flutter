@@ -1,60 +1,175 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../common_widgets/custom_app_bar.dart';
-import '../../../gen/assets.gen.dart';
-import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
 import '../../../helpers/all_routes.dart';
 import '../../../helpers/navigation_service.dart';
+import '../../../networks/api_acess.dart';
+import '../model/my_support_tickets_model.dart';
 
-class HelpSupportScreen extends StatelessWidget {
+class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final tickets = [
-      {
-        "title": "The event ended earlier than expected.",
-        "description":
-            "The event concluded before we reached the last activity. It was disappointing to miss out on the final moments of the Neon Nights: Glow Rave Extravaganza.",
-        "ticketId": "MOT3203920212",
-        "status": "Under review",
-        "statusColor": AppColors.primaryColorFirst,
-      },
-      {
-        "title": "The feedback was overwhelmingly positive.",
-        "description":
-            "Participants praised the organization and atmosphere, highlighting the vibrant energy of the attendees at the Neon Nights: Glow Rave Extravaganza.",
-        "ticketId": "MOT3203920213",
-        "status": "Under review",
-        "statusColor": AppColors.primaryColorFirst,
-      },
-    ];
+  State<HelpSupportScreen> createState() => _HelpSupportScreenState();
+}
 
+class _HelpSupportScreenState extends State<HelpSupportScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTickets();
+  }
+
+  Future<void> _fetchTickets() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await getMyTicketsRxObj.fetchMyTickets();
+    } catch (_) {
+      // Error handled by rx
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    try {
+      await getMyTicketsRxObj.fetchMyTickets();
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: const CustomAppBar(title: "My Support"),
-      body: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-        itemCount: tickets.length,
-        separatorBuilder: (context, index) => UIHelper.verticalSpace(16.h),
-        itemBuilder: (context, index) {
-          final ticket = tickets[index];
-          return _buildTicketItem(
-            title: ticket["title"] as String,
-            description: ticket["description"] as String,
-            ticketId: ticket["ticketId"] as String,
-            status: ticket["status"] as String,
-            statusColor: ticket["statusColor"] as Color,
+      body: StreamBuilder<MySupportTicketsModel>(
+        stream: getMyTicketsRxObj.getMyTicketsData,
+        builder: (context, snapshot) {
+          if (_isLoading && (!snapshot.hasData || snapshot.data?.data == null)) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColorFirst,
+              ),
+            );
+          }
+
+          if (snapshot.hasError &&
+              (!snapshot.hasData || snapshot.data?.data == null)) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 48.sp,
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                  UIHelper.verticalSpace(12.h),
+                  Text(
+                    'Failed to load tickets',
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          fontFamily: 'SF Pro',
+                          fontSize: 16.sp,
+                          color: Colors.white.withValues(alpha: 0.4),
+                        ),
+                  ),
+                  UIHelper.verticalSpace(12.h),
+                  TextButton(
+                    onPressed: _fetchTickets,
+                    child: const Text(
+                      'Try Again',
+                      style: TextStyle(color: AppColors.primaryColorFirst),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final tickets = snapshot.data?.data ?? [];
+
+          if (tickets.isEmpty) {
+            return RefreshIndicator(
+              color: AppColors.primaryColorFirst,
+              backgroundColor: AppColors.scaffoldColor,
+              onRefresh: _onRefresh,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Text(
+                        'No support tickets found',
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              fontFamily: 'SF Pro',
+                              fontSize: 15.sp,
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            color: AppColors.primaryColorFirst,
+            backgroundColor: AppColors.scaffoldColor,
+            onRefresh: _onRefresh,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              itemCount: tickets.length,
+              separatorBuilder: (context, index) =>
+                  UIHelper.verticalSpace(16.h),
+              itemBuilder: (context, index) {
+                final ticket = tickets[index];
+                return _buildTicketItem(
+                  title: ticket.title ?? '',
+                  description: ticket.description ?? '',
+                  ticketId: ticket.ticketId ?? '',
+                  status: ticket.statusLabel ??
+                      ticket.statusBadge?.text ??
+                      ticket.status ??
+                      'Under review',
+                  statusColor: ticket.resolvedStatusColor,
+                  onTap: () async {
+                    await NavigationService.navigateToWithArgs(
+                      Routes.supportChatScreen,
+                      {
+                        'ticketId': ticket.id ?? ticket.ticketId ?? '',
+                        'topic': ticket.title ?? '',
+                        'problem': ticket.description ?? '',
+                      },
+                    );
+                    _fetchTickets();
+                  },
+                );
+              },
+            ),
           );
         },
       ),
       floatingActionButton: GestureDetector(
-        onTap: () {
-          NavigationService.navigateTo(Routes.supportOptionsScreen);
+        onTap: () async {
+          await NavigationService.navigateTo(Routes.supportOptionsScreen);
+          _fetchTickets();
         },
         child: Container(
           width: 60,
@@ -102,9 +217,13 @@ class HelpSupportScreen extends StatelessWidget {
     required String ticketId,
     required String status,
     required Color statusColor,
+    VoidCallback? onTap,
   }) {
-    return GradientContainer(
-      padding: EdgeInsets.all(16.w),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: GradientContainer(
+        padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -192,6 +311,9 @@ class HelpSupportScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
+}
+
+

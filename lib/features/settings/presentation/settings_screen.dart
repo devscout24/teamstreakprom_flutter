@@ -76,6 +76,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 profileRole == "HOST" ||
                 profileRole == "BUSINESS";
 
+            final isHost =
+                accountType == "AccountType.host" ||
+                accountType == "HOST" ||
+                accountType == "host" ||
+                accountType?.toLowerCase() == "accounttype.host" ||
+                accountType?.toLowerCase() == "host" ||
+                profileRole == "HOST";
+
             final name = profile?.name ?? "User";
             final email = profile?.email ?? "";
             final points = profile?.totalPoints ?? 0;
@@ -329,18 +337,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                   ),
 
-                  _buildSectionHeader("Payments"),
-                  SettingsItem(
-                    iconWidget: FaIcon(
-                      FontAwesomeIcons.stripe,
-                      color: const Color(0xFF1B1C1A),
-                      size: 20.sp,
+                  if (isHost) ...[
+                    _buildSectionHeader("Payments"),
+                    SettingsItem(
+                      iconWidget: FaIcon(
+                        FontAwesomeIcons.stripe,
+                        color: const Color(0xFF1B1C1A),
+                        size: 20.sp,
+                      ),
+                      title: "Connect with Stripe",
+                      onTap: () {
+                        NavigationService.navigateTo(
+                          Routes.stripeConnectScreen,
+                        );
+                      },
                     ),
-                    title: "Connect with Stripe",
-                    onTap: () {
-                      NavigationService.navigateTo(Routes.stripeConnectScreen);
-                    },
-                  ),
+                  ],
 
                   _buildSectionHeader("App Preferences"),
                   if (isHostOrBP) ...[
@@ -381,7 +393,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   SettingsItem(
                     iconPath: Assets.icons.termsConditionIcon.path,
-                    title: "Terms & Condition",
+                    title: "Terms & Conditions",
                     onTap: () {
                       NavigationService.navigateTo(Routes.termsConditionScreen);
                     },
