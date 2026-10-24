@@ -84,6 +84,5 @@ class UtillScreenMobile extends StatelessWidget {
           ),
         );
       },
-    );
-  }
+    );  }
 }
