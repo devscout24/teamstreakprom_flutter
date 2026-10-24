@@ -284,7 +284,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 12.w,
                               mainAxisSpacing: 16.h,
-                              childAspectRatio: 0.58,
+                              childAspectRatio: 0.55,
                             ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
@@ -317,16 +317,40 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                                   child: Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF1E222B),
                                       borderRadius: BorderRadius.circular(24.r),
-                                      border: Border.all(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.05,
-                                        ),
-                                        width: 1.w,
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color.fromARGB(123, 242, 142, 49),
+                                          Color.fromARGB(108, 115, 232, 79),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primaryColorFirst
+                                              .withValues(alpha: 0.35),
+                                          blurRadius: 8.r,
+                                          spreadRadius: 0,
+                                          offset: const Offset(-1, -1),
+                                        ),
+                                        BoxShadow(
+                                          color: AppColors.primaryColorSecond
+                                              .withValues(alpha: 0.35),
+                                          blurRadius: 8.r,
+                                          spreadRadius: 0,
+                                          offset: const Offset(1, 1),
+                                        ),
+                                      ],
                                     ),
-                                    child: Padding(
+                                    child: Container(
+                                      margin: EdgeInsets.all(1.5.w),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1E222B),
+                                        borderRadius:
+                                            BorderRadius.circular(22.5.r),
+                                      ),
+                                      child: Padding(
                                       padding: EdgeInsets.all(8.w),
                                       child: Column(
                                         crossAxisAlignment:
@@ -392,7 +416,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                                           // Expiry date info line
                                           RichText(
                                             text: TextSpan(
-                                              text: "Exp: ",
+                                              text: "Expires: ",
                                               style: TextFontStyle
                                                   .textStyle14cFFFFFFSFProRounded400
                                                   .copyWith(
@@ -419,7 +443,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                                           // Points info line
                                           RichText(
                                             text: TextSpan(
-                                              text: "Pts: ",
+                                              text: "Points: ",
                                               style: TextFontStyle
                                                   .textStyle14cFFFFFFSFProRounded400
                                                   .copyWith(
@@ -433,7 +457,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                                               children: [
                                                 TextSpan(
                                                   text:
-                                                      "${reward.points ?? 0} pts",
+                                                      "${reward.points ?? 0}",
                                                   style: TextStyle(
                                                     color: AppColors.cE9EAE9,
                                                     fontWeight: FontWeight.w400,
@@ -447,6 +471,7 @@ class _RewardsMarketplaceScreenState extends State<RewardsMarketplaceScreen> {
                                         ],
                                       ),
                                     ),
+                                  ),
                                   ),
                                 );
                               },

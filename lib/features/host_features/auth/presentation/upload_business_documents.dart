@@ -10,6 +10,7 @@ import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/features/host_features/auth/widget/auth_progress_indicator.dart';
 import 'package:teamstreakpromo/features/host_features/auth/widget/document_upload_widget.dart';
+import 'package:teamstreakpromo/features/host_features/auth/widget/custom_selector_field.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
 import 'package:teamstreakpromo/helpers/di.dart';
@@ -18,6 +19,7 @@ import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_s
 import 'package:dio/dio.dart' as dio;
 import 'package:teamstreakpromo/networks/api_acess.dart';
 import 'package:teamstreakpromo/common_widgets/custom_toast.dart';
+import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 class UploadBusinessDocumentsScreen extends StatefulWidget {
   const UploadBusinessDocumentsScreen({super.key});
@@ -43,9 +45,80 @@ class _UploadBusinessDocumentsScreenState
 
   String? _frontLicenceName;
   String? _backLicenceName;
+  String? _selectedDocumentType;
+  final List<String> _documentTypes = [
+    "Business license",
+    "Certificate of good standing",
+    "Article of organization",
+    "Business registration certificate",
+  ];
   bool _agreedToTerms = false;
   bool _showCheckboxError = false;
   bool _isLoading = false;
+
+  void _showDocumentTypeBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.scaffoldColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Please select specific document",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                UIHelper.verticalSpace(16),
+                ...List.generate(_documentTypes.length, (index) {
+                  final type = _documentTypes[index];
+                  final isSelected = _selectedDocumentType == type;
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      type,
+                      style: TextStyle(
+                        color: isSelected
+                            ? AppColors.primaryColorFirst
+                            : Colors.white,
+                        fontFamily: "SF Pro",
+                        fontSize: 15.sp,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.primaryColorFirst,
+                          )
+                        : null,
+                    onTap: () {
+                      setState(() {
+                        _selectedDocumentType = type;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void _showTermsAndConditionsDialog() {
     showDialog(
@@ -80,7 +153,7 @@ class _UploadBusinessDocumentsScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Upload Business License",
+                "Upload ${_selectedDocumentType ?? 'Document'}",
                 style: TextStyle(
                   fontFamily: "SF Pro Rounded",
                   fontSize: 18.sp,
@@ -234,6 +307,8 @@ class _UploadBusinessDocumentsScreenState
         "govtIdBackImage": _args["govtIdBackImage"],
         "businessLicenseFrontImage": _frontLicenceName,
         "businessLicenseBackImage": _backLicenceName,
+        if (_selectedDocumentType != null)
+          "documentType": _selectedDocumentType,
       };
 
       String? storedType = appData.read(kAccountType);
@@ -284,77 +359,89 @@ class _UploadBusinessDocumentsScreenState
         if (result) {
           showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
-              final gradient = LinearGradient(
-                colors: [
-                  AppColors.primaryColorFirst,
-                  AppColors.primaryColorSecond,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              );
-
-              return AlertDialog(
+              return Dialog(
                 backgroundColor: const Color(0xFF1E222B),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                title: Row(
-                  children: [
-                    Container(
-                      width: 32.w,
-                      height: 32.w,
-                      decoration: BoxDecoration(
-                        gradient: gradient,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.black,
-                        size: 18,
-                      ),
-                    ),
-                    UIHelper.horizontalSpace(12),
-                    Text(
-                      "Setup Complete",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                content: Text(
-                  "Your host administrative account has been set up successfully. We will review your documents shortly.",
-                  style: TextStyle(
-                    fontFamily: "SF Pro",
-                    fontSize: 14.sp,
-                    color: Colors.white.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(24.r),
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1,
                   ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      appData.write(kAccountType, AccountType.host.name);
-                      Navigator.pop(context); // Close dialog
-                      // Navigate to OTP
-                      NavigationService.navigateToWithArgs(Routes.otpScreen, {
-                        "type": "host",
-                        "email": _args["email"],
-                      });
-                    },
-                    child: Text(
-                      "Finish",
-                      style: TextStyle(
-                        fontFamily: "SF Pro Rounded",
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryColorSecond,
-                      ),
-                    ),
+                insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 28.h,
                   ),
-                ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 48.w,
+                        height: 48.w,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.primaryColorFirst,
+                              AppColors.primaryColorSecond,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.black,
+                          size: 26,
+                        ),
+                      ),
+                      UIHelper.verticalSpace(20),
+                      Text(
+                        "Please be patient as our team is verifying your account as we speak! This process takes 24-48 hours. Welcome to Streak! Rooted in community !",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: "SF Pro Rounded",
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1.45,
+                        ),
+                      ),
+                      UIHelper.verticalSpace(20),
+                      Image.asset(
+                        Assets.icons.splashLogo.path,
+                        width: 80.w,
+                        height: 80.w,
+                        fit: BoxFit.contain,
+                      ),
+                      UIHelper.verticalSpace(24),
+                      CustomGradientButton(
+                        title: "Got it",
+                        height: 46.h,
+                        onPressed: () {
+                          final accountRole = (role == "BUSINESS")
+                              ? AccountType.businessPartner.name
+                              : AccountType.host.name;
+                          appData.write(kAccountType, accountRole);
+                          Navigator.pop(context);
+                          NavigationService.navigateToWithArgs(
+                            Routes.otpScreen,
+                            {
+                              "type": (role == "BUSINESS")
+                                  ? "business"
+                                  : "host",
+                              "email": _args["email"],
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               );
             },
           );
@@ -381,6 +468,14 @@ class _UploadBusinessDocumentsScreenState
       body: SafeArea(
         child: Column(
           children: [
+            // Fixed Top Appbar / Back Button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: CustomBackButton(),
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -389,17 +484,14 @@ class _UploadBusinessDocumentsScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      UIHelper.verticalSpace(16),
-                      // Back Button
-                      const CustomBackButton(),
-                      UIHelper.verticalSpace(32),
+                      UIHelper.verticalSpace(12),
 
                       // Title
                       Text(
-                        "Upload Business Documents",
+                        "Please upload two forms of business documentation",
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
-                              fontSize: 24.sp,
+                              fontSize: 22.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: "SF Pro Rounded",
                             ),
@@ -424,9 +516,24 @@ class _UploadBusinessDocumentsScreenState
                       ),
                       UIHelper.verticalSpace(36),
 
+                      // Document Type Selector Tab
+                      CustomSelectorField(
+                        labelText: "Please select specific document",
+                        hintText: "Select document type",
+                        value: _selectedDocumentType,
+                        onTap: _showDocumentTypeBottomSheet,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please specify document";
+                          }
+                          return null;
+                        },
+                      ),
+                      UIHelper.verticalSpace(24),
+
                       // Document upload components
                       DocumentUploadWidget(
-                        label: "Business license (Front)",
+                        label: "Front of Document",
                         fileName: _frontLicenceName,
                         onTap: () => _pickDocument(true),
                         onRemove: () {
@@ -436,7 +543,7 @@ class _UploadBusinessDocumentsScreenState
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Front of Business Licence is required";
+                            return "Front of Document is required";
                           }
                           return null;
                         },
@@ -444,7 +551,8 @@ class _UploadBusinessDocumentsScreenState
                       UIHelper.verticalSpace(24),
 
                       DocumentUploadWidget(
-                        label: "Business licence (Back)",
+                        label:
+                            "Back of Document (If there is no back to the document, please upload the front once more)",
                         fileName: _backLicenceName,
                         onTap: () => _pickDocument(false),
                         onRemove: () {
@@ -454,7 +562,7 @@ class _UploadBusinessDocumentsScreenState
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Back of Business Licence is required";
+                            return "Back of Document is required (or upload front again)";
                           }
                           return null;
                         },

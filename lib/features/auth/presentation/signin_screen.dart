@@ -170,7 +170,8 @@ class _SigninScreenState extends State<SigninScreen> {
                   child: Column(
                     children: [
                       Text(
-                        "Welcome Back",
+                        "Welcome back to the ecosystem!",
+                        textAlign: TextAlign.center,
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
                               fontSize: 24.sp,
@@ -181,7 +182,7 @@ class _SigninScreenState extends State<SigninScreen> {
                       UIHelper.verticalSpace(8),
                       // Subtitle
                       Text(
-                        "Enter your email to login",
+                        "Log in and let’s connect!",
                         style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                             .copyWith(
                               color: AppColors.c9B9C9A,
@@ -298,7 +299,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           .copyWith(color: AppColors.cC6C6C6),
                       children: [
                         TextSpan(
-                          text: "Sign Up",
+                          text: "Create an account",
                           style: TextStyle(
                             fontFamily: "SF Pro",
                             fontSize: 14.sp,

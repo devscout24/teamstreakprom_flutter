@@ -6,12 +6,14 @@ import 'package:teamstreakpromo/gen/assets.gen.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
 import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
+import 'package:teamstreakpromo/common_widgets/swipe_to_action_button.dart';
 import 'package:teamstreakpromo/features/event/widgets/event_details_widgets.dart';
 
 class EventBottomActions extends StatelessWidget {
   final bool isHost;
   final int selectedTabIndex;
   final int ticketCount;
+  final int? maxTickets;
   final VoidCallback onTicketCountIncrement;
   final VoidCallback onTicketCountDecrement;
   final VoidCallback onBuyTicket;
@@ -22,12 +24,16 @@ class EventBottomActions extends StatelessWidget {
   final double ticketPrice;
   final String? selectedTicketTitle;
   final VoidCallback? onChangeTicketType;
+  final bool isRewardSelected;
+  final Future<void> Function()? onSwipeRedeem;
+  final VoidCallback? onSelectRewardPressed;
 
   const EventBottomActions({
     super.key,
     required this.isHost,
     required this.selectedTabIndex,
     required this.ticketCount,
+    this.maxTickets,
     required this.onTicketCountIncrement,
     required this.onTicketCountDecrement,
     required this.onBuyTicket,
@@ -38,6 +44,9 @@ class EventBottomActions extends StatelessWidget {
     this.ticketPrice = 0.0,
     this.selectedTicketTitle,
     this.onChangeTicketType,
+    this.isRewardSelected = false,
+    this.onSwipeRedeem,
+    this.onSelectRewardPressed,
   });
 
   @override
@@ -196,7 +205,9 @@ class EventBottomActions extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.remove,
-                                color: Colors.white,
+                                color: ticketCount <= 1
+                                    ? Colors.white.withValues(alpha: 0.25)
+                                    : Colors.white,
                                 size: 16.sp,
                               ),
                             ),
@@ -224,7 +235,11 @@ class EventBottomActions extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.add,
-                                color: Colors.white,
+                                color:
+                                    (maxTickets != null &&
+                                        ticketCount >= maxTickets!)
+                                    ? Colors.white.withValues(alpha: 0.25)
+                                    : Colors.white,
                                 size: 16.sp,
                               ),
                             ),
@@ -276,28 +291,45 @@ class EventBottomActions extends StatelessWidget {
 
                 // Get Ticket Button
                 CustomGradientButton(
-                  onPressed: onBuyTicket,
-                  title: "Buy a Ticket",
+                  onPressed: (maxTickets != null && maxTickets! <= 0)
+                      ? null
+                      : onBuyTicket,
+                  title: (maxTickets != null && maxTickets! <= 0)
+                      ? "Sold Out"
+                      : "Purchase Ticket",
                   borderRadius: BorderRadius.circular(100.r),
-                  textStyle:
-                      TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                    color: const Color(0xFF262824),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16.sp,
-                  ),
+                  textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                      .copyWith(
+                        color: const Color(0xFF262824),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.sp,
+                      ),
                 ),
               ],
             )
-          : CustomGradientButton(
-              onPressed: onRedeemReward,
-              title: "Redeem Reward",
-              borderRadius: BorderRadius.circular(100.r),
-              textStyle:
-                  TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                color: const Color(0xFF262824),
-                fontWeight: FontWeight.w700,
-                fontSize: 16.sp,
-              ),
+          : AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: isRewardSelected
+                  ? SwipeToActionButton(
+                      key: const ValueKey('swipe_to_redeem_button'),
+                      text: "Swipe to redeem this reward",
+                      onAction: onSwipeRedeem ?? () async {},
+                    )
+                  : CustomGradientButton(
+                      key: const ValueKey('select_a_reward_button'),
+                      onPressed: onSelectRewardPressed ?? onRedeemReward,
+                      title: "Select a Reward",
+                      borderRadius: BorderRadius.circular(100.r),
+                      textStyle: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: const Color(0xFF262824),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16.sp,
+                          ),
+                    ),
             ),
     );
   }

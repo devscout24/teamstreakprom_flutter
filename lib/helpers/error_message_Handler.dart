@@ -51,9 +51,17 @@ class ErrorMessageHandler {
       final message = responseData['message'] ??
           responseData['error'] ??
           responseData['detail'];
-      if (message != null && message is String) {
-        return message;
+      if (message != null) {
+        if (message is String && message.trim().isNotEmpty) {
+          return message.trim();
+        } else if (message is List && message.isNotEmpty) {
+          return message.map((m) => m.toString()).join(', ');
+        }
       }
+    } else if (responseData is String &&
+        responseData.trim().isNotEmpty &&
+        responseData.length < 200) {
+      return responseData.trim();
     }
 
     // If no message in JSON, use status code based messages

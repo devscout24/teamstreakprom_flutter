@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/settings/presentation/settings_screen.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
-import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
 import 'package:teamstreakpromo/gen/assets.gen.dart';
 
 import 'package:teamstreakpromo/features/host_features/host_home/presentation/host_home.dart';
@@ -11,6 +10,10 @@ import 'package:teamstreakpromo/features/host_features/host_events/presentation/
 
 import '../../host_earning/presentation/earning_overview_screen.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/constants/app_constants.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/networks/api_acess.dart';
+import 'package:teamstreakpromo/features/settings/model/stripe_account_status_model.dart';
 
 class HostNavigationScreen extends StatefulWidget {
   const HostNavigationScreen({super.key});
@@ -26,6 +29,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchStripeStatus();
     _pages = [
       const HostHomeScreen(),
       HostEventsScreen(
@@ -38,6 +42,16 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
       const EarningOverviewScreen(),
       const SettingsScreen(),
     ];
+  }
+
+  Future<void> _fetchStripeStatus() async {
+    try {
+      final res = await getStripeAccountStatusRxObj.getStripeAccountStatus();
+      if (res.success == true && res.data != null) {
+        final isConnected = res.data?.isStripeConnected ?? false;
+        appData.write(kKeyStripeConnected, isConnected);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -99,10 +113,27 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
                 iconPath: Assets.icons.rewards.path,
                 label: "Earning",
               ),
-              _buildTabItem(
-                index: 3,
-                iconPath: Assets.icons.settingIcon.path,
-                label: "Settings",
+              StreamBuilder<StripeAccountStatusModel>(
+                stream: getStripeAccountStatusRxObj.getStripeAccountStatusData,
+                builder: (context, snapshot) {
+                  final statusData = snapshot.data?.data ??
+                      getStripeAccountStatusRxObj
+                          .getStripeAccountStatusData
+                          .valueOrNull
+                          ?.data;
+                  final isConnected = statusData?.isStripeConnected == true ||
+                      statusData?.stripeAccountStatus?.toUpperCase() ==
+                          'ACTIVE' ||
+                      (appData.read(kKeyStripeConnected) as bool? ?? false);
+                  final showBell = !isConnected;
+
+                  return _buildTabItem(
+                    index: 3,
+                    iconPath: Assets.icons.settingIcon.path,
+                    label: "Settings",
+                    showNotificationBadge: showBell,
+                  );
+                },
               ),
             ],
           ),
@@ -115,6 +146,7 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
     required int index,
     required String iconPath,
     required String label,
+    bool showNotificationBadge = false,
   }) {
     final isSelected = _currentIndex == index;
 
@@ -130,30 +162,67 @@ class _HostNavigationScreenState extends State<HostNavigationScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Icon with dynamic gradient or gray color
-          isSelected
-              ? ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [
-                      AppColors.primaryColorFirst,
-                      AppColors.primaryColorSecond,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ).createShader(bounds),
-                  blendMode: BlendMode.srcIn,
-                  child: Image.asset(
-                    iconPath,
-                    color: Colors.white,
-                    width: 24.w,
-                    height: 24.w,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              isSelected
+                  ? ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [
+                          AppColors.primaryColorFirst,
+                          AppColors.primaryColorSecond,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ).createShader(bounds),
+                      blendMode: BlendMode.srcIn,
+                      child: Image.asset(
+                        iconPath,
+                        color: Colors.white,
+                        width: 24.w,
+                        height: 24.w,
+                      ),
+                    )
+                  : Image.asset(
+                      iconPath,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      width: 24.w,
+                      height: 24.w,
+                    ),
+              if (showNotificationBadge)
+                Positioned(
+                  top: -5.h,
+                  right: -7.w,
+                  child: Container(
+                    padding: EdgeInsets.all(3.w),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          AppColors.primaryColorFirst,
+                          AppColors.primaryColorSecond,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              const Color(0xFFF28F31).withValues(alpha: 0.6),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.notifications_active_rounded,
+                      size: 9.sp,
+                      color: const Color(0xFF1B1C1A),
+                    ),
                   ),
-                )
-              : Image.asset(
-                  iconPath,
-                  color: Colors.white.withValues(alpha: 0.5),
-                  width: 24.w,
-                  height: 24.w,
                 ),
+            ],
+          ),
           UIHelper.verticalSpace(4),
           // Label with dynamic gradient or gray color
           isSelected

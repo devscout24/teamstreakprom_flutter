@@ -76,7 +76,9 @@ class SubscriptionScreen extends StatelessWidget {
                       children: [
                         // Plan Title
                         Text(
-                          "Host Plan",
+                          accountType == AccountType.businessPartner
+                              ? "Business Partner Plan"
+                              : "Host Plan",
                           style: TextStyle(
                             fontFamily: "SF Pro Rounded",
                             fontSize: 26.sp,
@@ -87,7 +89,9 @@ class SubscriptionScreen extends StatelessWidget {
                         UIHelper.verticalSpace(6),
                         // Plan Subtitle
                         Text(
-                          "Perfect for managing your events smoothly",
+                          accountType == AccountType.businessPartner
+                              ? "Perfect for managing your rewards smoothly"
+                              : "Perfect for managing your events smoothly",
                           style: TextStyle(
                             fontFamily: "SF Pro",
                             fontSize: 13.sp,

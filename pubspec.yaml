@@ -114,3 +114,6 @@ flutter:
     - family: SF Pro
       fonts:
         - asset:  assets/fonts/SF-Pro-Text-Regular.otf
+
+dependency_overrides:
+  archive: ^4.5.2

@@ -50,7 +50,8 @@ void showInviteFriendBottomSheet(BuildContext context) {
 
                 // Title
                 Text(
-                  "Invite a Friend",
+                  "Exclusive friend invitation link",
+                  textAlign: TextAlign.center,
                   style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
@@ -60,11 +61,13 @@ void showInviteFriendBottomSheet(BuildContext context) {
 
                 // Subtitle
                 Text(
-                  "Share the link to everyone you want",
+                  "With this custom link, you can earn points for every friend that creates an account after diving in to this link!",
+                  textAlign: TextAlign.center,
                   style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                       .copyWith(
                         color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 14.sp,
+                        fontSize: 13.sp,
+                        height: 1.4,
                       ),
                 ),
                 UIHelper.verticalSpace(24.h),
@@ -155,12 +158,13 @@ void showInviteFriendBottomSheet(BuildContext context) {
                       UIHelper.horizontalSpace(12.w),
                       Expanded(
                         child: Text(
-                          "You'll earn 1 point for each successful referral!",
+                          "You will earn 1 point every time a friend successfully signs up with your referral link above!",
                           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                               .copyWith(
                                 color: AppColors.cDC822D,
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w500,
+                                height: 1.35,
                               ),
                         ),
                       ),

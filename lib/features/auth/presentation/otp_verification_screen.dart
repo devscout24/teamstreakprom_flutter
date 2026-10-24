@@ -150,7 +150,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ? null
                     : () async {
                         if (_otp.length == _otpLength) {
-                          if (widget.type == "signup" || widget.type == "host") {
+                          if (widget.type == "signup" ||
+                              widget.type == "host" ||
+                              widget.type == "business") {
                             setState(() {
                               _isLoading = true;
                             });
@@ -279,7 +281,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   _isResending = true;
                                 });
                                 try {
-                                  if (widget.type == "signup" || widget.type == "host") {
+                                  if (widget.type == "signup" ||
+                                      widget.type == "host" ||
+                                      widget.type == "business") {
                                     bool success = await resendRegisterOtpRxObj
                                         .resendOtp({"email": widget.email});
                                     if (success) {

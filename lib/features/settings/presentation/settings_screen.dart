@@ -19,6 +19,7 @@ import '../../../networks/dio/dio.dart';
 
 import '../../../networks/endpoints.dart';
 import '../model/user_profile_model.dart';
+import '../model/stripe_account_status_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -34,6 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _fetchProfile();
+    _checkStripeStatus();
   }
 
   Future<void> _fetchProfile() async {
@@ -42,6 +44,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       debugPrint("Failed to fetch profile: $e");
     }
+  }
+
+  Future<void> _checkStripeStatus() async {
+    try {
+      final res = await getStripeAccountStatusRxObj.getStripeAccountStatus();
+      if (res.success == true && res.data != null) {
+        final isConnected = res.data?.isStripeConnected ?? false;
+        appData.write(kKeyStripeConnected, isConnected);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -147,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   UIHelper.horizontalSpace(8.w),
                                   Text(
-                                    "My Point",
+                                    "My streak Points",
                                     style: TextFontStyle
                                         .textStyle24cFFFFFFSFPro590
                                         .copyWith(
@@ -339,16 +351,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   if (isHost) ...[
                     _buildSectionHeader("Payments"),
-                    SettingsItem(
-                      iconWidget: FaIcon(
-                        FontAwesomeIcons.stripe,
-                        color: const Color(0xFF1B1C1A),
-                        size: 20.sp,
-                      ),
-                      title: "Connect with Stripe",
-                      onTap: () {
-                        NavigationService.navigateTo(
-                          Routes.stripeConnectScreen,
+                    StreamBuilder<StripeAccountStatusModel>(
+                      stream: getStripeAccountStatusRxObj
+                          .getStripeAccountStatusData,
+                      builder: (context, stripeSnapshot) {
+                        final statusData = stripeSnapshot.data?.data ??
+                            getStripeAccountStatusRxObj
+                                .getStripeAccountStatusData
+                                .valueOrNull
+                                ?.data;
+                        final isConnected = statusData?.isStripeConnected ==
+                                true ||
+                            statusData?.stripeAccountStatus?.toUpperCase() ==
+                                'ACTIVE' ||
+                            (appData.read(kKeyStripeConnected) as bool? ??
+                                false);
+                        final showStripeBell = !isConnected;
+
+                        return SettingsItem(
+                          iconWidget: FaIcon(
+                            FontAwesomeIcons.stripe,
+                            color: const Color(0xFF1B1C1A),
+                            size: 20.sp,
+                          ),
+                          title: "Connect with Stripe",
+                          trailing: showStripeBell
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(4.w),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF28F31)
+                                            .withValues(alpha: 0.15),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFF28F31)
+                                              .withValues(alpha: 0.5),
+                                          width: 1.w,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.notifications_active_rounded,
+                                        color: const Color(0xFFF28F31),
+                                        size: 14.sp,
+                                      ),
+                                    ),
+                                    UIHelper.horizontalSpace(8.w),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color:
+                                          Colors.white.withValues(alpha: 0.5),
+                                      size: 24.sp,
+                                    ),
+                                  ],
+                                )
+                              : null,
+                          onTap: () async {
+                            await NavigationService.navigateTo(
+                              Routes.stripeConnectScreen,
+                            );
+                            _checkStripeStatus();
+                          },
                         );
                       },
                     ),
@@ -367,7 +431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (!isHostOrBP) ...[
                     SettingsItem(
                       iconPath: Assets.icons.inviteIcon.path,
-                      title: "Invite friend",
+                      title: "Invite friends, earn points!",
                       onTap: () {
                         NavigationService.navigateTo(Routes.inviteFriendScreen);
                       },

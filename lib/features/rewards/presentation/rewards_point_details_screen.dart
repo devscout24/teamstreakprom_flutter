@@ -5,7 +5,6 @@ import 'package:teamstreakpromo/gen/assets.gen.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
 import '../../../helpers/ui_helpers.dart';
-import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/gradient_container.dart';
 
 class RewardsPointDetailsScreen extends StatelessWidget {
@@ -80,7 +79,7 @@ class RewardsPointDetailsScreen extends StatelessWidget {
                       ),
                       UIHelper.horizontalSpace(8.w),
                       Text(
-                        "My  Point",
+                        "My streak Points",
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
                               fontSize: 18.sp,

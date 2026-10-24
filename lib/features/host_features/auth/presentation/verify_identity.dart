@@ -22,6 +22,7 @@ class VerifyIdentityScreen extends StatefulWidget {
 class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> _args = {};
+  bool _isDetailsExpanded = false;
 
   @override
   void didChangeDependencies() {
@@ -69,7 +70,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Take Photo",
@@ -78,8 +82,9 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final XFile? photo =
-                        await _picker.pickImage(source: ImageSource.camera);
+                    final XFile? photo = await _picker.pickImage(
+                      source: ImageSource.camera,
+                    );
                     if (photo != null) {
                       setState(() {
                         if (isFront) {
@@ -103,7 +108,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.photo_library_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.photo_library_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Choose from Gallery",
@@ -112,8 +120,9 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final XFile? image =
-                        await _picker.pickImage(source: ImageSource.gallery);
+                    final XFile? image = await _picker.pickImage(
+                      source: ImageSource.gallery,
+                    );
                     if (image != null) {
                       setState(() {
                         if (isFront) {
@@ -137,7 +146,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                     color: Color(0xFF1E222B),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.folder_open_outlined, color: Colors.white),
+                  child: const Icon(
+                    Icons.folder_open_outlined,
+                    color: Colors.white,
+                  ),
                 ),
                 title: const Text(
                   "Browse Files",
@@ -146,13 +158,12 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                 onTap: () async {
                   Navigator.pop(context);
                   try {
-                    final FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
-                    );
-                    if (result != null &&
-                        result.files.single.name.isNotEmpty) {
+                    final FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+                        );
+                    if (result != null && result.files.single.name.isNotEmpty) {
                       setState(() {
                         if (isFront) {
                           _frontIdName = result.files.single.name;
@@ -182,7 +193,10 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       _args["govtIdFrontImage"] = _frontIdName;
       _args["govtIdBackImage"] = _backIdName;
 
-      NavigationService.navigateToWithArgs(Routes.uploadBusinessDocumentsScreen, _args);
+      NavigationService.navigateToWithArgs(
+        Routes.uploadBusinessDocumentsScreen,
+        _args,
+      );
     }
   }
 
@@ -193,6 +207,14 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Fixed Top Appbar / Back Button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: CustomBackButton(),
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -201,29 +223,95 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      UIHelper.verticalSpace(16),
-                      // Back Button
-                      const CustomBackButton(),
-                      UIHelper.verticalSpace(32),
+                      UIHelper.verticalSpace(12),
 
                       // Title
                       Text(
-                        "Verify identity",
-                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "SF Pro Rounded",
-                        ),
+                        "Identity Verification",
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: "SF Pro Rounded",
+                            ),
                       ),
                       UIHelper.verticalSpace(8),
 
                       // Subtitle
-                      Text(
-                        "This helps keep the platform safe and allows us to approve your account.",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: AppColors.cFFFFFF.withValues(alpha: 0.6),
-                          fontFamily: "SF Pro",
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        alignment: Alignment.topCenter,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "These uploaded documents help to ensure that our platform is kept safe and transparent. All personal information is kept on file with Streak Promoter LLC otherwise known as Streak. We use this information to verify every business that uses our platform. Here at Streak, Safety and authenticity are our number one priority. Please refer to our terms and conditions document or contact our support team if you have any questions. Please be assured that all legal documents submitted to our platform are handled with the highest level of confidentiality. We do not distribute, share, or disclose your documents to any external parties without your explicit consent.",
+                              maxLines: _isDetailsExpanded ? null : 3,
+                              overflow: _isDetailsExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: AppColors.cFFFFFF.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                    fontFamily: "SF Pro",
+                                    height: 1.4,
+                                  ),
+                            ),
+                            UIHelper.verticalSpace(6),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isDetailsExpanded = !_isDetailsExpanded;
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(4.r),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2.h),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _isDetailsExpanded
+                                          ? "Read less"
+                                          : "Read more",
+                                      style: TextFontStyle
+                                          .textStyle14cFFFFFFSFProRounded400
+                                          .copyWith(
+                                            color: AppColors.primaryColorFirst,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: "SF Pro",
+                                          ),
+                                    ),
+                                    UIHelper.horizontalSpace(4),
+                                    Icon(
+                                      _isDetailsExpanded
+                                          ? Icons.keyboard_arrow_up_rounded
+                                          : Icons.keyboard_arrow_down_rounded,
+                                      color: AppColors.primaryColorFirst,
+                                      size: 18.sp,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      UIHelper.verticalSpace(16),
+
+                      // Government ID Instruction
+                      Text(
+                        "Please upload a government ID. This ensures that we will be able to properly verify the individual setting up this account. These credentials also allow us to understand who is setting up the account, whether this individual is a business owner or a representative on behalf for the business.",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: AppColors.cFFFFFF.withValues(alpha: 0.8),
+                              fontFamily: "SF Pro",
+                              height: 1.4,
+                            ),
                       ),
                       UIHelper.verticalSpace(24),
 

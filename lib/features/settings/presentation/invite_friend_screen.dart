@@ -15,7 +15,8 @@ class InviteFriendScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(title: "Invite friend"),
+      appBar:
+          const CustomAppBar(title: "It is time to expand the community!"),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -31,7 +32,7 @@ class InviteFriendScreen extends StatelessWidget {
               ),
               UIHelper.verticalSpace(8.h),
               Text(
-                "Spread community, earn instant points!",
+                "Spread community! Invite friends and earn points every time they sign up for a streak!",
                 style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
                   color: AppColors.c9B9C9A,
                 ),
@@ -106,7 +107,7 @@ class InviteFriendScreen extends StatelessWidget {
                 onPressed: () {
                   showInviteFriendBottomSheet(context);
                 },
-                title: "Invite friend",
+                title: "Exclusive friend invitation link",
                 height: 52.h,
                 borderRadius: BorderRadius.circular(100.r),
               ),

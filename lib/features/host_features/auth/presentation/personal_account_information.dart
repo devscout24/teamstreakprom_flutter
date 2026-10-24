@@ -10,9 +10,13 @@ import 'package:teamstreakpromo/features/host_features/auth/widget/auth_progress
 import 'package:teamstreakpromo/constants/validator.dart';
 import 'package:teamstreakpromo/helpers/navigation_service.dart';
 import 'package:teamstreakpromo/helpers/all_routes.dart';
+import 'package:teamstreakpromo/features/auth/presentation/choose_account_type_screen.dart';
+import 'package:teamstreakpromo/helpers/di.dart';
+import 'package:teamstreakpromo/constants/app_constants.dart';
 
 class PersonalAccountInformationScreen extends StatefulWidget {
-  const PersonalAccountInformationScreen({super.key});
+  final AccountType? accountType;
+  const PersonalAccountInformationScreen({super.key, this.accountType});
 
   @override
   State<PersonalAccountInformationScreen> createState() =>
@@ -22,6 +26,33 @@ class PersonalAccountInformationScreen extends StatefulWidget {
 class _PersonalAccountInformationScreenState
     extends State<PersonalAccountInformationScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  String _getTitle() {
+    AccountType? type = widget.accountType;
+    if (type == null) {
+      final routeArgs = ModalRoute.of(context)?.settings.arguments;
+      if (routeArgs is Map && routeArgs['accountType'] is AccountType) {
+        type = routeArgs['accountType'] as AccountType;
+      }
+    }
+    if (type == null) {
+      final storedType = appData.read(kAccountType)?.toString().toUpperCase();
+      if (storedType == "HOST" || storedType == "ACCOUNTTYPE.HOST") {
+        type = AccountType.host;
+      } else if (storedType == "BUSINESS" ||
+          storedType == "BUSINESSPARTNER" ||
+          storedType == "ACCOUNTTYPE.BUSINESSPARTNER") {
+        type = AccountType.businessPartner;
+      }
+    }
+
+    if (type == AccountType.host) {
+      return "Host Account Information";
+    } else if (type == AccountType.businessPartner) {
+      return "Business Partner Account Information";
+    }
+    return "Personal Account Information";
+  }
 
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -81,7 +112,7 @@ class _PersonalAccountInformationScreenState
 
                       // Title
                       Text(
-                        "Personal Account Information",
+                        _getTitle(),
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
                               fontSize: 24.sp,

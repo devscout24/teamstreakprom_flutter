@@ -12,6 +12,7 @@ import '../../../helpers/ui_helpers.dart';
 import '../../../common_widgets/ticket_toggle_button.dart';
 import '../widgets/invite_friend_bottom_sheet.dart';
 import '../widgets/reward_success_dialog.dart';
+import '../widgets/confirm_redeem_event_reward_bottom_sheet.dart';
 import '../widgets/event_details_widgets.dart';
 import 'stripe_checkout_webview_screen.dart';
 import '../widgets/event_info_tab.dart';
@@ -24,6 +25,12 @@ import 'package:teamstreakpromo/networks/api_acess.dart';
 import 'package:teamstreakpromo/features/event/model/host_event_details_model.dart';
 import 'package:teamstreakpromo/features/host_features/host_events/data/rx_get_events/rx.dart';
 import 'package:intl/intl.dart';
+import '../../../common_widgets/custom_toast.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../../gen/assets.gen.dart';
+import '../../../common_widgets/app_network_image.dart';
+import '../../../networks/endpoints.dart';
+import '../../settings/model/user_profile_model.dart' hide Data;
 
 class EventDetailsScreen extends StatefulWidget {
   final String title;
@@ -35,6 +42,7 @@ class EventDetailsScreen extends StatefulWidget {
   final String? points;
   final bool isReward;
   final String? eventId;
+  final VoidCallback? onNavigateToRewards;
 
   const EventDetailsScreen({
     super.key,
@@ -47,6 +55,7 @@ class EventDetailsScreen extends StatefulWidget {
     this.points,
     this.isReward = false,
     this.eventId,
+    this.onNavigateToRewards,
   });
 
   @override
@@ -100,6 +109,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
       "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=600&q=80",
     ];
+
+    if (userProfileRxObj.userProfileData.valueOrNull?.data == null) {
+      userProfileRxObj.fetchUserProfile();
+    }
 
     if (widget.eventId != null) {
       _fetchEventDetails();
@@ -162,11 +175,18 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 title: pc.name ?? 'General',
                 price: pc.price ?? 0.0,
                 subtitle: pc.stock != null
-                    ? "${pc.stock} seats remaining"
+                    ? (pc.stock! <= 0
+                          ? "Sold out"
+                          : "${pc.stock} seats remaining")
                     : null,
+                stock: pc.stock,
               );
             }).toList();
             _selectedTicketTypeIndex = 0;
+            final int? stock = _availableTicketStock;
+            if (stock != null && stock > 0 && _ticketCount > stock) {
+              _ticketCount = stock;
+            }
 
             final minPrice = _ticketTypes
                 .map((t) => t.price.round())
@@ -260,31 +280,73 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     super.dispose();
   }
 
-  void _redeemRewardDirectly() {
-    if (_selectedRewardProductIndex == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Please select a reward item first.",
-            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: const Color(0xFFDD1F1F),
-        ),
+  int? get _availableTicketStock {
+    if (_selectedTicketType != null) {
+      return _selectedTicketType!.stock ?? _currentEventData?.stock;
+    }
+    return _currentEventData?.stock;
+  }
+
+  void _onTicketTypeChanged(int index) {
+    setState(() {
+      _selectedTicketTypeIndex = index;
+      final int? stock = _availableTicketStock;
+      if (stock != null) {
+        if (stock <= 0) {
+          _ticketCount = 1;
+        } else if (_ticketCount > stock) {
+          _ticketCount = stock;
+        }
+      }
+    });
+  }
+
+  Future<void> _redeemRewardDirectly() async {
+    if (_selectedRewardProductIndex == null ||
+        _selectedRewardProductIndex! < 0 ||
+        _selectedRewardProductIndex! >= _rewardProducts.length) {
+      customToastMessage(
+        "Selection Required",
+        "Please select a reward item first.",
+        isError: true,
       );
       return;
     }
 
-    // If called from the bottom sheet, we might want to pop it first, but Flutter
-    // allows showing dialogs over bottom sheets. For a better UX, popping the bottom sheet
-    // before showing the dialog would be ideal, but requires context.
-    // We'll leave the dialog logic as is for now.
-    _showRewardSuccessDialog();
+    final selectedProduct = _rewardProducts[_selectedRewardProductIndex!];
+
+    final bool? confirmed = await showConfirmRedeemRewardBottomSheet(
+      context: context,
+      rewardName: selectedProduct.title,
+    );
+
+    if (confirmed == true && mounted) {
+      _showRewardSuccessDialog();
+    }
   }
 
   Future<void> _createCheckoutSession() async {
     if (widget.eventId == null) return;
+
+    final int? maxStock = _availableTicketStock;
+    if (maxStock != null) {
+      if (maxStock <= 0) {
+        customToastMessage(
+          "Sold Out",
+          "This ticket type is currently sold out.",
+          isError: true,
+        );
+        return;
+      }
+      if (_ticketCount > maxStock) {
+        customToastMessage(
+          "Limit Exceeded",
+          "Only $maxStock ticket${maxStock > 1 ? 's' : ''} available. Please reduce quantity.",
+          isError: true,
+        );
+        return;
+      }
+    }
 
     final body = {
       "eventId": widget.eventId,
@@ -341,24 +403,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           _showBookingSuccessDialog();
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response.message ?? "Failed to create checkout session",
-            ),
-            backgroundColor: const Color(0xFFDD1F1F),
-          ),
+        customToastMessage(
+          "Checkout Failed",
+          response.message ?? "Failed to create checkout session",
+          isError: true,
         );
       }
     } catch (e) {
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error: $e"),
-          backgroundColor: const Color(0xFFDD1F1F),
-        ),
-      );
+      // Clean error toast is already handled and displayed by Rx layer (ErrorMessageHandler)
     }
   }
 
@@ -522,32 +576,74 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(62.h),
+        child: Container(
+          color: AppColors.c121212,
+          child: SafeArea(
+            bottom: false,
+            child: _buildHeader(),
+          ),
+        ),
+      ),
       bottomNavigationBar: (_isLoadingDetails || _eventDetails == null)
           ? const SizedBox.shrink()
           : EventBottomActions(
               isHost: isHost,
               selectedTabIndex: _selectedTabIndex,
               ticketCount: _ticketCount,
+              maxTickets: _availableTicketStock,
               isDeleting: _isDeleting,
               ticketPrice:
                   _selectedTicketType?.price ??
                   (_currentEventData?.ticketPrice?.toDouble() ?? 0.0),
               selectedTicketTitle: _selectedTicketType?.title,
+              isRewardSelected: _selectedRewardProductIndex != null,
+              onSwipeRedeem: _redeemRewardDirectly,
+              onSelectRewardPressed: () {
+                if (_rewardProducts.isEmpty) {
+                  customToastMessage(
+                    "No Rewards",
+                    "No rewards available for this event.",
+                    isError: true,
+                  );
+                } else {
+                  customToastMessage(
+                    "Select a Reward",
+                    "Please tap on a reward above to select it.",
+                  );
+                }
+              },
               onChangeTicketType: _ticketTypes.length > 1
                   ? () {
                       showTicketTypePickerBottomSheet(
                         context: context,
                         ticketTypes: _ticketTypes,
                         selectedIndex: _selectedTicketTypeIndex,
-                        onSelect: (index) {
-                          setState(() {
-                            _selectedTicketTypeIndex = index;
-                          });
-                        },
+                        onSelect: _onTicketTypeChanged,
                       );
                     }
                   : null,
               onTicketCountIncrement: () {
+                final int? maxStock = _availableTicketStock;
+                if (maxStock != null) {
+                  if (maxStock <= 0) {
+                    customToastMessage(
+                      "Sold Out",
+                      "No tickets available for this category.",
+                      isError: true,
+                    );
+                    return;
+                  }
+                  if (_ticketCount >= maxStock) {
+                    customToastMessage(
+                      "Limit Reached",
+                      "Only $maxStock ticket${maxStock > 1 ? 's' : ''} available in stock.",
+                      isError: true,
+                    );
+                    return;
+                  }
+                }
                 setState(() {
                   _ticketCount++;
                 });
@@ -594,16 +690,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 }
               },
             ),
-      body: Stack(
-        children: [
-          if (_isLoadingDetails || _eventDetails == null)
-            const Center(
+      body: (_isLoadingDetails || _eventDetails == null)
+          ? const Center(
               child: CircularProgressIndicator(
                 color: AppColors.primaryColorFirst,
               ),
             )
-          else
-            SingleChildScrollView(
+          : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -660,32 +753,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ),
                         ),
 
-                        // Carousel Dot Indicators
-                        Positioned(
-                          bottom: 24.h,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              _carouselImages.length,
-                              (index) => AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                width: _currentCarouselIndex == index
-                                    ? 20.w
-                                    : 8.w,
-                                height: 8.h,
-                                margin: EdgeInsets.symmetric(horizontal: 4.w),
-                                decoration: BoxDecoration(
-                                  color: _currentCarouselIndex == index
-                                      ? AppColors.primaryColorSecond
-                                      : Colors.white.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(100.r),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        
                       ],
                     ),
                   ),
@@ -714,14 +782,28 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               ),
                             ),
                             UIHelper.horizontalSpace(8.w),
-                            Text(
-                              _displayPrice,
-                              style: TextFontStyle.textStyle24cFFFFFFSFPro590
-                                  .copyWith(
-                                    fontSize: 18.sp,
-                                    color: AppColors.primaryColorSecond,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 6.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(100.r),
+                                border: Border.all(
+                                  color: AppColors.primaryColorSecond,
+                                  width: 1.5.w,
+                                ),
+                              ),
+                              child: Text(
+                                _displayPrice,
+                                style: TextFontStyle.textStyle24cFFFFFFSFPro590
+                                    .copyWith(
+                                      fontSize: 16.sp,
+                                      color: AppColors.primaryColorSecond,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
                             ),
                           ],
                         ),
@@ -748,8 +830,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                 style: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.6),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.6,
+                                      ),
                                       fontSize: 13.sp,
                                     ),
                               ),
@@ -794,7 +877,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
                             child: TicketToggleButton(
                               leftLabel: "Event Info",
-                              rightLabel: "Reward Info",
+                              rightLabel: "Redeemable Reward",
                               selectedIndex: _selectedTabIndex,
                               onChanged: (index) {
                                 setState(() {
@@ -834,11 +917,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             TicketTypesSection(
                               ticketTypes: _ticketTypes,
                               selectedIndex: _selectedTicketTypeIndex,
-                              onSelect: (index) {
-                                setState(() {
-                                  _selectedTicketTypeIndex = index;
-                                });
-                              },
+                              onSelect: _onTicketTypeChanged,
                             ),
                           ],
                           UIHelper.verticalSpace(20.h),
@@ -878,7 +957,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                       _selectedRewardProductIndex = index;
                                     });
                                   },
-                                  onContinueToPay: _redeemRewardDirectly,
+                                  onContinueToPay: () {
+                                    setState(() {
+                                      _selectedRewardProductIndex = index;
+                                    });
+                                    _redeemRewardDirectly();
+                                  },
                                 );
                               },
                             ),
@@ -891,56 +975,324 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ],
               ),
             ),
-          // Static Top back & share bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    );
+  }
+
+  Widget _buildHeader() {
+    return StreamBuilder<UserProfileModel>(
+      stream: userProfileRxObj.userProfileData,
+      builder: (context, snapshot) {
+        final hasData =
+            snapshot.hasData ||
+            userProfileRxObj.userProfileData.valueOrNull?.data != null;
+        if (!hasData && snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            color: AppColors.c121212,
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E222B),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+                UIHelper.horizontalSpace(8.w),
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: const Color(0xFF1E222B),
+                    highlightColor: Colors.white.withValues(alpha: 0.05),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36.w,
+                          height: 36.w,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF1E222B),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        UIHelper.horizontalSpace(8.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 80.w,
+                                height: 14.h,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E222B),
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                              ),
+                              UIHelper.verticalSpace(4.h),
+                              Container(
+                                width: 50.w,
+                                height: 10.h,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E222B),
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        UIHelper.horizontalSpace(8.w),
+                        Container(
+                          width: 55.w,
+                          height: 28.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E222B),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                UIHelper.horizontalSpace(8.w),
+                GestureDetector(
+                  onTap: () => showInviteFriendBottomSheet(context),
+                  child: Container(
+                    width: 36.w,
+                    height: 36.w,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1E222B),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.share_outlined,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final profile =
+            snapshot.data?.data ??
+            userProfileRxObj.userProfileData.valueOrNull?.data;
+        final name = (profile?.name != null && profile!.name!.isNotEmpty)
+            ? profile.name!
+            : "User";
+        final points = profile?.totalPoints ?? 0;
+        final location =
+            (profile?.businessProfile?.location != null &&
+                profile!.businessProfile!.location!.isNotEmpty)
+            ? profile.businessProfile!.location!
+            : "Divine Art Festival";
+        String? profileImageUrl = profile?.profileImage;
+        if (profileImageUrl != null &&
+            profileImageUrl.isNotEmpty &&
+            !profileImageUrl.startsWith('http')) {
+          profileImageUrl = url + profileImageUrl;
+        }
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          color: AppColors.c121212,
+          child: Row(
+            children: [
+              // Back Button (Left side)
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 36.w,
+                  height: 36.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E222B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.white,
+                    size: 18.sp,
+                  ),
+                ),
+              ),
+              UIHelper.horizontalSpace(8.w),
+              // User Avatar
+              GestureDetector(
+                onTap: () async {
+                  await NavigationService.navigateTo(Routes.editProfileScreen);
+                  userProfileRxObj.fetchUserProfile();
+                },
+                child: Container(
+                  width: 36.w,
+                  height: 36.w,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: ClipOval(
+                    child:
+                        (profileImageUrl != null && profileImageUrl.isNotEmpty)
+                        ? AppNetworkImage(
+                            imageUrl: profileImageUrl,
+                            height: 36.w,
+                            width: 36.w,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            Assets.images.placeholderImage.path,
+                            height: 36.w,
+                            width: 36.w,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+              ),
+              UIHelper.horizontalSpace(8.w),
+              // Name and Location
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          color: Colors.white,
-                          size: 20.sp,
-                        ),
+                      onTap: () async {
+                        await NavigationService.navigateTo(
+                          Routes.editProfileScreen,
+                        );
+                        userProfileRxObj.fetchUserProfile();
+                      },
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextFontStyle.textStyle16cFFFFFFSFPro590
+                            .copyWith(
+                              fontSize: 14.sp,
+                            ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => showInviteFriendBottomSheet(context),
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          shape: BoxShape.circle,
+                    UIHelper.verticalSpace(2.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 14.sp,
+                          color: AppColors.primaryColorSecond,
                         ),
-                        child: Icon(
-                          Icons.share_outlined,
-                          color: Colors.white,
-                          size: 18.sp,
+                        UIHelper.horizontalSpace(2.w),
+                        Flexible(
+                          child: Text(
+                            location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                                .copyWith(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
+              UIHelper.horizontalSpace(8.w),
+              // Points Pill
+              GestureDetector(
+                onTap: () {
+                  if (widget.onNavigateToRewards != null) {
+                    widget.onNavigateToRewards!();
+                  } else {
+                    NavigationService.navigateTo(
+                      Routes.rewardsPointDetailsScreen,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E222B),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [
+                            AppColors.primaryColorFirst,
+                            AppColors.primaryColorSecond,
+                          ],
+                        ).createShader(bounds),
+                        blendMode: BlendMode.srcIn,
+                        child: Image.asset(
+                          Assets.icons.pointIcon.path,
+                          width: 16.w,
+                          height: 16.w,
+                          color: Colors.white,
+                        ),
+                      ),
+                      UIHelper.horizontalSpace(4.w),
+                      RichText(
+                        text: TextSpan(
+                          text: "$points ",
+                          style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                              .copyWith(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryColorSecond,
+                              ),
+                          children: [
+                            TextSpan(
+                              text: "pts",
+                              style: TextFontStyle.textStyle14cFFFFFFSFPro590
+                                  .copyWith(
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.primaryColorSecond
+                                        .withValues(alpha: 0.8),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              UIHelper.horizontalSpace(8.w),
+              // Share Button (Right side)
+              GestureDetector(
+                onTap: () => showInviteFriendBottomSheet(context),
+                child: Container(
+                  width: 36.w,
+                  height: 36.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E222B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.share_outlined,
+                    color: Colors.white,
+                    size: 18.sp,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

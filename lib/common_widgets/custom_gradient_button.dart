@@ -61,15 +61,19 @@ class CustomGradientButton extends StatelessWidget {
           ),
           child:
               child ??
-              Text(
-                title ?? '',
-                style:
-                    textStyle ??
-                    TextFontStyle.textStyle16c000000SFPro590.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: border != null ? Colors.white : AppColors.c262824,
-                    ),
-                textAlign: TextAlign.center,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title ?? '',
+                  style:
+                      textStyle ??
+                      TextFontStyle.textStyle16c000000SFPro590.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: border != null ? Colors.white : AppColors.c262824,
+                      ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                ),
               ),
         ),
       ),

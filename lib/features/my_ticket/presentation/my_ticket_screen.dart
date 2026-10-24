@@ -19,7 +19,7 @@ class MyTicketScreen extends StatefulWidget {
 }
 
 class _MyTicketScreenState extends State<MyTicketScreen> {
-  int _tabIndex = 0; // 0 = Upcoming, 1 = Past Ticket, 2 = Refunded Tickets
+  int _tabIndex = 0; // 0 = Upcoming events, 1 = Past tickets, 2 = Refunded tickets
   final ScrollController _scrollController = ScrollController();
 
   static const int _limit = 10;
@@ -218,7 +218,11 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: TicketToggleButton(
-              tabs: const ['Upcoming', 'Past Ticket', 'Refunded'],
+              tabs: const [
+                'Upcoming events',
+                'Past tickets',
+                'Refunded tickets',
+              ],
               selectedIndex: _tabIndex,
               onChanged: _onTabChanged,
               height: 50.h,
@@ -426,7 +430,7 @@ class _EmptyState extends StatelessWidget {
 
     switch (tabIndex) {
       case 0:
-        message = 'No upcoming tickets';
+        message = 'No upcoming events';
         icon = Icons.confirmation_num_outlined;
         break;
       case 1:

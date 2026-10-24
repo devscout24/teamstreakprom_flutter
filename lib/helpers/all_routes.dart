@@ -279,12 +279,19 @@ final class RouteGenerator {
               );
 
       case Routes.personalAccountInformationScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final accountType = args?['accountType'] as AccountType?;
         return defaultTargetPlatform == TargetPlatform.iOS
             ? CupertinoPageRoute(
-                builder: (context) => const PersonalAccountInformationScreen(),
+                builder: (context) => PersonalAccountInformationScreen(
+                  accountType: accountType,
+                ),
+                settings: settings,
               )
             : _FadedTransitionRoute(
-                widget: const PersonalAccountInformationScreen(),
+                widget: PersonalAccountInformationScreen(
+                  accountType: accountType,
+                ),
                 settings: settings,
               );
 

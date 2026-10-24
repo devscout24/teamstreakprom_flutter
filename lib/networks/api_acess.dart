@@ -73,6 +73,8 @@ import 'package:teamstreakpromo/features/settings/model/create_support_ticket_re
 import 'package:teamstreakpromo/features/settings/data/rx_get_ticket_messages/rx.dart';
 import 'package:teamstreakpromo/features/settings/data/rx_send_ticket_message/rx.dart';
 import 'package:teamstreakpromo/features/settings/model/ticket_messages_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_change_password/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/change_password_response_model.dart';
 
 final PostMarketplaceRx postMarketplaceRxObj = PostMarketplaceRx(
   empty: MarketplaceResponseModel(),
@@ -273,6 +275,12 @@ final DeleteAccountRx deleteAccountRxObj = DeleteAccountRx(
   empty: DeleteAccountResponseModel(),
   dataFetcher: BehaviorSubject<DeleteAccountResponseModel>(),
 );
+
+final ChangePasswordRx changePasswordRxObj = ChangePasswordRx(
+  empty: ChangePasswordResponseModel(),
+  dataFetcher: BehaviorSubject<ChangePasswordResponseModel>(),
+);
+
 
 
 

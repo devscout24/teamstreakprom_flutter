@@ -29,35 +29,38 @@ class HostStatCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  color: circleBgColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                ),
-                child: Icon(icon, color: iconColor, size: 18.w),
-              ),
-              UIHelper.horizontalSpace(10),
-              Flexible(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: "SF Pro",
-
-                    fontSize: 12.sp,
-                    color: AppColors.cFFFFFF.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w400,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10.w),
+                  decoration: BoxDecoration(
+                    color: circleBgColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  child: Icon(icon, color: iconColor, size: 18.w),
                 ),
-              ),
-            ],
+                UIHelper.horizontalSpace(10),
+                Flexible(
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: "SF Pro",
+
+                      fontSize: 12.sp,
+                      color: AppColors.cFFFFFF.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
           UIHelper.verticalSpace(6),
           Text(

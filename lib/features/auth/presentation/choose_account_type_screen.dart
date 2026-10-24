@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../common_widgets/custom_back_button.dart';
 import '../../../common_widgets/custom_gradient_button.dart';
 import '../../../constants/text_font_style.dart';
 import '../../../gen/colors.gen.dart';
@@ -57,8 +58,11 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
   final List<AccountTypeData> _cards = const [
     AccountTypeData(
       type: AccountType.user,
-      title: "User",
+      title: "Attendee",
       shortDescription: "Attend events, earn points, and unlock rewards.",
+      popupTitle1: "Who is an Attendee?",
+      popupDesc1:
+          "Buy tickets, earn Streak Points, attend events! Streak Points are tokens that you receive every time a ticket is purchased. You will also be able to send invite links to friends. For every ticket purchased through an invite link, you will receive 1 Streak Point. Streak Points can be used on custom rewards from different businesses and venues.",
     ),
     AccountTypeData(
       type: AccountType.host,
@@ -66,10 +70,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
       shortDescription: "Create events, sell tickets, and grow your audience.",
       popupTitle1: "Who is a Host?",
       popupDesc1:
-          "Hosts organize public events such as concerts, festivals, sports, comedy clubs, book readings. Customers earn loyalty points from ticket purchases. Those points unlock exclusive rewards",
-      popupTitle2: "How does a Host Account Work?",
-      popupDesc2:
-          "Hosts are commercial entities that organize live events, such as entertainment venues, comedy clubs, and author readings. Any public or ticketed gathering qualifies as a host_features event. Furthermore, hosts can engage their audiences by offering custom rewards that attendees unlock using loyalty points earned from ticket purchases.",
+          "Business owners or business representatives who host live ticketed events. With this account, you will be able to post custom events as well as custom rewards catered to each event. These rewards may be unlocked with Streak Points by attendees.",
     ),
     AccountTypeData(
       type: AccountType.businessPartner,
@@ -77,10 +78,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
       shortDescription: "Offer rewards and connect with local communities.",
       popupTitle1: "Who is a Business Partner?",
       popupDesc1:
-          "Strategic business partners offer exclusive deals and discounts that can be unlocked using user-generated points. Users accumulate these points by purchasing tickets to host_features events.",
-      popupTitle2: "How does a Business Partner Account Work?",
-      popupDesc2:
-          "These rewards are exclusively available to authenticated Streak App users, ensuring a closed-loop and highly targeted ecosystem.",
+          "Business owners or business representatives who distribute products. With this account, you will be able to post exclusive custom rewards that can be unlocked with Streak Points.",
     ),
   ];
 
@@ -152,7 +150,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                         ),
                       ),
                       UIHelper.verticalSpace(12),
-                      // Section 1 Content
+                      // Content
                       Text(
                         data.popupDesc1 ?? '',
                         textAlign: TextAlign.center,
@@ -161,37 +159,6 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                               fontSize: 13.sp,
                               fontFamily: "SF Pro",
                               color: AppColors.cFFFFFF.withValues(alpha: 0.7),
-                            ),
-                      ),
-                      UIHelper.verticalSpace(20),
-                      // Divider
-                      Divider(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        thickness: 1.w,
-                      ),
-                      UIHelper.verticalSpace(20),
-                      // Section 2 Title
-                      Center(
-                        child: Text(
-                          data.popupTitle2 ?? '',
-                          textAlign: TextAlign.center,
-                          style: TextFontStyle.textStyle18cFFFFFFSFPro590
-                              .copyWith(
-                                fontFamily: "SF Pro",
-                                color: AppColors.cFFFFFF.withValues(alpha: 0.9),
-                              ),
-                        ),
-                      ),
-                      UIHelper.verticalSpace(12),
-                      // Section 2 Content
-                      Text(
-                        data.popupDesc2 ?? '',
-                        textAlign: TextAlign.center,
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              fontSize: 13.sp,
-                              fontFamily: "SF Pro",
-                              color: Colors.white.withValues(alpha: 0.7),
                               height: 1.4,
                             ),
                       ),
@@ -339,10 +306,11 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
           AppColors.scaffoldColor, // Dark grey background matching mockup
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const CustomBackButton(),
               UIHelper.verticalSpace(20),
               Text(
                 "Choose Your Account Type",
@@ -353,7 +321,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
               ),
               UIHelper.verticalSpace(8),
               Text(
-                "Select how you would like to use STREAK.",
+                "Please select an account type and let’s divine into the experience!",
                 style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
                   color: Colors.white.withValues(alpha: 0.6),
                 ),
@@ -374,7 +342,7 @@ class _ChooseAccountTypeScreenState extends State<ChooseAccountTypeScreen> {
                   String typeStr = _getAccountTypeString(_selectedType);
                   appData.write(kAccountType, typeStr);
                   appData.write(kKeyfirstTime, false);
-                  
+
                   if (widget.isSignUp) {
                     if (_selectedType == AccountType.host ||
                         _selectedType == AccountType.businessPartner) {

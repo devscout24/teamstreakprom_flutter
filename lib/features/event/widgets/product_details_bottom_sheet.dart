@@ -182,13 +182,17 @@ void showProductDetailsBottomSheet({
                       size: 16.sp,
                     ),
                     UIHelper.horizontalSpace(6.w),
-                    Text(
-                      location,
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 13.sp,
-                          ),
+                    Flexible(
+                      child: Text(
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        location,
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 13.sp,
+                            ),
+                      ),
                     ),
                   ],
                 ),

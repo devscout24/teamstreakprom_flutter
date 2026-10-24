@@ -47,6 +47,7 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
   String? _businessPermitFileName;
   bool _showEinField = false;
   bool _isHost = false;
+  bool _isDetailsExpanded = false;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickDocument({required bool isLicense}) async {
@@ -430,6 +431,14 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Fixed Top Appbar / Back Button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: CustomBackButton(),
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -438,14 +447,11 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      UIHelper.verticalSpace(16),
-                      // Back Button
-                      const CustomBackButton(),
-                      UIHelper.verticalSpace(32),
+                      UIHelper.verticalSpace(12),
 
                       // Title
                       Text(
-                        "Business Details",
+                        "Business Credentials",
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
                               fontSize: 24.sp,
@@ -456,13 +462,68 @@ class _BusinessDetailsScreenState extends State<BusinessDetailsScreen> {
                       UIHelper.verticalSpace(8),
 
                       // Subtitle
-                      Text(
-                        "Setup your public profile page shown to customers on the app.",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              color: AppColors.cFFFFFF.withValues(alpha: 0.6),
-                              fontFamily: "SF Pro",
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        alignment: Alignment.topCenter,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "This page will be publicly displayed to customers, the business name and description will be able to be edited and changed, however. The business location will be irreversible. Once the location is added; the only way to change the location would be to contact customer support with a brief description of why you are changing your location or to create a new account. We do this to ensure that each location and business is verified and legitimate to ensure a safe space for our users.",
+                              maxLines: _isDetailsExpanded ? null : 3,
+                              overflow: _isDetailsExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
+                              style: TextFontStyle
+                                  .textStyle14cFFFFFFSFProRounded400
+                                  .copyWith(
+                                    color: AppColors.cFFFFFF.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                    fontFamily: "SF Pro",
+                                    height: 1.4,
+                                  ),
                             ),
+                            UIHelper.verticalSpace(6),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isDetailsExpanded = !_isDetailsExpanded;
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(4.r),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2.h),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _isDetailsExpanded
+                                          ? "Read less"
+                                          : "Read more",
+                                      style: TextFontStyle
+                                          .textStyle14cFFFFFFSFProRounded400
+                                          .copyWith(
+                                            color: AppColors.primaryColorFirst,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: "SF Pro",
+                                          ),
+                                    ),
+                                    UIHelper.horizontalSpace(4),
+                                    Icon(
+                                      _isDetailsExpanded
+                                          ? Icons.keyboard_arrow_up_rounded
+                                          : Icons.keyboard_arrow_down_rounded,
+                                      color: AppColors.primaryColorFirst,
+                                      size: 18.sp,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       UIHelper.verticalSpace(24),
 

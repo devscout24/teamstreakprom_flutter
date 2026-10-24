@@ -9,6 +9,10 @@ import 'features/my_ticket/presentation/my_ticket_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
 import 'constants/text_font_style.dart';
 import 'helpers/ui_helpers.dart';
+import 'constants/app_constants.dart';
+import 'helpers/di.dart';
+import 'networks/api_acess.dart';
+import 'features/settings/model/stripe_account_status_model.dart';
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
@@ -50,6 +54,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     required int index,
     required String iconPath,
     required String label,
+    bool showNotificationBadge = false,
   }) {
     final isSelected = _selectedIndex == index;
 
@@ -61,12 +66,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
           });
         },
         behavior: HitTestBehavior.opaque,
-        child: _buildNavItemContent(isSelected, iconPath, label),
+        child: _buildNavItemContent(
+          isSelected,
+          iconPath,
+          label,
+          showNotificationBadge: showNotificationBadge,
+        ),
       ),
     );
   }
 
-  Widget _buildNavItemContent(bool isSelected, String iconPath, String label) {
+  Widget _buildNavItemContent(
+    bool isSelected,
+    String iconPath,
+    String label, {
+    bool showNotificationBadge = false,
+  }) {
     Widget iconWidget = Image.asset(
       iconPath,
       width: 24.w,
@@ -95,11 +110,47 @@ class _NavigationScreenState extends State<NavigationScreen> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        AnimatedScale(
-          scale: isSelected ? 1.15 : 1.0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutBack,
-          child: iconWidget,
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              child: iconWidget,
+            ),
+            if (showNotificationBadge)
+              Positioned(
+                top: -5.h,
+                right: -7.w,
+                child: Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColors.primaryColorFirst,
+                        AppColors.primaryColorSecond,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFF28F31).withValues(alpha: 0.6),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.notifications_active_rounded,
+                    size: 9.sp,
+                    color: const Color(0xFF1B1C1A),
+                  ),
+                ),
+              ),
+          ],
         ),
         UIHelper.verticalSpace(6.h),
         AnimatedDefaultTextStyle(
@@ -178,10 +229,37 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   iconPath: Assets.icons.ticketIcon.path,
                   label: "My Ticket",
                 ),
-                _buildNavItem(
-                  index: 4,
-                  iconPath: Assets.icons.settingIcon.path,
-                  label: "Settings",
+                StreamBuilder<StripeAccountStatusModel>(
+                  stream:
+                      getStripeAccountStatusRxObj.getStripeAccountStatusData,
+                  builder: (context, snapshot) {
+                    final accountType = appData.read(kAccountType)?.toString();
+                    final isHost = accountType == "HOST" ||
+                        accountType == "host" ||
+                        accountType == "AccountType.host";
+
+                    bool showBell = false;
+                    if (isHost) {
+                      final statusData = snapshot.data?.data ??
+                          getStripeAccountStatusRxObj
+                              .getStripeAccountStatusData
+                              .valueOrNull
+                              ?.data;
+                      final isConnected = statusData?.isStripeConnected ==
+                              true ||
+                          statusData?.stripeAccountStatus?.toUpperCase() ==
+                              'ACTIVE' ||
+                          (appData.read(kKeyStripeConnected) as bool? ?? false);
+                      showBell = !isConnected;
+                    }
+
+                    return _buildNavItem(
+                      index: 4,
+                      iconPath: Assets.icons.settingIcon.path,
+                      label: "Settings",
+                      showNotificationBadge: showBell,
+                    );
+                  },
                 ),
               ],
             ),

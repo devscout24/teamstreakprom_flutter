@@ -138,6 +138,7 @@ final class Endpoints {
     return "/api/contents";
   }
   static String deleteAccount() => "/api/auth/delete-account";
+  static String changePassword() => "/api/auth/change-password";
 }
 
 

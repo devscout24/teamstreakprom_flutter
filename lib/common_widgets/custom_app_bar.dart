@@ -32,11 +32,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         elevation: 0,
         automaticallyImplyLeading: false,
         leading: showBackButton ? CustomBackButton(onTap: onBack) : null,
-        title: Text(
-          title,
-          style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            title,
+            style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         centerTitle: true,

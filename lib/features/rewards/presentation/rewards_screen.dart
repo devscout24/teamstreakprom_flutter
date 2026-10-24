@@ -186,8 +186,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16.r),
                         image: DecorationImage(
-                          image:
-                              AssetImage(Assets.images.pointBackground.path),
+                          image: AssetImage(Assets.images.pointBackground.path),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -203,25 +202,25 @@ class _RewardsScreenState extends State<RewardsScreen> {
                               ),
                               UIHelper.horizontalSpace(8.w),
                               Text(
-                                "My Point",
+                                "My streak Points",
                                 style: TextFontStyle.textStyle24cFFFFFFSFPro590
                                     .copyWith(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "SF Pro Rounded",
-                                  color: AppColors.cE8E8E8,
-                                ),
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "SF Pro Rounded",
+                                      color: AppColors.cE8E8E8,
+                                    ),
                               ),
                               const Spacer(),
                               Text(
                                 "95",
                                 style: TextFontStyle.textStyle24cFFFFFFSFPro590
                                     .copyWith(
-                                  fontSize: 32.sp,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "SF Pro Rounded",
-                                  color: AppColors.cFFFFFF,
-                                ),
+                                      fontSize: 32.sp,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "SF Pro Rounded",
+                                      color: AppColors.cFFFFFF,
+                                    ),
                               ),
                               Text(
                                 " pts",
@@ -237,10 +236,10 @@ class _RewardsScreenState extends State<RewardsScreen> {
                             style: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
-                              fontSize: 13.sp,
-                              fontFamily: "SF Pro Rounded",
-                              color: AppColors.cE8E8E8,
-                            ),
+                                  fontSize: 13.sp,
+                                  fontFamily: "SF Pro Rounded",
+                                  color: AppColors.cE8E8E8,
+                                ),
                           ),
                         ],
                       ),
@@ -266,8 +265,9 @@ class _RewardsScreenState extends State<RewardsScreen> {
                       return Padding(
                         padding: EdgeInsets.symmetric(vertical: 40.h),
                         child: const Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.orange),
+                          child: CircularProgressIndicator(
+                            color: Colors.orange,
+                          ),
                         ),
                       );
                     }
@@ -290,8 +290,10 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                 style: TextFontStyle
                                     .textStyle14cFFFFFFSFProRounded400
                                     .copyWith(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
                               ),
                               UIHelper.verticalSpace(12.h),
                               TextButton(
@@ -329,8 +331,8 @@ class _RewardsScreenState extends State<RewardsScreen> {
                             style: TextFontStyle
                                 .textStyle14cFFFFFFSFProRounded400
                                 .copyWith(
-                              color: Colors.white.withValues(alpha: 0.6),
-                            ),
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                ),
                           ),
                         ),
                       );
@@ -345,21 +347,23 @@ class _RewardsScreenState extends State<RewardsScreen> {
                         final reward = filteredRewards[index];
                         final isMarketplace =
                             (reward.itemType ?? '').toUpperCase() ==
-                                'MARKETPLACE';
+                            'MARKETPLACE';
 
                         String claimedDate = "N/A";
                         String claimedTime = "N/A";
                         if (reward.createdAt != null) {
                           try {
-                            claimedDate = DateFormat("dd MMM, yy")
-                                .format(reward.createdAt!.toLocal());
-                            claimedTime = DateFormat("h:mm a")
-                                .format(reward.createdAt!.toLocal());
+                            claimedDate = DateFormat(
+                              "dd MMM, yy",
+                            ).format(reward.createdAt!.toLocal());
+                            claimedTime = DateFormat(
+                              "h:mm a",
+                            ).format(reward.createdAt!.toLocal());
                           } catch (_) {}
                         }
 
-                        final imageUrl = (reward.photos != null &&
-                                reward.photos!.isNotEmpty)
+                        final imageUrl =
+                            (reward.photos != null && reward.photos!.isNotEmpty)
                             ? reward.photos!.first
                             : '';
 
@@ -368,7 +372,8 @@ class _RewardsScreenState extends State<RewardsScreen> {
                           child: MyRewardCard(
                             title: reward.title ?? '',
                             description: reward.description ?? '',
-                            location: (reward.location != null &&
+                            location:
+                                (reward.location != null &&
                                     reward.location!.isNotEmpty)
                                 ? reward.location!
                                 : 'Kamisama Art Club',
@@ -380,9 +385,9 @@ class _RewardsScreenState extends State<RewardsScreen> {
                               String formattedDateTime = "N/A";
                               if (reward.createdAt != null) {
                                 try {
-                                  formattedDateTime =
-                                      DateFormat("MMM dd,yy • hh.mm a")
-                                          .format(reward.createdAt!.toLocal());
+                                  formattedDateTime = DateFormat(
+                                    "MMM dd,yy • hh.mm a",
+                                  ).format(reward.createdAt!.toLocal());
                                 } catch (_) {}
                               }
 
@@ -392,8 +397,8 @@ class _RewardsScreenState extends State<RewardsScreen> {
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         MarketplaceRewardDetailsScreen(
-                                      orderId: reward.id,
-                                    ),
+                                          orderId: reward.id,
+                                        ),
                                   ),
                                 );
                               } else {

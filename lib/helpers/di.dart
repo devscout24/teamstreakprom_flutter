@@ -14,6 +14,8 @@ import 'package:teamstreakpromo/features/settings/model/create_support_ticket_re
 import 'package:teamstreakpromo/features/settings/data/rx_get_ticket_messages/rx.dart';
 import 'package:teamstreakpromo/features/settings/data/rx_send_ticket_message/rx.dart';
 import 'package:teamstreakpromo/features/settings/model/ticket_messages_model.dart';
+import 'package:teamstreakpromo/features/settings/data/rx_change_password/rx.dart';
+import 'package:teamstreakpromo/features/settings/model/change_password_response_model.dart';
 
 final locator = GetIt.instance;
 final appData = locator.get<GetStorage>();
@@ -48,6 +50,12 @@ void diSetup() {
     () => SendTicketMessageRx(
       empty: SendTicketMessageResponseModel(),
       dataFetcher: BehaviorSubject<SendTicketMessageResponseModel>(),
+    ),
+  );
+  locator.registerLazySingleton<ChangePasswordRx>(
+    () => ChangePasswordRx(
+      empty: ChangePasswordResponseModel(),
+      dataFetcher: BehaviorSubject<ChangePasswordResponseModel>(),
     ),
   );
 }

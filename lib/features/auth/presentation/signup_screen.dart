@@ -32,7 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool _is18Plus = false;
+  bool? _is18Plus;
   bool _agreedToTerms = false;
   bool _isLoading = false;
   bool _is18PlusError = false;
@@ -56,12 +56,21 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _signUp() async {
     setState(() {
-      _is18PlusError = !_is18Plus;
+      _is18PlusError = _is18Plus != true;
       _agreedToTermsError = !_agreedToTerms;
     });
 
     if (_formKey.currentState!.validate()) {
-      if (!_is18Plus || !_agreedToTerms) {
+      if (_is18Plus != true) {
+        if (_is18Plus == false) {
+          customToastMessage(
+            "Age Restriction",
+            "You must be 18 or older to register.",
+          );
+        }
+        return;
+      }
+      if (!_agreedToTerms) {
         return;
       }
 
@@ -140,7 +149,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: Column(
                     children: [
                       Text(
-                        "Create New Account",
+                        "Let’s create your account!",
                         style: TextFontStyle.textStyle24cFFFFFFSFPro590
                             .copyWith(
                               fontSize: 24.sp,
@@ -151,7 +160,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       UIHelper.verticalSpace(8),
                       // Subtitle
                       Text(
-                        "Enter your email to create new account",
+                        "Please enter your information below",
                         style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                             .copyWith(
                               color: AppColors.c9B9C9A,
@@ -165,7 +174,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Name Field
                 CustomTextFormField(
                   controller: _nameController,
-                  hintText: "Name",
+                  hintText: "First and Last name",
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
                   validator: nameValidator,
@@ -200,55 +209,143 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 UIHelper.verticalSpace(16),
 
-                // Checkbox 1: 18+ Years Old
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _is18Plus = !_is18Plus;
-                      if (_is18Plus) _is18PlusError = false;
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 20.w,
-                        height: 20.w,
-                        decoration: BoxDecoration(
-                          color: _is18Plus
-                              ? AppColors.cF28F31
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(4.r),
-                          border: Border.all(
-                            color: _is18Plus
-                                ? AppColors.cF28F31
-                                : _is18PlusError
-                                ? Colors.redAccent
-                                : Colors.white.withValues(alpha: 0.4),
-                            width: 2.w,
+                // 18+ Question with Yes / No Boxes
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Are you 18+?",
+                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                              .copyWith(
+                                fontSize: 13.sp,
+                                fontFamily: "SF Pro",
+                                color: _is18PlusError
+                                    ? Colors.redAccent
+                                    : Colors.white.withValues(alpha: 0.8),
+                              ),
+                        ),
+                        UIHelper.horizontalSpace(24),
+                        // Yes Option
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              _is18Plus = true;
+                              _is18PlusError = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 20.w,
+                                height: 20.w,
+                                decoration: BoxDecoration(
+                                  color: _is18Plus == true
+                                      ? AppColors.cF28F31
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(4.r),
+                                  border: Border.all(
+                                    color: _is18Plus == true
+                                        ? AppColors.cF28F31
+                                        : _is18PlusError
+                                        ? Colors.redAccent
+                                        : Colors.white.withValues(alpha: 0.4),
+                                    width: 2.w,
+                                  ),
+                                ),
+                                child: _is18Plus == true
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 14,
+                                      )
+                                    : null,
+                              ),
+                              UIHelper.horizontalSpace(8),
+                              Text(
+                                "Yes",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      fontSize: 13.sp,
+                                      fontFamily: "SF Pro",
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: _is18Plus
-                            ? const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 14,
-                              )
-                            : null,
-                      ),
-                      UIHelper.horizontalSpace(12),
+                        UIHelper.horizontalSpace(24),
+                        // No Option
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              _is18Plus = false;
+                              _is18PlusError = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 20.w,
+                                height: 20.w,
+                                decoration: BoxDecoration(
+                                  color: _is18Plus == false
+                                      ? AppColors.cF28F31
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(4.r),
+                                  border: Border.all(
+                                    color: _is18Plus == false
+                                        ? AppColors.cF28F31
+                                        : _is18PlusError
+                                        ? Colors.redAccent
+                                        : Colors.white.withValues(alpha: 0.4),
+                                    width: 2.w,
+                                  ),
+                                ),
+                                child: _is18Plus == false
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 14,
+                                      )
+                                    : null,
+                              ),
+                              UIHelper.horizontalSpace(8),
+                              Text(
+                                "No",
+                                style: TextFontStyle
+                                    .textStyle14cFFFFFFSFProRounded400
+                                    .copyWith(
+                                      fontSize: 13.sp,
+                                      fontFamily: "SF Pro",
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_is18PlusError) ...[
+                      UIHelper.verticalSpace(4),
                       Text(
-                        "I am 18+ years old",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                            .copyWith(
-                              fontSize: 12.sp,
-                              fontFamily: "SF Pro",
-                              color: _is18PlusError
-                                  ? Colors.redAccent
-                                  : Colors.white.withValues(alpha: 0.8),
-                            ),
+                        _is18Plus == false
+                            ? "You must be 18+ to register"
+                            : "Please select if you are 18+",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 11.sp,
+                          fontFamily: "SF Pro",
+                        ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
                 UIHelper.verticalSpace(12),
 
@@ -293,7 +390,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       UIHelper.horizontalSpace(12),
                       RichText(
                         text: TextSpan(
-                          text: "I agree to all ",
+                          text: "I agree to all of the ",
                           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                               .copyWith(
                                 fontSize: 12.sp,
@@ -304,7 +401,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                           children: [
                             TextSpan(
-                              text: "Terms & Conditions",
+                              text: "Terms and Conditions",
                               style: TextStyle(
                                 fontFamily: "SF Pro",
                                 fontSize: 12.sp,
@@ -492,7 +589,7 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   child: Text(
-                    "Welcome to Team Streak Promo!\n\n"
+                    "Welcome to Team Streak!\n\n"
                     "These terms and conditions outline the rules and regulations for the use of our app.\n\n"
                     "By accessing this app we assume you accept these terms and conditions. Do not continue to use the app if you do not agree to take all of the terms and conditions stated on this page.\n\n"
                     "1. Introduction\n"
@@ -526,13 +623,15 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
             Opacity(
               opacity: _isScrolledToBottom ? 1.0 : 0.5,
               child: CustomGradientButton(
+                height: 52.h,
                 onPressed: _isScrolledToBottom ? widget.onAgreed : null,
                 child: Text(
-                  "I have read and agree",
+                  "I have read and agree to all of the terms and conditions",
                   textAlign: TextAlign.center,
+                  maxLines: 2,
                   style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     color: AppColors.c262824,
                   ),
                 ),
