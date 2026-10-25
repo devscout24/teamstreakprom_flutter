@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../common_widgets/custom_gradient_button.dart';
 import '../../../../common_widgets/ticket_toggle_button.dart';
 import '../../../../constants/text_font_style.dart';
 import '../../../../gen/colors.gen.dart';
@@ -47,8 +46,8 @@ class _BusinessPartnerRewardsScreenState
               Row(
                 children: [
                   const Spacer(),
-                  CustomGradientButton(
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -57,31 +56,36 @@ class _BusinessPartnerRewardsScreenState
                         ),
                       );
                     },
-                    width: 200.w,
-                    height: 44.h,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFFAA00), Color(0xFFFFAA00)],
-                    ),
-                    borderRadius: BorderRadius.circular(100.r),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: const Color(0xFF1B1C1A),
-                          size: 20.sp,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.primaryColorFirst,
+                            AppColors.primaryColorSecond,
+                          ],
                         ),
-                        UIHelper.horizontalSpace(8.w),
-                        Text(
-                          "Create New Rewards",
-                          style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                              .copyWith(
-                                color: const Color(0xFF1B1C1A),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                              ),
-                        ),
-                      ],
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, color: Colors.black, size: 18.w),
+                          SizedBox(width: 4.w),
+                          Text(
+                            "Create New Rewards",
+                            style: TextStyle(
+                              fontFamily: "SF Pro Rounded",
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -90,8 +94,8 @@ class _BusinessPartnerRewardsScreenState
 
               // Tab Toggle
               TicketToggleButton(
-                leftLabel: "Active",
-                rightLabel: "Expired",
+                leftLabel: "Active Rewards",
+                rightLabel: "Expired Rewards",
                 selectedIndex: _isActiveTab ? 0 : 1,
                 onChanged: (index) {
                   setState(() {
@@ -167,6 +171,7 @@ class _BusinessPartnerRewardsScreenState
                                     BusinessPartnerRewardsDetailsScreen(
                                       type: 'businessPartner',
                                       id: item.id,
+                                      isActive: _isActiveTab,
                                     ),
                               ),
                             ).then((_) {

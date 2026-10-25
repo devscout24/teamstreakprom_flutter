@@ -147,7 +147,7 @@ class _BusinessPartnerHomeScreenState extends State<BusinessPartnerHomeScreen> {
                   children: [
                     Expanded(
                       child: HostStatCard(
-                        title: "Total Claims",
+                        title: "Total rewards claimed",
                         value: "12,450",
                         icon: Icons.check_box_outlined,
                         iconColor: Colors.blueAccent,

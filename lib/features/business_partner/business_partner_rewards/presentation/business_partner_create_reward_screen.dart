@@ -136,11 +136,80 @@ class _BusinessPartnerCreateRewardScreenState
     super.dispose();
   }
 
+  DateTime? _parseDate(String text) {
+    if (text.trim().isEmpty) return null;
+    try {
+      if (text.contains('/')) {
+        final parts = text.trim().split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      } else if (text.contains('-')) {
+        final parts = text.trim().split('-');
+        if (parts.length == 3) {
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  TimeOfDay? _parseTime(String text) {
+    if (text.trim().isEmpty) return null;
+    try {
+      final clean = text.trim().toUpperCase();
+      final isPM = clean.contains('PM');
+      final isAM = clean.contains('AM');
+      final digits = clean.replaceAll(RegExp(r'[^0-9:]'), '');
+      final parts = digits.split(':');
+      if (parts.length >= 2) {
+        int hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        if (isPM && hour < 12) hour += 12;
+        if (isAM && hour == 12) hour = 0;
+        return TimeOfDay(hour: hour, minute: minute);
+      }
+    } catch (_) {}
+    return null;
+  }
+
   void _nextStep() {
     if (_currentStep == 1) {
       if (!_formKeyStep1.currentState!.validate()) return;
     } else if (_currentStep == 2) {
       if (!_formKeyStep2.currentState!.validate()) return;
+      final start = _parseDate(_startDateController.text);
+      final end = _parseDate(_endDateController.text);
+      if (start != null && end != null && start.isAfter(end)) {
+        customToastMessage(
+          "Invalid Date",
+          "Start date must be set before end date.",
+          isError: true,
+        );
+        return;
+      }
+      if (start != null && end != null && start.isAtSameMomentAs(end)) {
+        final sTime = _parseTime(_startTimeController.text);
+        final eTime = _parseTime(_endTimeController.text);
+        if (sTime != null && eTime != null) {
+          final startMinutes = sTime.hour * 60 + sTime.minute;
+          final endMinutes = eTime.hour * 60 + eTime.minute;
+          if (endMinutes <= startMinutes) {
+            customToastMessage(
+              "Invalid Time",
+              "End time must be after start time on the same date.",
+              isError: true,
+            );
+            return;
+          }
+        }
+      }
     }
 
     if (_currentStep < 3) {
@@ -498,10 +567,23 @@ class _BusinessPartnerCreateRewardScreenState
                     });
                   },
                   onPost: _onPost,
-                )
+                ),
             ],
           ),
         ),
+        bottomNavigationBar: _currentStep == 3
+            ? RewardWizardStepThreeBottomBar(
+                agreedToTerms: _agreedToTerms,
+                isLoading: _isLoading,
+                isEdit: widget.isEdit,
+                onAgreedToTermsChanged: (value) {
+                  setState(() {
+                    _agreedToTerms = value;
+                  });
+                },
+                onPost: _onPost,
+              )
+            : null,
       ),
     );
   }

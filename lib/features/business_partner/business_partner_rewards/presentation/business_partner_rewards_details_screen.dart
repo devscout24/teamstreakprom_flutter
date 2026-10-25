@@ -20,8 +20,14 @@ import 'business_partner_create_reward_screen.dart';
 class BusinessPartnerRewardsDetailsScreen extends StatefulWidget {
   final String? type;
   final String? id;
+  final bool? isActive;
 
-  const BusinessPartnerRewardsDetailsScreen({super.key, this.type, this.id});
+  const BusinessPartnerRewardsDetailsScreen({
+    super.key,
+    this.type,
+    this.id,
+    this.isActive,
+  });
 
   @override
   State<BusinessPartnerRewardsDetailsScreen> createState() =>
@@ -78,55 +84,75 @@ class _BusinessPartnerRewardsDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (widget.id != null && widget.id!.isNotEmpty) {
+      return StreamBuilder<GetMarketplaceDetailsModel>(
+        stream: getMarketplaceDetailsRxObj.getMarketplaceDetailsData,
+        builder: (context, snapshot) {
+          final data = snapshot.data?.data;
+          final isCurrentDataLoaded =
+              data != null && data.id == widget.id;
+          final bool isActive = widget.isActive ??
+              (isCurrentDataLoaded ? (data.isActive ?? true) : true);
+          final String title =
+              isActive ? "Active Reward Details" : "Expired Reward details";
+
+          Widget body;
+          if (_isLoading || !isCurrentDataLoaded) {
+            if (_errorMessage != null) {
+              body = Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _errorMessage!,
+                      style: TextFontStyle
+                          .textStyle14cFFFFFFSFProRounded400
+                          .copyWith(
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                    ),
+                    UIHelper.verticalSpace(12.h),
+                    TextButton(
+                      onPressed: _fetchDetails,
+                      child: const Text(
+                        "Retry",
+                        style: TextStyle(color: Color(0xFFF28F31)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              body = const Center(
+                child: CircularProgressIndicator(color: Color(0xFFF28F31)),
+              );
+            }
+          } else {
+            body = _buildContent(data);
+          }
+
+          return Scaffold(
+            backgroundColor: AppColors.scaffoldColor,
+            appBar: CustomAppBar(
+              showRightIcon: false,
+              title: title,
+            ),
+            body: body,
+          );
+        },
+      );
+    }
+
+    final bool isActive = widget.isActive ?? true;
+    final String title =
+        isActive ? "Active Reward Details" : "Expired Reward details";
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         showRightIcon: false,
-        title: "Rewards Product Detail",
+        title: title,
       ),
-      body: widget.id != null && widget.id!.isNotEmpty
-          ? StreamBuilder<GetMarketplaceDetailsModel>(
-              stream: getMarketplaceDetailsRxObj.getMarketplaceDetailsData,
-              builder: (context, snapshot) {
-                final data = snapshot.data?.data;
-                final isCurrentDataLoaded =
-                    data != null && data.id == widget.id;
-
-                if (_isLoading || !isCurrentDataLoaded) {
-                  if (_errorMessage != null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _errorMessage!,
-                            style: TextFontStyle
-                                .textStyle14cFFFFFFSFProRounded400
-                                .copyWith(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
-                          ),
-                          UIHelper.verticalSpace(12.h),
-                          TextButton(
-                            onPressed: _fetchDetails,
-                            child: const Text(
-                              "Retry",
-                              style: TextStyle(color: Color(0xFFF28F31)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFF28F31)),
-                  );
-                }
-
-                return _buildContent(data);
-              },
-            )
-          : _buildContent(null),
+      body: _buildContent(null),
     );
   }
 
@@ -169,8 +195,8 @@ class _BusinessPartnerRewardsDetailsScreenState
     }
 
     final String remaining = data != null
-        ? "${data.quantity ?? 0} reward remaining"
-        : "4 reward remaining";
+        ? "${data.quantity ?? 0} rewards are remaining"
+        : "4 rewards are remaining";
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -503,7 +529,7 @@ class _BusinessPartnerRewardsDetailsScreenState
 
                           Expanded(
                             child: Text(
-                              "This reward must be redeemed at the physical location with an employee present",
+                              "This reward must be redeemed at the physical location of this business. Please ensure that an employee is present with this reward redemption.",
                               style: TextFontStyle
                                   .textStyle14cFFFFFFSFProRounded400
                                   .copyWith(
@@ -565,7 +591,7 @@ class _BusinessPartnerRewardsDetailsScreenState
                               }
                             });
                           },
-                          title: "Edit Info",
+                          title: "Edit reward info",
                           height: 48.h,
                         ),
                       ),
@@ -579,7 +605,9 @@ class _BusinessPartnerRewardsDetailsScreenState
                           title: "Delete",
                           height: 48.h,
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFFFF5252), Color(0xFFC72C2C)],
                           ),
                         ),
                       ),
@@ -853,7 +881,9 @@ class _BusinessPartnerRewardsDetailsScreenState
                           height: 48.h,
                           borderRadius: BorderRadius.circular(100.r),
                           gradient: const LinearGradient(
-                            colors: [Color(0xFFC72C2C), Color(0xFF9E1F1F)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFFFF5252), Color(0xFFC72C2C)],
                           ),
                           child: isLoading
                               ? const SizedBox(

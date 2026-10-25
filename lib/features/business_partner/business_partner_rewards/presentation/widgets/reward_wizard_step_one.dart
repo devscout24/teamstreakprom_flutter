@@ -52,10 +52,12 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
     _selectedCategory = widget.initialCategoryId;
     _selectedSubcategory = widget.initialSubcategoryId;
     _isCategorySelected =
-        widget.initialCategoryId != null && widget.initialCategoryId!.isNotEmpty;
+        widget.initialCategoryId != null &&
+        widget.initialCategoryId!.isNotEmpty;
     if (_isCategorySelected && widget.initialCategoryId != null) {
-      getRewardSubcategoriesRx
-          .getRewardSubcategories(widget.initialCategoryId!);
+      getRewardSubcategoriesRx.getRewardSubcategories(
+        widget.initialCategoryId!,
+      );
     }
   }
 
@@ -64,11 +66,13 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialCategoryId != oldWidget.initialCategoryId) {
       _selectedCategory = widget.initialCategoryId;
-      _isCategorySelected = widget.initialCategoryId != null &&
+      _isCategorySelected =
+          widget.initialCategoryId != null &&
           widget.initialCategoryId!.isNotEmpty;
       if (_isCategorySelected && widget.initialCategoryId != null) {
-        getRewardSubcategoriesRx
-            .getRewardSubcategories(widget.initialCategoryId!);
+        getRewardSubcategoriesRx.getRewardSubcategories(
+          widget.initialCategoryId!,
+        );
       }
     }
     if (widget.initialSubcategoryId != oldWidget.initialSubcategoryId) {
@@ -102,7 +106,7 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
         ),
         UIHelper.verticalSpace(8.h),
         Text(
-          "Create an exclusive reward to encourage more ticket purchases.",
+          "Customize and create your own unique and authenticate rewards!",
           style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
             color: AppColors.cBCBCBB,
             fontSize: 13.sp,
@@ -115,8 +119,9 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
         _buildLabel("Reward Title"),
         CustomTextFormField(
           controller: widget.titleController,
-          hintText: "Kimberly Gilbert",
-          validator: (value) => value == null || value.isEmpty ? "Required" : null,
+          hintText: "e.g. buy 1 get 1 free deal, Half off",
+          validator: (value) =>
+              value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(20.h),
 
@@ -127,7 +132,8 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
           hintText: "Tell attendees about this event ...",
           borderRadius: BorderRadius.circular(20.r),
           maxLines: 5,
-          validator: (value) => value == null || value.isEmpty ? "Required" : null,
+          validator: (value) =>
+              value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(20.h),
 
@@ -216,15 +222,20 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
                     _selectedSubcategory = null;
                   });
                   getRewardSubcategoriesRx.getRewardSubcategories(newValue);
-                  final selectedCategory =
-                      categories.where((c) => c.id == newValue).firstOrNull;
+                  final selectedCategory = categories
+                      .where((c) => c.id == newValue)
+                      .firstOrNull;
                   widget.onCategoryChanged(newValue);
-                  widget.onCategorySelected?.call(newValue, selectedCategory?.name);
+                  widget.onCategorySelected?.call(
+                    newValue,
+                    selectedCategory?.name,
+                  );
                   widget.onSubcategoryChanged(null);
                   widget.onSubcategorySelected?.call(null, null);
                 }
               },
-              validator: (value) => value == null || value.isEmpty ? "Required" : null,
+              validator: (value) =>
+                  value == null || value.isEmpty ? "Required" : null,
             );
           },
         ),
@@ -234,94 +245,99 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
           // Reward Subcategory
           _buildLabel("Reward Subcategory"),
           StreamBuilder<RewardSubcategoryResponse>(
-          stream: getRewardSubcategoriesRx.getRewardSubcategoriesData,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
-              return Shimmer.fromColors(
-                baseColor: const Color(0xFF1E222B),
-                highlightColor: Colors.white.withValues(alpha: 0.05),
-                child: Container(
-                  height: 56.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E222B),
-                    borderRadius: BorderRadius.circular(100.r),
+            stream: getRewardSubcategoriesRx.getRewardSubcategoriesData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return Shimmer.fromColors(
+                  baseColor: const Color(0xFF1E222B),
+                  highlightColor: Colors.white.withValues(alpha: 0.05),
+                  child: Container(
+                    height: 56.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E222B),
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
                   ),
+                );
+              }
+              List<RewardSubcategoryModel> subcategories = [];
+              if (snapshot.hasData && snapshot.data?.data != null) {
+                subcategories = snapshot.data!.data!;
+              }
+              return DropdownButtonFormField<String>(
+                initialValue:
+                    subcategories.any((s) => s.id == _selectedSubcategory)
+                    ? _selectedSubcategory
+                    : null,
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white.withValues(alpha: 0.4),
+                  size: 20.sp,
                 ),
-              );
-            }
-            List<RewardSubcategoryModel> subcategories = [];
-            if (snapshot.hasData && snapshot.data?.data != null) {
-              subcategories = snapshot.data!.data!;
-            }
-            return DropdownButtonFormField<String>(
-              initialValue: subcategories.any((s) => s.id == _selectedSubcategory)
-                  ? _selectedSubcategory
-                  : null,
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 20.sp,
-              ),
-              dropdownColor: AppColors.c242A34,
-              style: TextStyle(
-                fontFamily: "SF Pro",
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: AppColors.cE9EAE9,
-              ),
-              hint: Text(
-                "Choose Subcategories",
+                dropdownColor: AppColors.c242A34,
                 style: TextStyle(
                   fontFamily: "SF Pro",
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.cB7B8BA,
+                  color: AppColors.cE9EAE9,
                 ),
-              ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.c242A34,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20.w,
-                  vertical: 18.h,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.r),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.r),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(100.r),
-                  borderSide: BorderSide(
-                    color: Colors.white.withValues(alpha: .2),
-                    width: 1.w,
+                hint: Text(
+                  "Choose Subcategories",
+                  style: TextStyle(
+                    fontFamily: "SF Pro",
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.cB7B8BA,
                   ),
                 ),
-              ),
-              items: subcategories.map((RewardSubcategoryModel subcategory) {
-                return DropdownMenuItem<String>(
-                  value: subcategory.id,
-                  child: Text(subcategory.name ?? ""),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedSubcategory = newValue;
-                });
-                final selectedSub =
-                    subcategories.where((s) => s.id == newValue).firstOrNull;
-                widget.onSubcategoryChanged(newValue);
-                widget.onSubcategorySelected?.call(newValue, selectedSub?.name);
-              },
-              // Subcategory is optional, so no validator required
-            );
-          },
-        ),
-        UIHelper.verticalSpace(20.h),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.c242A34,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 18.h,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(100.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(100.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(100.r),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: .2),
+                      width: 1.w,
+                    ),
+                  ),
+                ),
+                items: subcategories.map((RewardSubcategoryModel subcategory) {
+                  return DropdownMenuItem<String>(
+                    value: subcategory.id,
+                    child: Text(subcategory.name ?? ""),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedSubcategory = newValue;
+                  });
+                  final selectedSub = subcategories
+                      .where((s) => s.id == newValue)
+                      .firstOrNull;
+                  widget.onSubcategoryChanged(newValue);
+                  widget.onSubcategorySelected?.call(
+                    newValue,
+                    selectedSub?.name,
+                  );
+                },
+                // Subcategory is optional, so no validator required
+              );
+            },
+          ),
+          UIHelper.verticalSpace(20.h),
         ],
 
         // Location
@@ -330,7 +346,8 @@ class _RewardWizardStepOneState extends State<RewardWizardStepOne> {
           controller: widget.locationController,
           hintText: "New York, US",
           prefixIcon: Icons.location_on_outlined,
-          validator: (value) => value == null || value.isEmpty ? "Required" : null,
+          validator: (value) =>
+              value == null || value.isEmpty ? "Required" : null,
         ),
         UIHelper.verticalSpace(32.h),
 

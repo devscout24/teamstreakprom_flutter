@@ -38,15 +38,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _checkStripeStatus();
   }
 
+  bool _isHostUser() {
+    final accountType = appData.read(kAccountType)?.toString();
+    final profileRole =
+        userProfileRxObj.userProfileData.valueOrNull?.data?.role?.toUpperCase();
+    return accountType == "AccountType.host" ||
+        accountType == "HOST" ||
+        accountType == "host" ||
+        accountType?.toLowerCase() == "accounttype.host" ||
+        accountType?.toLowerCase() == "host" ||
+        profileRole == "HOST";
+  }
+
   Future<void> _fetchProfile() async {
     try {
       await userProfileRxObj.fetchUserProfile();
+      if (_isHostUser()) {
+        _checkStripeStatus();
+      }
     } catch (e) {
       debugPrint("Failed to fetch profile: $e");
     }
   }
 
   Future<void> _checkStripeStatus() async {
+    if (!_isHostUser()) return;
+
     try {
       final res = await getStripeAccountStatusRxObj.getStripeAccountStatus();
       if (res.success == true && res.data != null) {
@@ -422,7 +439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (isHostOrBP) ...[
                     SettingsItem(
                       iconPath: 'assets/icons/team_icon.png',
-                      title: "Manage Team",
+                      title: "Manage Team access",
                       onTap: () {
                         NavigationService.navigateTo(Routes.manageTeamScreen);
                       },
@@ -439,7 +456,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                   SettingsItem(
                     iconPath: Assets.icons.notificationIcon.path,
-                    title: "Notification Preferences",
+                    title: "Push Notifications",
                     onTap: () {
                       NavigationService.navigateTo(
                         Routes.notificationSettingsScreen,

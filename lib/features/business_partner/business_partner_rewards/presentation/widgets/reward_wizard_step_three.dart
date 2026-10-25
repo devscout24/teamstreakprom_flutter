@@ -29,6 +29,7 @@ class RewardWizardStepThree extends StatelessWidget {
   final Function(bool) onAgreedToTermsChanged;
   final VoidCallback onEdit;
   final VoidCallback onPost;
+  final bool showBottomStickyActions;
 
   const RewardWizardStepThree({
     super.key,
@@ -47,6 +48,7 @@ class RewardWizardStepThree extends StatelessWidget {
     required this.agreedToTerms,
     this.isLoading = false,
     this.isEdit = false,
+    this.showBottomStickyActions = false,
     required this.onAgreedToTermsChanged,
     required this.onEdit,
     required this.onPost,
@@ -72,7 +74,7 @@ class RewardWizardStepThree extends StatelessWidget {
                   ),
                   UIHelper.verticalSpace(8.h),
                   Text(
-                    "Double-check your information before\nmaking your reward live.",
+                    "How does everything look? Please double-check your information before posting your live reward.",
                     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                         .copyWith(
                           color: AppColors.cBCBCBB,
@@ -312,7 +314,7 @@ class RewardWizardStepThree extends StatelessWidget {
                       ),
                       UIHelper.horizontalSpace(4.w),
                       Text(
-                        "${quantityController.text.isNotEmpty ? quantityController.text : '0'} reward remaining",
+                        "${quantityController.text.isNotEmpty ? quantityController.text : '0'} rewards are remaining",
                         style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                             .copyWith(
                               fontWeight: FontWeight.w600,
@@ -452,149 +454,203 @@ class RewardWizardStepThree extends StatelessWidget {
           ),
         ),
         UIHelper.verticalSpace(24.h),
-
-        // Terms and conditions checkbox
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                if (!agreedToTerms) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => _TermsAndConditionsDialog(
-                      onAgreed: () {
-                        Navigator.pop(context);
-                        onAgreedToTermsChanged(true);
-                      },
-                    ),
-                  );
-                } else {
-                  onAgreedToTermsChanged(false);
-                }
-              },
-              child: Container(
-                width: 20.w,
-                height: 20.w,
-                decoration: BoxDecoration(
-                  color: agreedToTerms
-                      ? const Color(0xFFFFAA00)
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: agreedToTerms
-                        ? const Color(0xFFFFAA00)
-                        : Colors.white.withValues(alpha: 0.5),
-                  ),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: agreedToTerms
-                    ? Icon(Icons.check, color: Colors.black, size: 16.sp)
-                    : null,
-              ),
-            ),
-            UIHelper.horizontalSpace(12.w),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  text: "I agree to all ",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(fontSize: 13.sp),
-                  children: [
-                    TextSpan(
-                      text: "Terms & Conditions",
-                      style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                          .copyWith(
-                            color: AppColors.cF28F31,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (context) => _TermsAndConditionsDialog(
-                          //     onAgreed: () {
-                          //       Navigator.pop(context);
-                          //       onAgreedToTermsChanged(true);
-                          //     },
-                          //   ),
-                          // );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        UIHelper.verticalSpace(32.h),
-
-        // Post Reward Button
-        CustomGradientButton(
-          onPressed: agreedToTerms && !isLoading ? onPost : null,
-          height: 52.h,
-          gradient: agreedToTerms
-              ? null
-              : LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.2),
-                    Colors.white.withValues(alpha: 0.2),
-                  ],
-                ),
-          child: isLoading
-              ? const SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : Text(
-                  isEdit ? "Update Reward" : "Post Reward",
-                  style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: agreedToTerms
-                        ? const Color(0xFF1B1C1A)
-                        : Colors.white.withValues(alpha: 0.5),
-                  ),
-                ),
-        ),
-        UIHelper.verticalSpace(16.h),
+        if (showBottomStickyActions) ...[
+          UIHelper.verticalSpace(8.h),
+          RewardWizardStepThreeBottomBar(
+            agreedToTerms: agreedToTerms,
+            isLoading: isLoading,
+            isEdit: isEdit,
+            onAgreedToTermsChanged: onAgreedToTermsChanged,
+            onPost: onPost,
+          ),
+        ],
       ],
     );
   }
 }
 
-class _TermsAndConditionsDialog extends StatefulWidget {
-  final VoidCallback onAgreed;
-  const _TermsAndConditionsDialog({required this.onAgreed});
+class RewardWizardStepThreeBottomBar extends StatelessWidget {
+  final bool agreedToTerms;
+  final bool isLoading;
+  final bool isEdit;
+  final Function(bool) onAgreedToTermsChanged;
+  final VoidCallback onPost;
+
+  const RewardWizardStepThreeBottomBar({
+    super.key,
+    required this.agreedToTerms,
+    this.isLoading = false,
+    this.isEdit = false,
+    required this.onAgreedToTermsChanged,
+    required this.onPost,
+  });
+
+  void _openTermsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _TermsAndConditionsBottomSheet(
+        onAgreed: () {
+          Navigator.pop(context);
+          onAgreedToTermsChanged(true);
+        },
+      ),
+    );
+  }
 
   @override
-  State<_TermsAndConditionsDialog> createState() =>
-      _TermsAndConditionsDialogState();
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.scaffoldColor,
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        left: 20.w,
+        right: 20.w,
+        top: 14.h,
+        bottom: 20.h,
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Terms & Conditions Checkbox
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (agreedToTerms) {
+                      onAgreedToTermsChanged(false);
+                    } else {
+                      _openTermsBottomSheet(context);
+                    }
+                  },
+                  child: Container(
+                    width: 20.w,
+                    height: 20.w,
+                    decoration: BoxDecoration(
+                      color: agreedToTerms
+                          ? const Color(0xFFFFAA00)
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: agreedToTerms
+                            ? const Color(0xFFFFAA00)
+                            : Colors.white.withValues(alpha: 0.5),
+                      ),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: agreedToTerms
+                        ? Icon(Icons.check, color: Colors.black, size: 16.sp)
+                        : null,
+                  ),
+                ),
+                UIHelper.horizontalSpace(12.w),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      if (agreedToTerms) {
+                        onAgreedToTermsChanged(false);
+                      } else {
+                        _openTermsBottomSheet(context);
+                      }
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        text: "I agree to all of the ",
+                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                            .copyWith(fontSize: 13.sp),
+                        children: [
+                          TextSpan(
+                            text: "terms and conditions",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: AppColors.cF28F31,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                _openTermsBottomSheet(context);
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            UIHelper.verticalSpace(14.h),
+
+            // Post your reward! Button
+            CustomGradientButton(
+              onPressed: agreedToTerms && !isLoading ? onPost : null,
+              height: 52.h,
+              gradient: agreedToTerms
+                  ? null
+                  : LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.2),
+                        Colors.white.withValues(alpha: 0.2),
+                      ],
+                    ),
+              child: isLoading
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      isEdit ? "Update Reward" : "Post your reward!",
+                      style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: agreedToTerms
+                            ? const Color(0xFF1B1C1A)
+                            : Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
+class _TermsAndConditionsBottomSheet extends StatefulWidget {
+  final VoidCallback onAgreed;
+  const _TermsAndConditionsBottomSheet({required this.onAgreed});
+
+  @override
+  State<_TermsAndConditionsBottomSheet> createState() =>
+      _TermsAndConditionsBottomSheetState();
+}
+
+class _TermsAndConditionsBottomSheetState
+    extends State<_TermsAndConditionsBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   bool _isScrolledToBottom = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 20) {
-        if (!_isScrolledToBottom) {
-          setState(() {
-            _isScrolledToBottom = true;
-          });
-        }
-      }
-    });
-    // Check if content is smaller than screen initially
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients &&
-          _scrollController.position.maxScrollExtent <= 0) {
+          _scrollController.position.maxScrollExtent <= 20) {
         setState(() {
           _isScrolledToBottom = true;
         });
@@ -602,22 +658,58 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
     });
   }
 
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 24) {
+        if (!_isScrolledToBottom) {
+          setState(() {
+            _isScrolledToBottom = true;
+          });
+        }
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
-      backgroundColor: AppColors.scaffoldColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      padding: EdgeInsets.only(
+        left: 20.w,
+        right: 20.w,
+        top: 12.h,
+        bottom: 24.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.scaffoldColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(28.r),
+          topRight: Radius.circular(28.r),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
         child: Column(
           children: [
+            Center(
+              child: Container(
+                width: 44.w,
+                height: 4.h,
+                margin: EdgeInsets.only(bottom: 12.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -625,6 +717,7 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
                   "Terms and Conditions",
                   style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                     fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
@@ -633,13 +726,14 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
                 ),
               ],
             ),
-            UIHelper.verticalSpace(16),
+            UIHelper.verticalSpace(12.h),
             Expanded(
               child: Scrollbar(
                 controller: _scrollController,
                 thumbVisibility: true,
                 child: SingleChildScrollView(
                   controller: _scrollController,
+                  padding: EdgeInsets.only(right: 6.w),
                   child: Text(
                     "Welcome to Team Streak Promo!\n\n"
                     "These terms and conditions outline the rules and regulations for the use of our app.\n\n"
@@ -666,26 +760,65 @@ class _TermsAndConditionsDialogState extends State<_TermsAndConditionsDialog> {
                     "If a provision of these terms and conditions is determined by any court or other competent authority to be unlawful and/or unenforceable, the other provisions will continue in effect.\n\n"
                     "Please scroll to the bottom to agree to the terms.",
                     style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                        .copyWith(color: Colors.white.withValues(alpha: 0.8)),
+                        .copyWith(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          height: 1.5,
+                        ),
                   ),
                 ),
               ),
             ),
-            UIHelper.verticalSpace(16),
-            Opacity(
-              opacity: _isScrolledToBottom ? 1.0 : 0.5,
-              child: CustomGradientButton(
-                onPressed: _isScrolledToBottom ? widget.onAgreed : null,
-                child: Text(
-                  "I have read and agree",
-                  textAlign: TextAlign.center,
-                  style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14.sp,
-                    color: AppColors.c262824,
-                  ),
-                ),
-              ),
+            UIHelper.verticalSpace(16.h),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: _isScrolledToBottom
+                  ? CustomGradientButton(
+                      key: const ValueKey('agree_button'),
+                      onPressed: widget.onAgreed,
+                      height: 52.h,
+                      child: Text(
+                        "I have read and agree",
+                        textAlign: TextAlign.center,
+                        style: TextFontStyle.textStyle16c000000SFPro590.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15.sp,
+                          color: AppColors.c262824,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      key: const ValueKey('scroll_hint'),
+                      height: 52.h,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(26.r),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.arrow_downward_rounded,
+                            color: const Color(0xFFFFAA00),
+                            size: 18.sp,
+                          ),
+                          UIHelper.horizontalSpace(8.w),
+                          Text(
+                            "Please scroll to the bottom to agree",
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),

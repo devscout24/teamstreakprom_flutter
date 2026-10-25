@@ -310,7 +310,7 @@ class WizardStepSix extends StatelessWidget {
                                   ),
                                   Text(
                                     artist.designationController.text.isEmpty
-                                        ? "Designation"
+                                        ? "Artist type/category"
                                         : artist.designationController.text,
                                     style: TextStyle(
                                       fontFamily: "SF Pro",
