@@ -7,6 +7,7 @@ import 'package:teamstreakpromo/common_widgets/custom_gradient_button.dart';
 import '../../auth/widget/custom_selector_field.dart';
 import '../../auth/widget/document_upload_widget.dart';
 import '../model/event_model.dart';
+import 'package:teamstreakpromo/common_widgets/custom_toast.dart';
 
 class WizardStepTwo extends StatelessWidget {
   final TextEditingController startDateController;
@@ -94,6 +95,18 @@ class WizardStepTwo extends StatelessWidget {
                     context,
                     controller: startDateController,
                     hint: "YYYY-MM-DD",
+                    onTap: () => _selectStartDate(context),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Required";
+                      }
+                      final start = _parseDate(value);
+                      final end = _parseDate(endDateController.text);
+                      if (start != null && end != null && start.isAfter(end)) {
+                        return "Must be before end date";
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -109,6 +122,7 @@ class WizardStepTwo extends StatelessWidget {
                     context,
                     controller: startTimeController,
                     hint: "Set time",
+                    onTap: () => _selectStartTime(context),
                   ),
                 ],
               ),
@@ -130,6 +144,18 @@ class WizardStepTwo extends StatelessWidget {
                     context,
                     controller: endDateController,
                     hint: "YYYY-MM-DD",
+                    onTap: () => _selectEndDate(context),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Required";
+                      }
+                      final start = _parseDate(startDateController.text);
+                      final end = _parseDate(value);
+                      if (start != null && end != null && end.isBefore(start)) {
+                        return "Must be after start date";
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -145,6 +171,27 @@ class WizardStepTwo extends StatelessWidget {
                     context,
                     controller: endTimeController,
                     hint: "Set time",
+                    onTap: () => _selectEndTime(context),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Required";
+                      }
+                      final start = _parseDate(startDateController.text);
+                      final end = _parseDate(endDateController.text);
+                      if (start != null &&
+                          end != null &&
+                          start.isAtSameMomentAs(end)) {
+                        final sTime = _parseTime(startTimeController.text);
+                        final eTime = _parseTime(value);
+                        if (sTime != null && eTime != null) {
+                          if ((eTime.hour * 60 + eTime.minute) <=
+                              (sTime.hour * 60 + sTime.minute)) {
+                            return "Must be after start time";
+                          }
+                        }
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -416,7 +463,7 @@ class WizardStepTwo extends StatelessWidget {
         UIHelper.verticalSpace(30),
 
         // Continue Button
-        _buildContinueButton(onContinue),
+        _buildContinueButton(_handleContinue),
         UIHelper.verticalSpace(30),
       ],
     );
@@ -807,37 +854,279 @@ class WizardStepTwo extends StatelessWidget {
     );
   }
 
+  DateTime _stripTime(DateTime dt) {
+    return DateTime(dt.year, dt.month, dt.day);
+  }
+
+  DateTime? _parseDate(String text) {
+    if (text.trim().isEmpty) return null;
+    try {
+      if (text.contains('-')) {
+        final parts = text.trim().split('-');
+        if (parts.length == 3) {
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      } else if (text.contains('/')) {
+        final parts = text.trim().split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  TimeOfDay? _parseTime(String text) {
+    if (text.trim().isEmpty) return null;
+    try {
+      final clean = text.trim().toUpperCase();
+      final isPM = clean.contains('PM');
+      final isAM = clean.contains('AM');
+      final digits = clean.replaceAll(RegExp(r'[^0-9:]'), '');
+      final parts = digits.split(':');
+      if (parts.length >= 2) {
+        int hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        if (isPM && hour < 12) hour += 12;
+        if (isAM && hour == 12) hour = 0;
+        return TimeOfDay(hour: hour, minute: minute);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final today = _stripTime(DateTime.now());
+    final parsedStart = _parseDate(startDateController.text);
+    final parsedEnd = _parseDate(endDateController.text);
+
+    DateTime firstDate = today;
+    if (parsedStart != null && parsedStart.isBefore(today)) {
+      firstDate = parsedStart;
+    }
+
+    // Natural stop mark: Start date cannot be after end date if already chosen
+    DateTime lastDate = DateTime(2035);
+    if (parsedEnd != null && !parsedEnd.isBefore(firstDate)) {
+      lastDate = parsedEnd;
+    }
+
+    DateTime initialDate = firstDate;
+    if (parsedStart != null) {
+      if (parsedStart.isBefore(firstDate)) {
+        initialDate = firstDate;
+      } else if (parsedStart.isAfter(lastDate)) {
+        initialDate = lastDate;
+      } else {
+        initialDate = parsedStart;
+      }
+    }
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      startDateController.text =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+      if (parsedEnd != null && picked.isAtSameMomentAs(parsedEnd)) {
+        _validateTimesIfSameDay();
+      }
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final today = _stripTime(DateTime.now());
+    final parsedStart = _parseDate(startDateController.text);
+    final parsedEnd = _parseDate(endDateController.text);
+
+    if (parsedStart == null) {
+      customToastMessage(
+        "Notice",
+        "Please select a start date first.",
+        isError: false,
+      );
+      _selectStartDate(context);
+      return;
+    }
+
+    // Natural stop mark: End date cannot be before start date
+    DateTime firstDate = parsedStart.isBefore(today) ? today : parsedStart;
+    DateTime lastDate = DateTime(2035);
+
+    DateTime initialDate = firstDate;
+    if (parsedEnd != null) {
+      if (parsedEnd.isBefore(firstDate)) {
+        initialDate = firstDate;
+      } else if (parsedEnd.isAfter(lastDate)) {
+        initialDate = lastDate;
+      } else {
+        initialDate = parsedEnd;
+      }
+    }
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      endDateController.text =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+
+      if (parsedStart.isAtSameMomentAs(picked)) {
+        _validateTimesIfSameDay();
+      }
+    }
+  }
+
+  Future<void> _selectStartTime(BuildContext context) async {
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: _parseTime(startTimeController.text) ?? TimeOfDay.now(),
+    );
+    if (time != null && context.mounted) {
+      final start = _parseDate(startDateController.text);
+      final end = _parseDate(endDateController.text);
+      final eTime = _parseTime(endTimeController.text);
+
+      if (start != null &&
+          end != null &&
+          start.isAtSameMomentAs(end) &&
+          eTime != null) {
+        final startMinutes = time.hour * 60 + time.minute;
+        final endMinutes = eTime.hour * 60 + eTime.minute;
+        if (startMinutes >= endMinutes) {
+          customToastMessage(
+            "Invalid Time",
+            "Start time must be before end time on the same date.",
+            isError: true,
+          );
+          return;
+        }
+      }
+      startTimeController.text =
+          "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: _parseTime(endTimeController.text) ?? TimeOfDay.now(),
+    );
+    if (time != null && context.mounted) {
+      final start = _parseDate(startDateController.text);
+      final end = _parseDate(endDateController.text);
+      final sTime = _parseTime(startTimeController.text);
+
+      if (start != null &&
+          end != null &&
+          start.isAtSameMomentAs(end) &&
+          sTime != null) {
+        final startMinutes = sTime.hour * 60 + sTime.minute;
+        final endMinutes = time.hour * 60 + time.minute;
+        if (endMinutes <= startMinutes) {
+          customToastMessage(
+            "Invalid Time",
+            "End time must be after start time on the same date.",
+            isError: true,
+          );
+          return;
+        }
+      }
+      endTimeController.text =
+          "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    }
+  }
+
+  void _validateTimesIfSameDay() {
+    final sTime = _parseTime(startTimeController.text);
+    final eTime = _parseTime(endTimeController.text);
+    if (sTime != null && eTime != null) {
+      final startMinutes = sTime.hour * 60 + sTime.minute;
+      final endMinutes = eTime.hour * 60 + eTime.minute;
+      if (endMinutes <= startMinutes) {
+        endTimeController.clear();
+        customToastMessage(
+          "Notice",
+          "End time reset because it must be after start time on the same date.",
+          isError: false,
+        );
+      }
+    }
+  }
+
+  void _handleContinue() {
+    final start = _parseDate(startDateController.text);
+    final end = _parseDate(endDateController.text);
+
+    if (start != null && end != null) {
+      if (start.isAfter(end)) {
+        customToastMessage(
+          "Invalid Date",
+          "Start date must be set before end date.",
+          isError: true,
+        );
+        return;
+      }
+      if (start.isAtSameMomentAs(end)) {
+        final sTime = _parseTime(startTimeController.text);
+        final eTime = _parseTime(endTimeController.text);
+        if (sTime != null && eTime != null) {
+          final startMinutes = sTime.hour * 60 + sTime.minute;
+          final endMinutes = eTime.hour * 60 + eTime.minute;
+          if (endMinutes <= startMinutes) {
+            customToastMessage(
+              "Invalid Time",
+              "End time must be after start time on the same date.",
+              isError: true,
+            );
+            return;
+          }
+        }
+      }
+    }
+    onContinue();
+  }
+
   Widget _buildDateField(
     BuildContext context, {
     required TextEditingController controller,
     required String hint,
+    required VoidCallback onTap,
+    String? Function(String?)? validator,
+    VoidCallback? onCleared,
   }) {
     return _buildGradientInputWrapper(
       child: TextFormField(
         controller: controller,
         readOnly: true,
-        onTap: () async {
-          final DateTime? date = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime.now(),
-            lastDate: DateTime(2030),
-          );
-          if (date != null) {
-            controller.text = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-          }
-        },
+        onTap: onTap,
         style: TextStyle(
           fontFamily: "SF Pro",
           fontSize: 14.sp,
           color: Colors.white,
         ),
-        validator: (value) {
-          if (value == null || value.trim().isEmpty) {
-            return "Required";
-          }
-          return null;
-        },
+        validator: validator ??
+            (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Required";
+              }
+              return null;
+            },
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
@@ -845,10 +1134,32 @@ class WizardStepTwo extends StatelessWidget {
             fontSize: 14.sp,
             color: Colors.white.withValues(alpha: 0.3),
           ),
+          prefixIcon: Icon(
+            Icons.calendar_today_outlined,
+            color: Colors.white.withValues(alpha: 0.4),
+            size: 16.w,
+          ),
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, child) {
+              if (value.text.isEmpty) return const SizedBox.shrink();
+              return IconButton(
+                icon: Icon(
+                  Icons.clear,
+                  size: 16.sp,
+                  color: Colors.white.withValues(alpha: 0.4),
+                ),
+                onPressed: () {
+                  controller.clear();
+                  onCleared?.call();
+                },
+              );
+            },
+          ),
           filled: true,
           fillColor: Colors.transparent,
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 16.w,
+            horizontal: 12.w,
             vertical: 16.h,
           ),
           border: InputBorder.none,
@@ -863,31 +1174,27 @@ class WizardStepTwo extends StatelessWidget {
     BuildContext context, {
     required TextEditingController controller,
     required String hint,
+    required VoidCallback onTap,
+    String? Function(String?)? validator,
+    VoidCallback? onCleared,
   }) {
     return _buildGradientInputWrapper(
       child: TextFormField(
         controller: controller,
         readOnly: true,
-        onTap: () async {
-          final TimeOfDay? time = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.now(),
-          );
-          if (time != null) {
-            controller.text = "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
-          }
-        },
+        onTap: onTap,
         style: TextStyle(
           fontFamily: "SF Pro",
           fontSize: 14.sp,
           color: Colors.white,
         ),
-        validator: (value) {
-          if (value == null || value.trim().isEmpty) {
-            return "Required";
-          }
-          return null;
-        },
+        validator: validator ??
+            (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Required";
+              }
+              return null;
+            },
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
@@ -899,6 +1206,23 @@ class WizardStepTwo extends StatelessWidget {
             Icons.access_time_rounded,
             color: Colors.white.withValues(alpha: 0.4),
             size: 16.w,
+          ),
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, child) {
+              if (value.text.isEmpty) return const SizedBox.shrink();
+              return IconButton(
+                icon: Icon(
+                  Icons.clear,
+                  size: 16.sp,
+                  color: Colors.white.withValues(alpha: 0.4),
+                ),
+                onPressed: () {
+                  controller.clear();
+                  onCleared?.call();
+                },
+              );
+            },
           ),
           filled: true,
           fillColor: Colors.transparent,

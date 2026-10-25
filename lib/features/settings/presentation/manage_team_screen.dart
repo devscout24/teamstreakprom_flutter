@@ -168,7 +168,7 @@ class ManageTeamScreen extends StatelessWidget {
               ),
             ),
 
-            // Add New Member Button at the bottom
+            // Add New Team Member Button at the bottom
             Padding(
               padding: EdgeInsets.all(20.w),
               child: CustomGradientButton(
@@ -184,7 +184,7 @@ class ManageTeamScreen extends StatelessWidget {
                     ),
                     UIHelper.horizontalSpace(8.w),
                     Text(
-                      "Add New Member",
+                      "Add new team member",
                       style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
@@ -330,13 +330,9 @@ class ManageTeamScreen extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: const _AddMemberBottomSheet(),
-        );
+        return const _AddMemberBottomSheet();
       },
     );
   }
@@ -354,6 +350,7 @@ class _AddMemberBottomSheetState extends State<_AddMemberBottomSheet> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isDescriptionExpanded = false;
 
   @override
   void dispose() {
@@ -366,129 +363,193 @@ class _AddMemberBottomSheetState extends State<_AddMemberBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: AppColors.c171A20,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24.r),
-          topRight: Radius.circular(24.r),
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final maxHeight = MediaQuery.of(context).size.height * 0.88;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        decoration: BoxDecoration(
+          color: AppColors.c171A20,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24.r),
+            topRight: Radius.circular(24.r),
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Drag handle
-          Container(
-            width: 40.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(100.r),
-            ),
-          ),
-          UIHelper.verticalSpace(16.h),
-
-          // Header with Title and Close Icon
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Invite New Team Member",
-                  style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Fixed top section: Drag handle + Title + Close button
+            Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 12.h, 16.w, 12.h),
+              child: Column(
+                children: [
+                  Container(
+                    width: 44.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
                   ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white.withValues(alpha: 0.5),
-                    size: 24.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          UIHelper.verticalSpace(16.h),
-
-          Text(
-            "Please fill out the field below To give ticket authorizing access to your team members, please fill out the input field below, they will then be sent an authorization email directly. This email will allows your team members to properly handle ticket authorization and scanning",
-            textAlign: TextAlign.center,
-            style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 14.sp,
-              height: 1.5,
-            ),
-          ),
-          UIHelper.verticalSpace(24.h),
-
-          Divider(color: Colors.white.withValues(alpha: 0.1), thickness: 1.h),
-          UIHelper.verticalSpace(24.h),
-
-          // Form Fields
-          CustomTextFormField(
-            controller: _userNameController,
-            hintText: "User Name",
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          UIHelper.verticalSpace(16.h),
-          CustomTextFormField(
-            controller: _emailController,
-            hintText: "Email",
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          UIHelper.verticalSpace(16.h),
-          CustomTextFormField(
-            controller: _passwordController,
-            hintText: "Password",
-            isPassword: true,
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          UIHelper.verticalSpace(16.h),
-          CustomTextFormField(
-            controller: _confirmPasswordController,
-            hintText: "Confirm Password",
-            isPassword: true,
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          UIHelper.verticalSpace(24.h),
-
-          // Info Text
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.info_outline, color: Colors.orange, size: 20.sp),
-              UIHelper.horizontalSpace(12.w),
-              Expanded(
-                child: Text(
-                  "This invitation will remain active for 24 hours enabling each team member to be able to scan and authenticate tickets as well as view active and inactive ticket status, after 24 hours, a new link must be sent to this team members email",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(
-                        color: Colors.orange,
-                        fontSize: 12.sp,
-                        height: 1.5,
+                  UIHelper.verticalSpace(12.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(width: 32),
+                      Text(
+                        "Invite Your Event Team",
+                        style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: EdgeInsets.all(4.r),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white.withValues(alpha: 0.7),
+                            size: 20.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Divider(
+              color: Colors.white.withValues(alpha: 0.08),
+              height: 1.h,
+              thickness: 1.h,
+            ),
+
+            // Scrollable content area
+            Flexible(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isDescriptionExpanded = !_isDescriptionExpanded;
+                        });
+                      },
+                      child: Column(
+                        children: [
+                          Text(
+                            "Please enter the details of your team members below. Once submitted, an individual email invitation will be sent to each person. Accepting the invitation grants them 24-hour access to our authenticated ticket scanner. This tool enables your team to seamlessly validate tickets, track check-ins, and manage entry and denial for your live event.",
+                            textAlign: TextAlign.center,
+                            maxLines: _isDescriptionExpanded ? null : 2,
+                            overflow: _isDescriptionExpanded
+                                ? TextOverflow.visible
+                                : TextOverflow.ellipsis,
+                            style: TextFontStyle
+                                .textStyle14cFFFFFFSFProRounded400
+                                .copyWith(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 13.sp,
+                              height: 1.5,
+                            ),
+                          ),
+                          UIHelper.verticalSpace(4.h),
+                          Text(
+                            _isDescriptionExpanded ? "Show less" : "Read more",
+                            style: TextStyle(
+                              fontFamily: "SF Pro Rounded",
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryColorFirst,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    UIHelper.verticalSpace(20.h),
+
+                    // Form Fields
+                    CustomTextFormField(
+                      controller: _userNameController,
+                      hintText: "User Name",
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    UIHelper.verticalSpace(14.h),
+                    CustomTextFormField(
+                      controller: _emailController,
+                      hintText: "Email",
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    UIHelper.verticalSpace(14.h),
+                    CustomTextFormField(
+                      controller: _passwordController,
+                      hintText: "Password",
+                      isPassword: true,
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    UIHelper.verticalSpace(14.h),
+                    CustomTextFormField(
+                      controller: _confirmPasswordController,
+                      hintText: "Confirm Password",
+                      isPassword: true,
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    UIHelper.verticalSpace(20.h),
+
+                    // Info Card
+                    Container(
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(
+                          color: Colors.orange.withValues(alpha: 0.3),
+                          width: 1.w,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.orange, size: 20.sp),
+                          UIHelper.horizontalSpace(10.w),
+                          Expanded(
+                            child: Text(
+                              "This invitation will remain active for 24 hours enabling each team member to be able to scan and authenticate tickets as well as view active and inactive ticket status, after 24 hours, a new link must be sent to this team members email",
+                              style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
+                                color: Colors.orange,
+                                fontSize: 12.sp,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    UIHelper.verticalSpace(20.h),
+
+                    CustomGradientButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close for now
+                      },
+                      title: "Invite New Team Member",
+                      borderRadius: BorderRadius.circular(100.r),
+                    ),
+                    UIHelper.verticalSpace(16.h),
+                  ],
                 ),
               ),
-            ],
-          ),
-          UIHelper.verticalSpace(24.h),
-
-          CustomGradientButton(
-            onPressed: () {
-              Navigator.pop(context); // Close for now
-            },
-            title: "Invite New Member",
-          ),
-          UIHelper.verticalSpace(24.h),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

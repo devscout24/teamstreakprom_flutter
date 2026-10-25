@@ -51,7 +51,7 @@ class WizardStepOne extends StatelessWidget {
         ),
         UIHelper.verticalSpace(8),
         Text(
-          "Enter your event information to help attendees discover and join your event.",
+          "Enter your event information. This information will be displayed to attendees all across our platform.",
           style: TextStyle(
             fontFamily: "SF Pro",
             fontSize: 14.sp,
@@ -69,7 +69,32 @@ class WizardStepOne extends StatelessWidget {
         UIHelper.verticalSpace(16),
 
         // Event Description field
-        _buildLabel("Event Description"),
+        Padding(
+          padding: EdgeInsets.only(bottom: 8.h),
+          child: Text.rich(
+            TextSpan(
+              text: "Description ",
+              style: TextStyle(
+                fontFamily: "SF Pro Rounded",
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                  text:
+                      "(This information will be displayed to the public after this event has been posted.)",
+                  style: TextStyle(
+                    fontFamily: "SF Pro",
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         _buildTextField(
           controller: eventDescController,
           hint: "Tell attendees about this event ...",
@@ -78,7 +103,7 @@ class WizardStepOne extends StatelessWidget {
         UIHelper.verticalSpace(16),
 
         // Category dropdown selector
-        _buildLabel("Event Category"),
+        _buildLabel("Category"),
         isLoadingCategories
             ? Container(
                 height: 54.h,
@@ -114,7 +139,7 @@ class WizardStepOne extends StatelessWidget {
         UIHelper.verticalSpace(16),
 
         // Subcategory dropdown selector
-        _buildLabel("Event Subcategory"),
+        _buildLabel("Subcategory"),
         isLoadingSubcategories
             ? Container(
                 height: 54.h,

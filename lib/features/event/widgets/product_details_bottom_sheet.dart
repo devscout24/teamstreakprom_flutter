@@ -226,7 +226,7 @@ void showProductDetailsBottomSheet({
                     ),
                     UIHelper.horizontalSpace(8.w),
                     Text(
-                      "${product.stock} reward remaining",
+                      "${product.stock} rewards are remaining",
                       style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
                           .copyWith(
                             color: AppColors.primaryColorFirst,

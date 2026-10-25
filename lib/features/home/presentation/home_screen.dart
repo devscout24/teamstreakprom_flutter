@@ -27,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategoryIndex = 0;
+  int _refreshTimestamp = DateTime.now().millisecondsSinceEpoch;
 
   @override
   void initState() {
@@ -47,6 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onRefresh() async {
+    setState(() {
+      _refreshTimestamp = DateTime.now().millisecondsSinceEpoch;
+    });
     userProfileRxObj.fetchUserProfile();
     getCategoriesRxObj.fetchCategories();
     await _initEvents();
@@ -560,16 +564,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: dataList.length,
                         itemBuilder: (context, index) {
                           final category = dataList[index];
-                          if (category.id == null)
+                          if (category.id == null) {
                             return const SizedBox.shrink();
+                          }
 
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 24.h),
-                            child: CategoryEventsRow(
-                              categoryId: category.id!,
-                              categoryName: category.name ?? 'Events',
-                              seed: authMeData?.id,
-                            ),
+                          return CategoryEventsRow(
+                            key: ValueKey('${category.id}_$_refreshTimestamp'),
+                            categoryId: category.id!,
+                            categoryName: category.name ?? 'Events',
+                            seed: authMeData?.id,
                           );
                         },
                       );

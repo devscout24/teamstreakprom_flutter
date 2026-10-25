@@ -282,8 +282,8 @@ class WizardStepThree extends StatelessWidget {
         ),
         UIHelper.verticalSpace(16),
 
-        // Designation
-        _buildLabel("Designation"),
+        // Artist type/category
+        _buildLabel("Artist type/category"),
         _buildTextField(
           controller: artist.designationController,
           hint: "e.g. Singer / Guitarist",

@@ -88,7 +88,22 @@ class _EarningOverviewScreenState extends State<EarningOverviewScreen> {
                       title: "Request Withdrawal",
                       borderRadius: BorderRadius.circular(16.r),
                     ),
-                    UIHelper.verticalSpace(40),
+                    UIHelper.verticalSpace(12.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Text(
+                        "Please allow us 1-3 business days for Streak to process all withdrawal requests",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: "SF Pro",
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.6),
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    UIHelper.verticalSpace(30.h),
                   ],
                 ),
               ),

@@ -90,121 +90,112 @@ class _CategoryEventsRowState extends State<CategoryEventsRow> {
 
   @override
   Widget build(BuildContext context) {
+    if (_events.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                widget.categoryName,
-                style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PopularEventsScreen(
-                        categoryId: widget.categoryId,
-                        categoryName: widget.categoryName,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  "See All",
-                  style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
-                      .copyWith(
-                        color: AppColors.cFFFFFF,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12.sp,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.cFFFFFF,
-                      ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        UIHelper.verticalSpace(16.h),
-        SizedBox(
-          height: _events.isEmpty && !_isLoading ? 100.h : 500.h,
-          child: _events.isEmpty && _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryColorFirst,
+    return Padding(
+      padding: EdgeInsets.only(bottom: 24.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.categoryName,
+                  style: TextFontStyle.textStyle24cFFFFFFSFPro590.copyWith(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
                   ),
-                )
-              : _events.isEmpty
-                  ? Center(
-                      child: Text(
-                        "No events available.",
-                        style: TextFontStyle.textStyle14cFFFFFFSFProRounded400.copyWith(
-                          color: Colors.white.withValues(alpha: 0.5),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PopularEventsScreen(
+                          categoryId: widget.categoryId,
+                          categoryName: widget.categoryName,
                         ),
                       ),
-                    )
-                  : CarouselSlider.builder(
-                      itemCount: _events.length,
-                      options: CarouselOptions(
-                        height: 500.h,
-                        viewportFraction: 0.76,
-                        enlargeCenterPage: true,
-                        enlargeFactor: 0.2,
-                        enlargeStrategy: CenterPageEnlargeStrategy.zoom,
-                        enableInfiniteScroll: false,
-                        autoPlay: false,
-                        padEnds: true,
-                        onPageChanged: (index, reason) {
-                          if (index >= _events.length - 2 &&
-                              !_isLoading &&
-                              _hasMore) {
-                            _fetchEvents();
-                          }
-                        },
-                      ),
-                      itemBuilder: (context, index, realIndex) {
-                        final event = _events[index];
-                        String formattedDate = '';
-                        if (event.startDate != null) {
-                          formattedDate = DateFormat(
-                            'MMM d · h:mm a',
-                          ).format(event.startDate!).toUpperCase();
-                        }
+                    );
+                  },
+                  child: Text(
+                    "See All",
+                    style: TextFontStyle.textStyle14cFFFFFFSFProRounded400
+                        .copyWith(
+                          color: AppColors.cFFFFFF,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.sp,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.cFFFFFF,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          UIHelper.verticalSpace(16.h),
+          SizedBox(
+            height: 500.h,
+            child: CarouselSlider.builder(
+              itemCount: _events.length,
+              options: CarouselOptions(
+                height: 500.h,
+                viewportFraction: 0.76,
+                enlargeCenterPage: true,
+                enlargeFactor: 0.2,
+                enlargeStrategy: CenterPageEnlargeStrategy.zoom,
+                enableInfiniteScroll: false,
+                autoPlay: false,
+                padEnds: true,
+                onPageChanged: (index, reason) {
+                  if (index >= _events.length - 2 &&
+                      !_isLoading &&
+                      _hasMore) {
+                    _fetchEvents();
+                  }
+                },
+              ),
+              itemBuilder: (context, index, realIndex) {
+                final event = _events[index];
+                String formattedDate = '';
+                if (event.startDate != null) {
+                  formattedDate = DateFormat(
+                    'MMM d · h:mm a',
+                  ).format(event.startDate!).toUpperCase();
+                }
 
-                        String imgUrl =
-                            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"; // fallback
-                        if (event.images != null && event.images!.isNotEmpty) {
-                          imgUrl = event.images!.first;
-                        }
+                String imgUrl =
+                    "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80"; // fallback
+                if (event.images != null && event.images!.isNotEmpty) {
+                  imgUrl = event.images!.first;
+                }
 
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6.w),
-                          child: EventCard(
-                            width: double.infinity,
-                            title: event.title ?? 'No Title',
-                            location: event.placeName ?? 'No Location',
-                            date: formattedDate,
-                            price: event.ticketPrice != null
-                                ? "\$${event.ticketPrice!.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}"
-                                : "Free",
-                            imageUrl: imgUrl,
-                            isOverlayStyle: false,
-                            eventId: event.id,
-                            onBuyPressed: () {},
-                          ),
-                        );
-                      },
-                    ),
-        ),
-      ],
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
+                  child: EventCard(
+                    width: double.infinity,
+                    title: event.title ?? 'No Title',
+                    location: event.placeName ?? 'No Location',
+                    date: formattedDate,
+                    price: event.ticketPrice != null
+                        ? "\$${event.ticketPrice!.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), '')}"
+                        : "Free",
+                    imageUrl: imgUrl,
+                    isOverlayStyle: false,
+                    eventId: event.id,
+                    onBuyPressed: () {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

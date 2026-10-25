@@ -1266,7 +1266,7 @@ class _CreateEventWizardState extends State<CreateEventWizard> {
 
         // Title
         Text(
-          "Create Event",
+          "Create your live event",
           style: TextStyle(
             fontFamily: "SF Pro Rounded",
             fontSize: 20.sp,

@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teamstreakpromo/features/settings/presentation/settings_screen.dart';
 import 'package:teamstreakpromo/gen/colors.gen.dart';
 import 'package:teamstreakpromo/helpers/ui_helpers.dart';
-import 'package:teamstreakpromo/common_widgets/host_app_bar.dart';
 
 import 'business_partner_home/presentation/business_partner_home_screen.dart';
 import 'business_partner_rewards/presentation/business_partner_rewards_screen.dart';
@@ -61,7 +60,7 @@ class _BusinessPartnerNavbarScreenState
               _buildTabItem(
                 index: 2,
                 iconPath: "assets/icons/claim_icon.png",
-                label: "Claim",
+                label: "Claimed rewards",
               ),
               _buildTabItem(
                 index: 3,

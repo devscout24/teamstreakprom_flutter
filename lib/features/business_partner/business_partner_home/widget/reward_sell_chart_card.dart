@@ -118,15 +118,18 @@ class _RewardSellChartCardState extends State<RewardSellChartCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Reward Sell",
-                style: TextStyle(
-                  fontFamily: "SF Pro Rounded",
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+              Expanded(
+                child: Text(
+                  "Reward Marketplace statistics",
+                  style: TextStyle(
+                    fontFamily: "SF Pro Rounded",
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
+              UIHelper.horizontalSpace(8),
               // Dropdown selection pill using PopupMenuButton
               PopupMenuButton<String>(
                 onSelected: (value) {

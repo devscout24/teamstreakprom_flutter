@@ -60,7 +60,7 @@ class WizardStepFour extends StatelessWidget {
                   ),
                   UIHelper.verticalSpace(8),
                   Text(
-                    "Create an exclusive reward to encourage more ticket purchases.",
+                    "Create and add exclusive rewards that can be unlocked with Streak Points. Streak Points are obtained per ticket purchased, as well as when attendees send invitation ticket links to their friends. For every referral link sent and purchased, that attendee will receive one Streak Point, thus getting them closer to unlocking your exclusive rewards.",
                     style: TextStyle(
                       fontFamily: "SF Pro",
                       fontSize: 14.sp,
